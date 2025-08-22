@@ -101,7 +101,7 @@ def send_api_request(prompt, max_tokens=3000, temperature=0.3, task_type='cv_opt
 
     try:
         logger.debug("Wysyłanie zapytania do OpenRouter API")
-        response = requests.post(OPENROUTER_BASE_URL, headers=headers, json=payload, timeout=60)
+        response = requests.post(OPENROUTER_BASE_URL, headers=headers, json=payload, timeout=120)
         response.raise_for_status()
 
         result = response.json()
@@ -185,43 +185,29 @@ def check_keywords_match(cv_text, job_description):
         return None
 
 def optimize_cv(cv_text, job_title, job_description=""):
-    """Enhanced CV optimization with multi-step analysis"""
+    """Simplified CV optimization to avoid timeout"""
     
-    # Krok 1: Analiza jakości CV
-    score_analysis = analyze_cv_score(cv_text, job_description)
-    
-    # Krok 2: Analiza słów kluczowych (jeśli jest opis stanowiska)
-    keyword_analysis = ""
-    if job_description:
-        keyword_analysis = check_keywords_match(cv_text, job_description)
-    
-    # Krok 3: Główna optymalizacja CV
+    # Pojedyncze zapytanie optymalizacyjne
     main_prompt = f"""
-    Na podstawie kompleksowej analizy, stwórz zoptymalizowane CV:
+    Stwórz zoptymalizowane CV na podstawie poniższych danych:
 
     ORYGINALNE CV:
     {cv_text}
 
     STANOWISKO: {job_title}
 
-    OPIS STANOWISKA/OGŁOSZENIA:
+    OPIS STANOWISKA:
     {job_description}
-
-    {"ANALIZA JAKOŚCI CV: " + str(score_analysis) if score_analysis else ""}
-    
-    {"ANALIZA SŁÓW KLUCZOWYCH: " + str(keyword_analysis) if keyword_analysis else ""}
 
     Zadanie: Stwórz całkowicie nowe, zoptymalizowane CV które:
 
     1. **Zachowuje wszystkie prawdziwe informacje** z oryginalnego CV
-    2. **Implementuje rekomendacje** z analizy jakości
-    3. **Włącza brakujące słowa kluczowe** w naturalny sposób
-    4. **Reorganizuje treść** dla maksymalnej skuteczności
-    5. **Dostosowuje język** do branży i stanowiska
-    6. **Podkreśla najważniejsze umiejętności** dla tej roli
-    7. **Optymalizuje pod systemy ATS**
+    2. **Dostosowuje język** do branży i stanowiska {job_title}
+    3. **Reorganizuje treść** dla maksymalnej skuteczności
+    4. **Podkreśla najważniejsze umiejętności** dla tej roli
+    5. **Optymalizuje pod systemy ATS**
 
-    ZAAWANSOWANA STRUKTURA CV:
+    STRUKTURA CV:
     - **DANE KONTAKTOWE**
     - **PROFIL ZAWODOWY** (3-4 zdania dopasowane do stanowiska)
     - **NAJWAŻNIEJSZE UMIEJĘTNOŚCI** (priorytet dla wymagań)
@@ -229,23 +215,19 @@ def optimize_cv(cv_text, job_title, job_description=""):
     - **WYKSZTAŁCENIE**
     - **CERTYFIKATY I KURSY** (jeśli są)
     - **JĘZYKI OBCE** (jeśli są)
-    - **DODATKOWE INFORMACJE** (jeśli odpowiednie)
 
-    WYMAGANIA JAKOŚCI:
+    WYMAGANIA:
     - Używaj **pogrubienia** dla nagłówków sekcji
     - Używaj • dla list osiągnięć
-    - Każda pozycja zawodowa: **Stanowisko** | Firma | Daty | Lista osiągnięć
-    - Konkretne liczby i rezultaty (% wzrost, liczba projektów, itp.)
+    - Konkretne liczby i rezultaty
     - Aktywne czasowniki (zarządzał, wdrożył, zoptymalizował)
-    - Słowa kluczowe z branży i stanowiska
-
-    🎯 CEL: Stwórz CV które przejdzie przez systemy ATS i przekona rekrutera w 30 sekund!
+    - Słowa kluczowe z branży
 
     ⚠️ KRYTYCZNE: NIE DODAWAJ żadnych informacji, których nie ma w oryginalnym CV!
     """
 
     try:
-        optimized_cv = send_api_request(main_prompt, max_tokens=4000, temperature=0.3, task_type='cv_optimization')
+        optimized_cv = send_api_request(main_prompt, max_tokens=3000, temperature=0.3, task_type='cv_optimization')
         return optimized_cv
     except Exception as e:
         logger.error(f"Błąd optymalizacji CV: {str(e)}")

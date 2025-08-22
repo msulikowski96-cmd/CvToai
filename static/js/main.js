@@ -13,13 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function initializeApp() {
     console.log('🚀 CV Optimizer Pro initialized');
-    
+
     // Check for session storage cleanup
     cleanupOldSessions();
-    
+
     // Setup event listeners
     setupGlobalEventListeners();
-    
+
     // Initialize tooltips
     initializeTooltips();
 }
@@ -34,7 +34,7 @@ function setupGlobalEventListeners() {
             handleAction(e.target.dataset.action, e.target);
         }
     });
-    
+
     // Handle keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         // Ctrl/Cmd + Enter to submit form
@@ -52,7 +52,7 @@ function setupGlobalEventListeners() {
  */
 function setupFormValidation() {
     const forms = document.querySelectorAll('form[data-validate]');
-    
+
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
             if (!validateForm(form)) {
@@ -60,7 +60,7 @@ function setupFormValidation() {
                 showToast('error', 'Proszę wypełnić wszystkie wymagane pola poprawnie.');
             }
         });
-        
+
         // Real-time validation
         const inputs = form.querySelectorAll('input, textarea, select');
         inputs.forEach(input => {
@@ -76,13 +76,13 @@ function setupFormValidation() {
 function validateForm(form) {
     let isValid = true;
     const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
-    
+
     inputs.forEach(input => {
         if (!validateField(input)) {
             isValid = false;
         }
     });
-    
+
     return isValid;
 }
 
@@ -93,13 +93,13 @@ function validateField(input) {
     const value = input.value.trim();
     let isValid = true;
     let errorMessage = '';
-    
+
     // Check if required field is empty
     if (input.hasAttribute('required') && !value) {
         isValid = false;
         errorMessage = 'To pole jest wymagane.';
     }
-    
+
     // Check specific field types
     if (value && input.type) {
         switch (input.type) {
@@ -109,7 +109,7 @@ function validateField(input) {
                     errorMessage = 'Nieprawidłowy format adresu email.';
                 }
                 break;
-                
+
             case 'file':
                 if (input.files.length > 0) {
                     const file = input.files[0];
@@ -121,14 +121,14 @@ function validateField(input) {
                 break;
         }
     }
-    
+
     // Show/hide error
     if (isValid) {
         clearFieldError(input);
     } else {
         showFieldError(input, errorMessage);
     }
-    
+
     return isValid;
 }
 
@@ -137,13 +137,13 @@ function validateField(input) {
  */
 function showFieldError(input, message) {
     clearFieldError(input);
-    
+
     input.classList.add('is-invalid');
-    
+
     const errorDiv = document.createElement('div');
     errorDiv.className = 'invalid-feedback';
     errorDiv.textContent = message;
-    
+
     input.parentNode.appendChild(errorDiv);
 }
 
@@ -163,7 +163,7 @@ function clearFieldError(input) {
  */
 function setupFileUpload() {
     const fileInputs = document.querySelectorAll('input[type="file"]');
-    
+
     fileInputs.forEach(input => {
         setupDragAndDrop(input);
         setupFilePreview(input);
@@ -176,23 +176,23 @@ function setupFileUpload() {
  */
 function setupDragAndDrop(input) {
     const container = input.closest('.file-upload-container') || input.parentNode;
-    
+
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         container.addEventListener(eventName, preventDefaults, false);
     });
-    
+
     ['dragenter', 'dragover'].forEach(eventName => {
         container.addEventListener(eventName, () => {
             container.classList.add('dragover');
         }, false);
     });
-    
+
     ['dragleave', 'drop'].forEach(eventName => {
         container.addEventListener(eventName, () => {
             container.classList.remove('dragover');
         }, false);
     });
-    
+
     container.addEventListener('drop', (e) => {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
@@ -228,7 +228,7 @@ function setupFilePreview(input) {
 function showFilePreview(file, input) {
     const previewContainer = input.parentNode.querySelector('.file-preview') ||
                            createFilePreviewContainer(input);
-    
+
     previewContainer.innerHTML = `
         <div class="file-info d-flex align-items-center">
             <i class="bi bi-file-pdf text-danger fs-3 me-3"></i>
@@ -241,7 +241,7 @@ function showFilePreview(file, input) {
             </button>
         </div>
     `;
-    
+
     previewContainer.style.display = 'block';
 }
 
@@ -252,7 +252,7 @@ function createFilePreviewContainer(input) {
     const container = document.createElement('div');
     container.className = 'file-preview mt-2 p-3 border rounded';
     container.style.display = 'none';
-    
+
     input.parentNode.appendChild(container);
     return container;
 }
@@ -263,7 +263,7 @@ function createFilePreviewContainer(input) {
 function clearFile(button) {
     const previewContainer = button.closest('.file-preview');
     const input = previewContainer.parentNode.querySelector('input[type="file"]');
-    
+
     input.value = '';
     previewContainer.style.display = 'none';
 }
@@ -286,19 +286,19 @@ function setupFileValidation(input) {
 function validateFileUpload(file, input) {
     const maxSize = 16 * 1024 * 1024; // 16MB
     const allowedTypes = ['application/pdf'];
-    
+
     if (file.size > maxSize) {
         showToast('error', 'Plik jest za duży. Maksymalny rozmiar to 16MB.');
         input.value = '';
         return false;
     }
-    
+
     if (!allowedTypes.includes(file.type)) {
         showToast('error', 'Dozwolone są tylko pliki PDF.');
         input.value = '';
         return false;
     }
-    
+
     return true;
 }
 
@@ -319,7 +319,7 @@ function createToastContainer() {
     const container = document.createElement('div');
     container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
     container.style.zIndex = '9999';
-    
+
     document.body.appendChild(container);
 }
 
@@ -329,22 +329,22 @@ function createToastContainer() {
 function showToast(type, message, duration = 5000) {
     const container = document.querySelector('.toast-container');
     const toastId = 'toast-' + Date.now();
-    
+
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.id = toastId;
     toast.setAttribute('role', 'alert');
     toast.setAttribute('aria-live', 'assertive');
     toast.setAttribute('aria-atomic', 'true');
-    
+
     const bgClass = type === 'success' ? 'bg-success' : 
                    type === 'error' ? 'bg-danger' : 
                    type === 'warning' ? 'bg-warning' : 'bg-info';
-    
+
     const icon = type === 'success' ? 'check-circle-fill' :
                 type === 'error' ? 'exclamation-triangle-fill' :
                 type === 'warning' ? 'exclamation-triangle-fill' : 'info-circle-fill';
-    
+
     toast.innerHTML = `
         <div class="toast-header ${bgClass} text-white">
             <i class="bi bi-${icon} me-2"></i>
@@ -357,20 +357,20 @@ function showToast(type, message, duration = 5000) {
             ${message}
         </div>
     `;
-    
+
     container.appendChild(toast);
-    
+
     const bsToast = new bootstrap.Toast(toast, {
         delay: duration
     });
-    
+
     bsToast.show();
-    
+
     // Remove toast element after it's hidden
     toast.addEventListener('hidden.bs.toast', () => {
         toast.remove();
     });
-    
+
     return bsToast;
 }
 
@@ -383,7 +383,7 @@ function setupAnimations() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -391,12 +391,12 @@ function setupAnimations() {
             }
         });
     }, observerOptions);
-    
+
     // Observe elements with animation classes
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
         observer.observe(el);
     });
-    
+
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
@@ -474,18 +474,18 @@ async function copyTextToClipboard(text) {
 function downloadText(text, filename = 'download.txt') {
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     a.style.display = 'none';
-    
+
     document.body.appendChild(a);
     a.click();
-    
+
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-    
+
     showToast('success', 'Plik został pobrany!');
 }
 
@@ -508,7 +508,7 @@ function scrollToElement(selector) {
 function cleanupOldSessions() {
     const now = Date.now();
     const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-    
+
     for (let key in localStorage) {
         if (key.startsWith('cv-session-')) {
             try {
@@ -535,7 +535,7 @@ function isValidEmail(email) {
 
 function isValidFile(file, accept) {
     if (!accept) return true;
-    
+
     const acceptedTypes = accept.split(',').map(type => type.trim());
     return acceptedTypes.some(type => {
         if (type.startsWith('.')) {
@@ -548,11 +548,11 @@ function isValidFile(file, accept) {
 
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
@@ -579,6 +579,19 @@ function throttle(func, limit) {
             setTimeout(() => inThrottle = false, limit);
         }
     };
+}
+
+// Service Worker Registration (for offline support)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/service-worker.js')
+            .then(registration => {
+                console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
 }
 
 // Global error handler

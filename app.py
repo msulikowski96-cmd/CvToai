@@ -223,21 +223,6 @@ def optimize_cv_route():
         cv_sessions[session_id]['optimized_cv'] = optimized_cv
         cv_sessions[session_id]['optimized_at'] = datetime.now()
         
-        # Add CV quality analysis
-        try:
-            cv_analysis = analyze_cv_score(session_data['cv_text'], session_data['job_description'])
-            cv_sessions[session_id]['cv_analysis'] = cv_analysis
-        except Exception as e:
-            logger.warning(f"Nie udało się wykonać analizy CV: {str(e)}")
-        
-        # Add keyword analysis if job description provided
-        if session_data.get('job_description'):
-            try:
-                keyword_analysis = check_keywords_match(session_data['cv_text'], session_data['job_description'])
-                cv_sessions[session_id]['keyword_analysis'] = keyword_analysis
-            except Exception as e:
-                logger.warning(f"Nie udało się wykonać analizy słów kluczowych: {str(e)}")
-        
         return jsonify({
             'success': True,
             'optimized_cv': optimized_cv,
