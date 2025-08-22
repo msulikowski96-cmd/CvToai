@@ -94,6 +94,10 @@ def send_api_request(prompt, max_tokens=3000, temperature=0.7):
 
 def optimize_cv(cv_text, job_title, job_description=""):
     """Optimize CV for specific position"""
+    # Demo mode if no API key
+    if not API_KEY_VALID:
+        return generate_demo_cv_optimization(cv_text, job_title, job_description)
+    
     prompt = f"""
     Stwórz całkowicie nowe, zoptymalizowane CV na podstawie poniższych informacji.
 
@@ -140,3 +144,36 @@ def optimize_cv(cv_text, job_title, job_description=""):
     except Exception as e:
         logger.error(f"Błąd optymalizacji CV: {str(e)}")
         return None
+
+def generate_demo_cv_optimization(cv_text, job_title, job_description=""):
+    """Generate demo CV optimization when API key is not available"""
+    return f"""
+**DEMO: ZOPTYMALIZOWANE CV dla stanowiska {job_title}**
+
+*To jest przykład optymalizacji CV. Aby otrzymać pełną optymalizację AI, skonfiguruj OPENROUTER_API_KEY.*
+
+---
+
+**PROFIL ZAWODOWY**
+[Bazując na przesłanym CV] - profesjonalista z doświadczeniem dopasowanym do wymagań stanowiska {job_title}. 
+
+**DOŚWIADCZENIE ZAWODOWE**
+[Zreorganizowane informacje z oryginalnego CV z fokusem na umiejętności wymagane dla {job_title}]
+
+**UMIEJĘTNOŚCI KLUCZOWE**
+• Umiejętności techniczne dopasowane do {job_title}
+• Doświadczenie branżowe zgodne z wymaganiami
+• Kompetencje miękkie ważne dla tej roli
+
+**WYKSZTAŁCENIE**
+[Informacje o wykształceniu z oryginalnego CV]
+
+**JĘZYKI OBCE**
+[Jeśli występują w oryginalnym CV]
+
+---
+*UWAGA: To jest wersja demonstracyjna. Pełna optymalizacja AI wymaga konfiguracji klucza API.*
+
+**ORYGINALNE CV:**
+{cv_text[:500]}...
+"""

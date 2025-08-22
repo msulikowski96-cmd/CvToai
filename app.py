@@ -68,7 +68,7 @@ def upload_cv():
         if not job_title:
             return jsonify({'success': False, 'message': 'Nazwa stanowiska jest wymagana'})
         
-        if file and allowed_file(file.filename):
+        if file and file.filename and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(file_path)
