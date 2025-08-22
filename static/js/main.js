@@ -581,24 +581,38 @@ function throttle(func, limit) {
     };
 }
 
-// Service Worker Registration (for offline support)
-if ('serviceWorker' in navigator) {
+// Service Worker Registration (for offline support) - with better error handling
+if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/static/service-worker.js')
             .then(function(registration) {
-                console.log('SW registered successfully:', registration.scope);
-                return registration.update();
-            })
-            .then(function() {
-                console.log('SW updated');
+                console.log('SW registered successfully');
+                
+                // Sprawdź aktualizacje co minutę
+                setInterval(function() {
+                    registration.update();
+                }, 60000);
+                
+                // Obsługa aktualizacji
+                registration.addEventListener('updatefound', function() {
+                    const newWorker = registration.installing;
+                    if (newWorker) {
+                        newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nowa wersja dostępna
+                                console.log('SW: New version available');
+                            }
+                        });
+                    }
+                });
             })
             .catch(function(error) {
-                console.warn('SW registration failed:', error.message);
-                // Nie blokuj aplikacji gdy SW się nie zarejestuje
+                console.warn('SW registration failed - app will work without offline support');
+                // Aplikacja działa normalnie bez SW
             });
     });
 } else {
-    console.log('Service Worker not supported');
+    console.log('Service Worker not supported or not HTTPS');
 }
 
 // Global error handler

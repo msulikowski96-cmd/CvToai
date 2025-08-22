@@ -192,61 +192,116 @@
     animation: pulse 2s infinite;
 }
 
-/* CV content styling */
+/* CV content styling - wysokiy kontrast i czytelność */
 .formatted-cv {
-    font-family: 'Georgia', serif;
-    line-height: 1.6;
-    color: var(--bs-body-color);
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    line-height: 1.7;
+    color: #1a1a1a !important;
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    font-size: 15px;
 }
 
 .formatted-cv h1, .formatted-cv h2, .formatted-cv h3 {
-    color: var(--bs-primary);
-    margin-top: 1.5rem;
+    color: #2c3e50 !important;
+    margin-top: 1.8rem;
     margin-bottom: 1rem;
-    font-weight: 600;
+    font-weight: 700;
+    text-shadow: none;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
 }
 
-/* Nagłówki pozycji/firm - wyróżnione ale nie tak jak główne sekcje */
+.formatted-cv h1 {
+    font-size: 1.8rem;
+    color: #1a1a1a !important;
+    border-bottom: 3px solid #007bff;
+}
+
+.formatted-cv h2 {
+    font-size: 1.4rem;
+    color: #2c3e50 !important;
+}
+
+.formatted-cv h3 {
+    font-size: 1.2rem;
+    color: #495057 !important;
+}
+
+/* Nagłówki pozycji/firm - bardzo wyraźne */
 .formatted-cv strong {
-    color: #2c3e50;
-    font-weight: 600;
+    color: #1a1a1a !important;
+    font-weight: 700;
+    font-size: 1.05em;
 }
 
-/* Główny tekst zawartości - ciemny i czytelny */
-.formatted-cv p, .formatted-cv li, .formatted-cv span {
-    color: #333333 !important;
-    font-weight: normal;
+/* Główny tekst zawartości - maksymalny kontrast */
+.formatted-cv p, .formatted-cv li, .formatted-cv span, .formatted-cv div {
+    color: #1a1a1a !important;
+    font-weight: 400;
+    opacity: 1;
+    text-shadow: none;
+    background: transparent;
 }
 
 /* Specjalne formatowanie dla umiejętności i kluczowych punktów */
-.formatted-cv ul li::marker {
-    color: var(--bs-primary);
-}
-
 .formatted-cv ul {
     padding-left: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .formatted-cv li {
-    margin-bottom: 0.5rem;
-    color: #333333;
+    margin-bottom: 0.7rem;
+    color: #1a1a1a !important;
+    line-height: 1.6;
+}
+
+.formatted-cv ul li::marker {
+    color: #007bff;
+    font-weight: bold;
 }
 
 /* Daty i informacje pomocnicze */
 .formatted-cv em, .formatted-cv i {
-    color: #666666;
+    color: #495057 !important;
     font-style: italic;
+    font-weight: 500;
 }
 
 /* Linki i kontakt */
 .formatted-cv a {
-    color: var(--bs-info);
-    text-decoration: none;
+    color: #007bff !important;
+    text-decoration: underline;
+    font-weight: 500;
 }
 
 .formatted-cv a:hover {
-    color: var(--bs-primary);
+    color: #0056b3 !important;
     text-decoration: underline;
+}
+
+/* Usuwamy wszystkie potencjalne przezroczystości */
+.formatted-cv * {
+    opacity: 1 !important;
+    background: transparent !important;
+}
+
+/* Sekcje CV z lepszym kontrastem */
+.formatted-cv .cv-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Dodatkowe wzmocnienie kontrastu dla wszystkich elementów */
+.card .formatted-cv,
+.card-body .formatted-cv,
+#optimizedCvText,
+#optimizedCvText * {
+    color: #1a1a1a !important;
+    opacity: 1 !important;
+    background: #ffffff !important;
 }
 
 /* Original CV display */

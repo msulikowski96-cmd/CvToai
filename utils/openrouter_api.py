@@ -122,11 +122,17 @@ PRZYKŁADY TRANSFORMACJI:
 
     try:
         logger.debug("Wysyłanie zapytania do OpenRouter API")
+        logger.debug(f"URL: {OPENROUTER_BASE_URL}")
+        logger.debug(f"Headers: {headers}")
+        logger.debug(f"Payload size: {len(str(payload))} characters")
+        
         response = requests.post(OPENROUTER_BASE_URL, headers=headers, json=payload, timeout=180)
+        logger.debug(f"Response status: {response.status_code}")
         response.raise_for_status()
 
         result = response.json()
         logger.debug("Otrzymano odpowiedź z OpenRouter API")
+        logger.debug(f"Response length: {len(result.get('choices', [{}])[0].get('message', {}).get('content', ''))}")
 
         if 'choices' in result and len(result['choices']) > 0:
             return result['choices'][0]['message']['content']

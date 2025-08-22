@@ -284,43 +284,67 @@ function showToast(type, message) {
     toast.show();
 }
 
-// Format the CV text for better readability
+// Format the CV text for maximum readability and contrast
 document.addEventListener('DOMContentLoaded', function() {
     const cvText = document.getElementById('optimizedCvText');
     if (cvText) {
+        // Wymuszenie maksymalnego kontrastu na całym kontenerze
+        cvText.style.backgroundColor = '#ffffff';
+        cvText.style.color = '#1a1a1a';
+        cvText.style.opacity = '1';
+        
         // Convert markdown-like formatting to HTML
         let content = cvText.innerHTML;
         
-        // Convert **bold** to <strong> for company names and job titles
-        content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Convert **bold** to <strong> with dark color
+        content = content.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #1a1a1a !important; font-weight: 700;">$1</strong>');
         
-        // Convert bullet points and ensure proper text color
-        content = content.replace(/^• /gm, '<li style="color: #333333;">');
-        content = content.replace(/\n\n/g, '</li></ul><p></p><ul><li style="color: #333333;">');
+        // Convert bullet points with dark color
+        content = content.replace(/^• /gm, '<li style="color: #1a1a1a !important; margin-bottom: 0.5rem;">');
+        content = content.replace(/\n\n/g, '</li></ul><p style="color: #1a1a1a !important;"></p><ul><li style="color: #1a1a1a !important;">');
         
         // Wrap in proper HTML structure
         if (content.includes('<li>')) {
-            content = '<ul>' + content + '</li></ul>';
+            content = '<ul style="color: #1a1a1a !important;">' + content + '</li></ul>';
         }
         
-        // Convert line breaks to paragraphs with proper styling
+        // Convert line breaks to paragraphs with dark color
         content = content.replace(/\n/g, '<br>');
         
-        // Ensure paragraphs have proper text color
-        content = content.replace(/<p>/g, '<p style="color: #333333;">');
+        // Ensure all paragraphs are dark
+        content = content.replace(/<p>/g, '<p style="color: #1a1a1a !important; opacity: 1 !important;">');
         
-        // Fix any spans that might have wrong colors
-        content = content.replace(/<span[^>]*>/g, '<span style="color: #333333;">');
+        // Fix spans with proper dark color
+        content = content.replace(/<span[^>]*>/g, '<span style="color: #1a1a1a !important; opacity: 1 !important;">');
         
         cvText.innerHTML = content;
         
-        // Additional formatting for better readability
-        const allTextNodes = cvText.querySelectorAll('p, li, span, div');
-        allTextNodes.forEach(node => {
-            if (!node.querySelector('strong') && !node.classList.contains('section-header')) {
-                node.style.color = '#333333';
+        // Force maximum contrast on ALL elements
+        const allElements = cvText.querySelectorAll('*');
+        allElements.forEach(element => {
+            element.style.color = '#1a1a1a';
+            element.style.opacity = '1';
+            element.style.background = 'transparent';
+            
+            // Special handling for headers
+            if (element.tagName && element.tagName.match(/^H[1-6]$/)) {
+                element.style.color = '#2c3e50';
+                element.style.fontWeight = '700';
+            }
+            
+            // Special handling for strong elements
+            if (element.tagName === 'STRONG') {
+                element.style.color = '#1a1a1a';
+                element.style.fontWeight = '700';
             }
         });
+        
+        // Final pass - ensure the container and all content is visible
+        setTimeout(function() {
+            cvText.style.filter = 'none';
+            cvText.style.opacity = '1';
+            cvText.style.visibility = 'visible';
+        }, 100);
     }
 });
 </script>
