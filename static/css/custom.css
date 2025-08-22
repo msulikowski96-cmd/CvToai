@@ -20,6 +20,21 @@
     overflow: hidden;
 }
 
+/* Hero text enhancement */
+.hero-section h1, .hero-section h2, .hero-section h3, 
+.hero-section .display-1, .hero-section .display-2, 
+.hero-section .display-3, .hero-section .display-4, 
+.hero-section .display-5 {
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    font-weight: 700;
+}
+
+.hero-section p, .hero-section .lead {
+    color: rgba(255, 255, 255, 0.95) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
 .hero-section::before {
     content: '';
     position: absolute;
@@ -43,11 +58,27 @@
     z-index: 1;
     border-radius: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .upload-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 40px var(--glassmorphism-shadow);
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Enhanced card text visibility */
+.card-body h5, .card-body h6, .card-title {
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    font-weight: 600;
+}
+
+.card-body p, .card-body .text-muted {
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Feature items */
@@ -91,6 +122,38 @@
 .form-select:focus {
     border-color: var(--bs-primary);
     box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+}
+
+/* Enhanced form labels and text visibility */
+.form-label {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.75rem;
+}
+
+.form-text, .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced form controls */
+.form-control, .form-select {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    backdrop-filter: blur(10px);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    color: white !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15) !important;
 }
 
 /* Button animations */
@@ -177,10 +240,12 @@
     
     .display-4 {
         font-size: 2rem;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
     }
     
     .display-5 {
         font-size: 1.75rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
     
     .feature-item {
@@ -191,6 +256,17 @@
     
     .upload-card {
         margin-top: 2rem;
+    }
+    
+    /* Mobile text enhancements */
+    .form-label {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+    
+    .card-body p {
+        font-size: 0.95rem;
+        line-height: 1.5;
     }
 }
 
