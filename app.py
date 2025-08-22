@@ -104,7 +104,19 @@ def login():
     
     if form.validate_on_submit():
         from models import User
-        user = User.query.filter_by(email=form.email.data).first()
+        from sqlalchemy import or_
+        
+        username_or_email = form.username_or_email.data
+        
+        # Sprawdź czy to email czy nick
+        if '@' in username_or_email:
+            # Jeśli zawiera @, traktuj jako email
+            user = User.query.filter_by(email=username_or_email).first()
+        else:
+            # W przeciwnym przypadku, sprawdź nick lub email
+            user = User.query.filter(
+                or_(User.username == username_or_email, User.email == username_or_email)
+            ).first()
         
         if user and check_password_hash(user.password_hash, form.password.data or ''):
             login_user(user)
@@ -116,7 +128,7 @@ def login():
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('index'))
         else:
-            flash('Nieprawidłowy email lub hasło.', 'error')
+            flash('Nieprawidłowy nick/email lub hasło.', 'error')
     
     return render_template('auth/login.html', form=form)
 
