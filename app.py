@@ -10,7 +10,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 import uuid
 from datetime import datetime
 from utils.pdf_extraction import extract_text_from_pdf
-from utils.openrouter_api import optimize_cv
+from utils.openrouter_api import optimize_cv, analyze_cv_score, check_keywords_match
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -216,9 +216,27 @@ def optimize_cv_route():
         if not optimized_cv:
             return jsonify({'success': False, 'message': 'Nie udało się zoptymalizować CV. Spróbuj ponownie.'})
         
+        # Add advanced analysis to session data
+        session_data = cv_sessions[session_id]
+        
         # Store optimized CV in session
         cv_sessions[session_id]['optimized_cv'] = optimized_cv
         cv_sessions[session_id]['optimized_at'] = datetime.now()
+        
+        # Add CV quality analysis
+        try:
+            cv_analysis = analyze_cv_score(session_data['cv_text'], session_data['job_description'])
+            cv_sessions[session_id]['cv_analysis'] = cv_analysis
+        except Exception as e:
+            logger.warning(f"Nie udało się wykonać analizy CV: {str(e)}")
+        
+        # Add keyword analysis if job description provided
+        if session_data.get('job_description'):
+            try:
+                keyword_analysis = check_keywords_match(session_data['cv_text'], session_data['job_description'])
+                cv_sessions[session_id]['keyword_analysis'] = keyword_analysis
+            except Exception as e:
+                logger.warning(f"Nie udało się wykonać analizy słów kluczowych: {str(e)}")
         
         return jsonify({
             'success': True,

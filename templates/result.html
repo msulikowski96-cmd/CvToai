@@ -43,7 +43,7 @@
                         </div>
                         <div class="card-body">
                             <div class="original-cv-content">
-                                <pre class="bg-dark text-light p-3 rounded small">{{ session_data.cv_text }}</pre>
+                                <pre class="bg-secondary text-light p-3 rounded small" style="max-height: 400px; overflow-y: auto;">{{ session_data.cv_text }}</pre>
                             </div>
                         </div>
                     </div>
@@ -81,32 +81,75 @@
                 </div>
             </div>
 
+            <!-- Advanced Analysis Section -->
+            {% if session_data.get('cv_analysis') or session_data.get('keyword_analysis') %}
+            <div class="row mt-4">
+                {% if session_data.get('cv_analysis') %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-bar-chart me-2"></i>
+                                Analiza jakości CV
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="cv-analysis small">
+                                <pre style="white-space: pre-wrap; font-family: inherit;">{{ session_data.cv_analysis }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if session_data.get('keyword_analysis') %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="bi bi-tags me-2"></i>
+                                Analiza słów kluczowych
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="keywords-analysis small">
+                                <pre style="white-space: pre-wrap; font-family: inherit;">{{ session_data.keyword_analysis }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
             <!-- Tips Section -->
             <div class="card mt-4">
-                <div class="card-header bg-info text-white">
+                <div class="card-header bg-success text-white">
                     <h5 class="mb-0">
                         <i class="bi bi-lightbulb me-2"></i>
-                        Wskazówki do dalszej optymalizacji
+                        Ulepszenia wprowadzone przez AI
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="fw-bold text-success">✅ Co zostało poprawione:</h6>
+                            <h6 class="fw-bold text-success">✅ Co zostało zoptymalizowane:</h6>
                             <ul class="list-unstyled">
-                                <li><i class="bi bi-check text-success me-1"></i> Struktura i organizacja</li>
-                                <li><i class="bi bi-check text-success me-1"></i> Słowa kluczowe branżowe</li>
-                                <li><i class="bi bi-check text-success me-1"></i> Dopasowanie do stanowiska</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Analiza jakości CV (0-100 pkt)</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Dopasowanie słów kluczowych</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Struktura pod systemy ATS</li>
                                 <li><i class="bi bi-check text-success me-1"></i> Profesjonalne sformułowania</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Podkreślenie osiągnięć</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="fw-bold text-primary">💡 Dodatkowe porady:</h6>
+                            <h6 class="fw-bold text-primary">🚀 Zaawansowane funkcje AI:</h6>
                             <ul class="list-unstyled">
-                                <li><i class="bi bi-info-circle text-primary me-1"></i> Sprawdź formatowanie przed wysłaniem</li>
-                                <li><i class="bi bi-info-circle text-primary me-1"></i> Dostosuj list motywacyjny</li>
-                                <li><i class="bi bi-info-circle text-primary me-1"></i> Przygotuj się na pytania z CV</li>
-                                <li><i class="bi bi-info-circle text-primary me-1"></i> Aktualizuj regulnie</li>
+                                <li><i class="bi bi-cpu text-primary me-1"></i> Multi-step analiza CV</li>
+                                <li><i class="bi bi-cpu text-primary me-1"></i> Psychologia rekrutacji</li>
+                                <li><i class="bi bi-cpu text-primary me-1"></i> Branżowe standardy</li>
+                                <li><i class="bi bi-cpu text-primary me-1"></i> Optymalizacja ATS</li>
+                                <li><i class="bi bi-cpu text-primary me-1"></i> Konkretne mierniki</li>
                             </ul>
                         </div>
                     </div>
