@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Logowanie - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card glassmorphism">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="card-title">
+                            <i class="bi bi-person-circle text-primary me-2"></i>
+                            Logowanie
+                        </h2>
+                        <p class="text-muted">Zaloguj się do swojego konta</p>
+                    </div>
+
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.email.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control") }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {{ form.submit(class="btn btn-primary btn-lg w-100 mb-3") }}
+                    </form>
+
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="text-muted mb-0">
+                            Nie masz konta? 
+                            <a href="{{ url_for('register') }}" class="text-primary">Zarejestruj się</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

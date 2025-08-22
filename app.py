@@ -3,8 +3,10 @@ import logging
 from flask import Flask, render_template, request, jsonify, session, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 import uuid
 from datetime import datetime
 from utils.pdf_extraction import extract_text_from_pdf
@@ -41,6 +43,20 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Initialize the app with the extension
 db.init_app(app)
 
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_message = 'Zaloguj się, aby uzyskać dostęp do tej strony.'
+login_manager.login_message_category = 'info'
+
+@login_manager.user_loader
+def load_user(user_id):
+    from models import User
+    return User.query.get(int(user_id))
+
+# Set login view after initialization
+login_manager.login_view = 'login'
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -50,9 +66,69 @@ cv_sessions = {}
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        return render_template('dashboard.html')
     return render_template('index.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    from forms import RegisterForm
+    form = RegisterForm()
+    
+    if form.validate_on_submit():
+        from models import User
+        user = User()
+        user.username = form.username.data
+        user.email = form.email.data
+        user.first_name = form.first_name.data
+        user.last_name = form.last_name.data
+        user.password_hash = generate_password_hash(form.password.data or '')
+        db.session.add(user)
+        db.session.commit()
+        
+        flash('Rejestracja przebiegła pomyślnie! Możesz się teraz zalogować.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('auth/register.html', form=form)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    from forms import LoginForm
+    form = LoginForm()
+    
+    if form.validate_on_submit():
+        from models import User
+        user = User.query.filter_by(email=form.email.data).first()
+        
+        if user and check_password_hash(user.password_hash, form.password.data or ''):
+            login_user(user)
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            flash(f'Witaj, {user.first_name}! Zalogowano pomyślnie.', 'success')
+            
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
+        else:
+            flash('Nieprawidłowy email lub hasło.', 'error')
+    
+    return render_template('auth/login.html', form=form)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Zostałeś wylogowany.', 'info')
+    return redirect(url_for('index'))
+
 @app.route('/upload-cv', methods=['POST'])
+@login_required
 def upload_cv():
     try:
         if 'cv_file' not in request.files:
@@ -108,6 +184,7 @@ def upload_cv():
         return jsonify({'success': False, 'message': f'Wystąpił błąd podczas przetwarzania pliku: {str(e)}'})
 
 @app.route('/optimize-cv', methods=['POST'])
+@login_required
 def optimize_cv_route():
     try:
         data = request.get_json()
@@ -142,6 +219,7 @@ def optimize_cv_route():
         return jsonify({'success': False, 'message': f'Wystąpił błąd podczas optymalizacji CV: {str(e)}'})
 
 @app.route('/result/<session_id>')
+@login_required
 def result(session_id):
     if session_id not in cv_sessions:
         flash('Sesja wygasła. Proszę przesłać CV ponownie.', 'error')

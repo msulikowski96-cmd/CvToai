@@ -94,10 +94,6 @@ def send_api_request(prompt, max_tokens=3000, temperature=0.7):
 
 def optimize_cv(cv_text, job_title, job_description=""):
     """Optimize CV for specific position"""
-    # Demo mode if no API key
-    if not API_KEY_VALID:
-        return generate_demo_cv_optimization(cv_text, job_title, job_description)
-    
     prompt = f"""
     Stwórz całkowicie nowe, zoptymalizowane CV na podstawie poniższych informacji.
 
