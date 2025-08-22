@@ -1,4 +1,3 @@
-
 const CACHE_NAME = 'cv-optimizer-v1';
 const urlsToCache = [
   '/',
@@ -6,21 +5,22 @@ const urlsToCache = [
   '/static/js/main.js'
 ];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
-  );
+self.addEventListener('install', function(event) {
+  console.log('Service Worker installing...');
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('activate', function(event) {
+  console.log('Service Worker activating...');
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('fetch', function(event) {
+  // For now, just pass through all requests
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
+    fetch(event.request).catch(function() {
+      // Fallback in case of network error
+      return new Response('Offline');
+    })
   );
 });

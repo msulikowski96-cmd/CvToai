@@ -54,6 +54,7 @@ def send_api_request(prompt, max_tokens=3000, temperature=0.3, task_type='cv_opt
 - Psychologia rekrutacji i przekonywania pracodawców
 - Najnowsze trendy w pisaniu CV i listów motywacyjnych
 - Analiza zgodności kandydata z wymaganiami stanowiska
+- **EKSPERT w przepisywaniu opisów doświadczenia zawodowego**
 
 🧠 METODA PRACY:
 1. Przeprowadzaj głęboką analizę każdego elementu CV
@@ -61,6 +62,7 @@ def send_api_request(prompt, max_tokens=3000, temperature=0.3, task_type='cv_opt
 3. Stosuj zasady psychologii przekonywania w pisaniu CV
 4. Używaj konkretnych, mierzalnych sformułowań
 5. Dostosowuj język do branży i poziomu stanowiska
+6. **PRZEPISUJ opisy stanowisk z ogólnikowych na konkretne i profesjonalne**
 
 💼 ZNAJOMOŚĆ RYNKU:
 - Polskie firmy (korporacje, MŚP, startupy)
@@ -75,11 +77,30 @@ def send_api_request(prompt, max_tokens=3000, temperature=0.3, task_type='cv_opt
 - Używaj profesjonalnej terminologii HR
 - Bądź szczery ale konstruktywny w krytyce
 
+🔥 KLUCZOWE ZADANIE - POPRAWA OPISÓW STANOWISK:
+- **PRZEPISUJ** słabe, ogólnikowe opisy pracy na profesjonalne sformułowania
+- **DODAWAJ** konkretne czasowniki akcji (zarządzałem, wdrożyłem, zoptymalizowałem)
+- **PRZEKSZTAŁCAJ** obowiązki na osiągnięcia gdy to możliwe
+- **UŻYWAJ** specjalistycznej terminologii branżowej
+- **STRUKTURYZUJ** opisy w logiczne punkty z • 
+- **KWANTYFIKUJ** rezultaty gdy dane są dostępne w CV
+
+PRZYKŁADY TRANSFORMACJI:
+❌ "Pracowałem w sprzedaży" 
+✅ "Realizowałem cele sprzedażowe B2B, budowałem relacje z klientami korporacyjnymi"
+
+❌ "Pomagałem klientom"
+✅ "Świadczyłem kompleksową obsługę klienta, rozwiązywałem reklamacje, zwiększałem satysfakcję"
+
+❌ "Robiłem różne rzeczy w firmie"
+✅ "Współkoordynowałem projekty operacyjne, wspierałem procesy biznesowe"
+
 🚨 ABSOLUTNY ZAKAZ FAŁSZOWANIA DANYCH:
 - NIE WOLNO dodawać firm, stanowisk, dat, które nie są w oryginalnym CV
 - NIE WOLNO wymyślać osiągnięć, projektów, umiejętności
 - NIE WOLNO zmieniać faktów z CV kandydata
-- MOŻNA TYLKO lepiej sformułować istniejące prawdziwe informacje
+- **MOŻNA I TRZEBA** lepiej sformułować istniejące prawdziwe informacje
+- **MOŻNA** przekształcać słabe opisy na profesjonalne bez zmiany istoty pracy
 - Każda wymyślona informacja niszczy wiarygodność kandydata"""
 
     payload = {
@@ -206,6 +227,7 @@ def optimize_cv(cv_text, job_title, job_description=""):
     3. **Reorganizuje treść** dla maksymalnej skuteczności
     4. **Podkreśla najważniejsze umiejętności** dla tej roli
     5. **Optymalizuje pod systemy ATS**
+    6. **🔥 PRZEPISUJE WSZYSTKIE OPISY PRACY na profesjonalne**
 
     STRUKTURA CV:
     - **DANE KONTAKTOWE**
@@ -216,14 +238,40 @@ def optimize_cv(cv_text, job_title, job_description=""):
     - **CERTYFIKATY I KURSY** (jeśli są)
     - **JĘZYKI OBCE** (jeśli są)
 
-    WYMAGANIA:
-    - Używaj **pogrubienia** dla nagłówków sekcji
-    - Używaj • dla list osiągnięć
-    - Konkretne liczby i rezultaty
-    - Aktywne czasowniki (zarządzał, wdrożył, zoptymalizował)
-    - Słowa kluczowe z branży
+    🔥 SPECJALNE ZADANIE - TRANSFORMACJA OPISÓW PRACY:
+    Dla każdego stanowiska w sekcji DOŚWIADCZENIE ZAWODOWE:
 
-    ⚠️ KRYTYCZNE: NIE DODAWAJ żadnych informacji, których nie ma w oryginalnym CV!
+    1. **PRZEPISZ** każdy słaby opis na profesjonalny
+    2. **UŻYJ** mocnych czasowników akcji (zarządzałem, koordynowałem, wdrażałem, optymalizowałem, nadzorwałem, realizowałem, rozwijałem, współpracowałem)
+    3. **DODAJ** specjalistyczne słownictwo branżowe
+    4. **STRUKTURA**: każdy opis to 2-4 punkty z •
+    5. **KONKRETYZUJ** ogólne sformułowania
+
+    PRZYKŁADY TRANSFORMACJI:
+    ❌ "Obsługiwałem klientów" 
+    ✅ "• Świadczyłem kompleksową obsługę klientów B2B i B2C
+        • Rozwiązywałem zapytania i reklamacje, dbając o wysoką satysfakcję"
+
+    ❌ "Pracowałem z zespołem"
+    ✅ "• Współkoordynowałem projekty w zespole 5-osobowym
+        • Wspierałem komunikację międzydziałową i realizację celów"
+
+    ❌ "Robiłem raporty"
+    ✅ "• Przygotowywałem regularne analizy i raporty dla kierownictwa
+        • Monitorowałem KPI i przedstawiałem rekomendacje optymalizacyjne"
+
+    WYMAGANIA TECHNICZNE:
+    - Używaj **pogrubienia** dla nagłówków sekcji
+    - Używaj • dla wszystkich punktów w opisach pracy
+    - Konkretne liczby i rezultaty gdy są dostępne
+    - Aktywne czasowniki akcji w każdym opisie
+    - Słowa kluczowe z branży {job_title}
+    - Każdy opis stanowiska minimum 2 punkty z •
+
+    ⚠️ KRYTYCZNE ZASADY:
+    - NIE DODAWAJ żadnych informacji, których nie ma w oryginalnym CV!
+    - PRZEPISUJ i poprawiaj istniejące opisy, ale NIE WYMYŚLAJ nowych faktów
+    - Każda transformacja musi być oparta na prawdziwych danych z CV
     """
 
     try:
