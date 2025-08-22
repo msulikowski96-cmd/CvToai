@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold text-primary mb-4">
+                        Zoptymalizuj swoje CV z AI
+                    </h1>
+                    <p class="lead text-muted mb-4">
+                        Przekształć swoje CV w potężne narzędzie kariery. Nasza sztuczna inteligencja dostosuje Twoje CV do konkretnego stanowiska, zwiększając szanse na rozmowę kwalifikacyjną.
+                    </p>
+                    <div class="d-flex gap-3 mb-4">
+                        <div class="feature-item">
+                            <i class="bi bi-robot text-primary fs-3"></i>
+                            <div class="ms-3">
+                                <h6 class="mb-1">AI Powered</h6>
+                                <small class="text-muted">Zaawansowana analiza CV</small>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="bi bi-target text-success fs-3"></i>
+                            <div class="ms-3">
+                                <h6 class="mb-1">Precyzyjne dopasowanie</h6>
+                                <small class="text-muted">Dostosowane do stanowiska</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="upload-card glassmorphism">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">
+                            <i class="bi bi-upload text-primary me-2"></i>
+                            Prześlij swoje CV
+                        </h3>
+                        
+                        <form id="cvUploadForm" enctype="multipart/form-data">
+                            <!-- Job Title Input -->
+                            <div class="mb-3">
+                                <label for="jobTitle" class="form-label">
+                                    <i class="bi bi-briefcase me-1"></i>Nazwa stanowiska *
+                                </label>
+                                <input type="text" class="form-control" id="jobTitle" name="job_title" 
+                                       placeholder="np. Frontend Developer, Marketing Manager" required>
+                                <div class="form-text">Podaj nazwę stanowiska, o które się ubiegasz</div>
+                            </div>
+
+                            <!-- Job Description Input -->
+                            <div class="mb-3">
+                                <label for="jobDescription" class="form-label">
+                                    <i class="bi bi-file-text me-1"></i>Opis stanowiska / Ogłoszenie
+                                </label>
+                                <textarea class="form-control" id="jobDescription" name="job_description" 
+                                          rows="4" placeholder="Wklej tutaj treść ogłoszenia o pracę lub opis wymagań..."></textarea>
+                                <div class="form-text">Opcjonalne: Opis pomoże lepiej dostosować CV</div>
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="mb-4">
+                                <label for="cvFile" class="form-label">
+                                    <i class="bi bi-file-pdf me-1"></i>Plik CV (PDF) *
+                                </label>
+                                <input type="file" class="form-control" id="cvFile" name="cv_file" 
+                                       accept=".pdf" required>
+                                <div class="form-text">Maksymalny rozmiar pliku: 16MB</div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="uploadBtn">
+                                <i class="bi bi-magic me-2"></i>
+                                Zoptymalizuj CV
+                            </button>
+
+                            <!-- Loading State -->
+                            <div id="loadingState" class="text-center mt-3" style="display: none;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Ładowanie...</span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">Analizuję CV i generuję optymalizację...</small>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="py-5 bg-dark">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold text-white mb-3">Jak to działa?</h2>
+                <p class="lead text-muted">Prosty proces w trzech krokach</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card h-100">
+                    <div class="text-center mb-3">
+                        <div class="feature-icon">
+                            <i class="bi bi-upload fs-1 text-primary"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-center mb-3">1. Prześlij CV</h4>
+                    <p class="text-muted text-center">
+                        Wgraj swoje aktualne CV w formacie PDF oraz podaj informacje o stanowisku.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card h-100">
+                    <div class="text-center mb-3">
+                        <div class="feature-icon">
+                            <i class="bi bi-cpu fs-1 text-success"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-center mb-3">2. AI analizuje</h4>
+                    <p class="text-muted text-center">
+                        Sztuczna inteligencja analizuje Twoje CV i dostosowuje je do wymagań stanowiska.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card h-100">
+                    <div class="text-center mb-3">
+                        <div class="feature-icon">
+                            <i class="bi bi-download fs-1 text-info"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-center mb-3">3. Pobierz wynik</h4>
+                    <p class="text-muted text-center">
+                        Otrzymaj zoptymalizowane CV gotowe do wysłania do pracodawcy.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Benefits Section -->
+<div class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <img src="https://pixabay.com/get/g74bf88334318a912eb6febcad5a692a51088db4b3d16e347e72b5c851b6dfbd412d0d203e0df502767408f135f0fd1e907a3c6d9b9345e670a6113bb1687145a_1280.jpg" 
+                     class="img-fluid rounded shadow" alt="Professional Resume">
+            </div>
+            <div class="col-lg-6 ps-lg-5">
+                <h2 class="display-5 fw-bold mb-4">Zwiększ swoje szanse na sukces</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Optymalizacja ATS:</strong> CV przejdzie przez systemy rekrutacyjne
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Dopasowanie słów kluczowych:</strong> Idealne match z wymaganiami
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Profesjonalne formatowanie:</strong> Czytelne i atrakcyjne CV
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Branżowe standardy:</strong> Dostosowane do Twojej dziedziny
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong class="me-auto">Sukces</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="successMessage">
+        </div>
+    </div>
+    
+    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-danger text-white">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong class="me-auto">Błąd</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="errorMessage">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadForm = document.getElementById('cvUploadForm');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const loadingState = document.getElementById('loadingState');
+    const fileInput = document.getElementById('cvFile');
+    
+    // File validation
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const maxSize = 16 * 1024 * 1024; // 16MB
+            if (file.size > maxSize) {
+                showToast('error', 'Plik jest za duży. Maksymalny rozmiar to 16MB.');
+                this.value = '';
+                return;
+            }
+            
+            if (file.type !== 'application/pdf') {
+                showToast('error', 'Dozwolone są tylko pliki PDF.');
+                this.value = '';
+                return;
+            }
+        }
+    });
+    
+    // Form submission
+    uploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(uploadForm);
+        
+        // Show loading state
+        uploadBtn.disabled = true;
+        loadingState.style.display = 'block';
+        uploadBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Przetwarzam...';
+        
+        try {
+            // First, upload CV
+            const uploadResponse = await fetch('/upload-cv', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const uploadResult = await uploadResponse.json();
+            
+            if (!uploadResult.success) {
+                throw new Error(uploadResult.message);
+            }
+            
+            // Then optimize CV
+            const optimizeResponse = await fetch('/optimize-cv', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_id: uploadResult.session_id
+                })
+            });
+            
+            const optimizeResult = await optimizeResponse.json();
+            
+            if (!optimizeResult.success) {
+                throw new Error(optimizeResult.message);
+            }
+            
+            // Redirect to results
+            window.location.href = `/result/${uploadResult.session_id}`;
+            
+        } catch (error) {
+            showToast('error', error.message);
+            
+            // Reset form state
+            uploadBtn.disabled = false;
+            loadingState.style.display = 'none';
+            uploadBtn.innerHTML = '<i class="bi bi-magic me-2"></i>Zoptymalizuj CV';
+        }
+    });
+});
+
+function showToast(type, message) {
+    const toastElement = document.getElementById(type + 'Toast');
+    const messageElement = document.getElementById(type + 'Message');
+    
+    messageElement.textContent = message;
+    
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+}
+</script>
+{% endblock %}

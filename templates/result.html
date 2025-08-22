@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Zoptymalizowane CV - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold text-success">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    CV zostało zoptymalizowane!
+                </h1>
+                <p class="lead text-muted">
+                    Twoje CV zostało dostosowane do stanowiska: <strong>{{ session_data.job_title }}</strong>
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-center gap-3 mb-4">
+                <button class="btn btn-primary btn-lg" onclick="copyToClipboard()">
+                    <i class="bi bi-clipboard me-2"></i>Skopiuj CV
+                </button>
+                <button class="btn btn-outline-success btn-lg" onclick="downloadCV()">
+                    <i class="bi bi-download me-2"></i>Pobierz jako tekst
+                </button>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-arrow-left me-2"></i>Nowe CV
+                </a>
+            </div>
+
+            <!-- CV Content -->
+            <div class="row">
+                <!-- Original CV -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-secondary">
+                            <h5 class="mb-0">
+                                <i class="bi bi-file-earmark-text me-2"></i>
+                                Oryginalne CV
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="original-cv-content">
+                                <pre class="bg-dark text-light p-3 rounded small">{{ session_data.cv_text }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optimized CV -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100 border-success">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-stars me-2"></i>
+                                Zoptymalizowane CV
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="optimized-cv-content">
+                                {% if session_data.optimized_cv %}
+                                    <div id="optimizedCvText" class="formatted-cv">
+                                        {{ session_data.optimized_cv | safe }}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center p-4">
+                                        <div class="spinner-border text-primary mb-3" role="status">
+                                            <span class="visually-hidden">Ładowanie...</span>
+                                        </div>
+                                        <p class="text-muted">Generowanie zoptymalizowanego CV...</p>
+                                        <button class="btn btn-primary" onclick="optimizeCV()">
+                                            <i class="bi bi-magic me-2"></i>Optymalizuj teraz
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        Wskazówki do dalszej optymalizacji
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-success">✅ Co zostało poprawione:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check text-success me-1"></i> Struktura i organizacja</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Słowa kluczowe branżowe</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Dopasowanie do stanowiska</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Profesjonalne sformułowania</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-primary">💡 Dodatkowe porady:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-info-circle text-primary me-1"></i> Sprawdź formatowanie przed wysłaniem</li>
+                                <li><i class="bi bi-info-circle text-primary me-1"></i> Dostosuj list motywacyjny</li>
+                                <li><i class="bi bi-info-circle text-primary me-1"></i> Przygotuj się na pytania z CV</li>
+                                <li><i class="bi bi-info-circle text-primary me-1"></i> Aktualizuj regulnie</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Description -->
+            {% if session_data.job_description %}
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-briefcase me-2"></i>
+                        Opis stanowiska
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <pre class="text-muted">{{ session_data.job_description }}</pre>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong class="me-auto">Sukces</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="successMessage">
+        </div>
+    </div>
+    
+    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-danger text-white">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong class="me-auto">Błąd</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="errorMessage">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const sessionId = '{{ session_id }}';
+
+function copyToClipboard() {
+    const cvText = document.getElementById('optimizedCvText');
+    if (!cvText) {
+        showToast('error', 'Nie ma jeszcze zoptymalizowanego CV do skopiowania.');
+        return;
+    }
+    
+    const textArea = document.createElement('textarea');
+    textArea.value = cvText.innerText;
+    document.body.appendChild(textArea);
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showToast('success', 'CV zostało skopiowane do schowka!');
+    } catch (err) {
+        showToast('error', 'Nie udało się skopiować CV.');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function downloadCV() {
+    const cvText = document.getElementById('optimizedCvText');
+    if (!cvText) {
+        showToast('error', 'Nie ma jeszcze zoptymalizowanego CV do pobrania.');
+        return;
+    }
+    
+    const text = cvText.innerText;
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'zoptymalizowane_cv_{{ session_data.job_title|replace(" ", "_") }}.txt';
+    document.body.appendChild(a);
+    a.click();
+    
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    showToast('success', 'CV zostało pobrane!');
+}
+
+async function optimizeCV() {
+    try {
+        const response = await fetch('/optimize-cv', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_id: sessionId
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            document.querySelector('.optimized-cv-content').innerHTML = 
+                '<div id="optimizedCvText" class="formatted-cv">' + result.optimized_cv + '</div>';
+            showToast('success', 'CV zostało pomyślnie zoptymalizowane!');
+        } else {
+            throw new Error(result.message);
+        }
+        
+    } catch (error) {
+        showToast('error', 'Błąd podczas optymalizacji: ' + error.message);
+    }
+}
+
+function showToast(type, message) {
+    const toastElement = document.getElementById(type + 'Toast');
+    const messageElement = document.getElementById(type + 'Message');
+    
+    messageElement.textContent = message;
+    
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+}
+
+// Format the CV text for better readability
+document.addEventListener('DOMContentLoaded', function() {
+    const cvText = document.getElementById('optimizedCvText');
+    if (cvText) {
+        // Convert markdown-like formatting to HTML
+        let content = cvText.innerHTML;
+        
+        // Convert **bold** to <strong>
+        content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Convert bullet points
+        content = content.replace(/^• /gm, '<li>');
+        content = content.replace(/\n\n/g, '</li></ul><p></p><ul><li>');
+        
+        // Wrap in proper HTML structure
+        if (content.includes('<li>')) {
+            content = '<ul>' + content + '</li></ul>';
+        }
+        
+        // Convert line breaks to paragraphs
+        content = content.replace(/\n/g, '<br>');
+        
+        cvText.innerHTML = content;
+    }
+});
+</script>
+{% endblock %}
