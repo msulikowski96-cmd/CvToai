@@ -197,10 +197,12 @@
     font-family: 'Segoe UI', 'Arial', sans-serif;
     line-height: 1.7;
     color: #1a1a1a !important;
-    background-color: #ffffff;
+    background-color: #ffffff !important;
     padding: 1.5rem;
     border-radius: 8px;
     font-size: 15px;
+    backdrop-filter: none !important;
+    filter: none !important;
 }
 
 .formatted-cv h1, .formatted-cv h2, .formatted-cv h3 {
@@ -301,6 +303,20 @@
 #optimizedCvText * {
     color: #1a1a1a !important;
     opacity: 1 !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    filter: none !important;
+}
+
+/* Usuń efekty rozmazania z kart zawierających CV */
+.card:has(.formatted-cv),
+.card:has(#optimizedCvText) {
+    backdrop-filter: none !important;
+}
+
+.card-body:has(.formatted-cv),
+.card-body:has(#optimizedCvText) {
+    backdrop-filter: none !important;
     background: #ffffff !important;
 }
 

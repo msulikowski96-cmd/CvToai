@@ -325,6 +325,8 @@ document.addEventListener('DOMContentLoaded', function() {
             element.style.color = '#1a1a1a';
             element.style.opacity = '1';
             element.style.background = 'transparent';
+            element.style.backdropFilter = 'none';
+            element.style.filter = 'none';
             
             // Special handling for headers
             if (element.tagName && element.tagName.match(/^H[1-6]$/)) {
@@ -338,6 +340,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 element.style.fontWeight = '700';
             }
         });
+        
+        // Usuń efekty rozmazania z całej karty CV
+        const cvCard = cvText.closest('.card');
+        if (cvCard) {
+            cvCard.style.backdropFilter = 'none';
+            cvCard.style.background = '#ffffff';
+            
+            const cardBody = cvCard.querySelector('.card-body');
+            if (cardBody) {
+                cardBody.style.backdropFilter = 'none';
+                cardBody.style.background = '#ffffff';
+            }
+        }
         
         // Final pass - ensure the container and all content is visible
         setTimeout(function() {
