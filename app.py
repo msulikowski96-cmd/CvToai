@@ -211,23 +211,39 @@ def optimize_cv_route():
         job_description = session_data['job_description']
         
         # Call OpenRouter API to optimize CV
-        optimized_cv = optimize_cv(cv_text, job_title, job_description)
-        
-        if not optimized_cv:
-            return jsonify({'success': False, 'message': 'Nie udało się zoptymalizować CV. Spróbuj ponownie.'})
-        
-        # Add advanced analysis to session data
-        session_data = cv_sessions[session_id]
-        
-        # Store optimized CV in session
-        cv_sessions[session_id]['optimized_cv'] = optimized_cv
-        cv_sessions[session_id]['optimized_at'] = datetime.now()
-        
-        return jsonify({
-            'success': True,
-            'optimized_cv': optimized_cv,
-            'message': 'CV zostało pomyślnie zoptymalizowane'
-        })
+        try:
+            optimized_cv = optimize_cv(cv_text, job_title, job_description)
+            
+            if not optimized_cv:
+                return jsonify({'success': False, 'message': 'Nie udało się zoptymalizować CV. Spróbuj ponownie.'})
+            
+            # Store optimized CV in session
+            cv_sessions[session_id]['optimized_cv'] = optimized_cv
+            cv_sessions[session_id]['optimized_at'] = datetime.now()
+            
+            return jsonify({
+                'success': True,
+                'optimized_cv': optimized_cv,
+                'message': 'CV zostało pomyślnie zoptymalizowane'
+            })
+            
+        except Exception as api_error:
+            logging.error(f"API timeout or error: {str(api_error)}")
+            
+            # Zwróć przykładową optymalizację w przypadku błędu API
+            from utils.openrouter_api import generate_demo_cv_optimization
+            demo_cv = generate_demo_cv_optimization(cv_text, job_title, job_description)
+            
+            cv_sessions[session_id]['optimized_cv'] = demo_cv
+            cv_sessions[session_id]['optimized_at'] = datetime.now()
+            cv_sessions[session_id]['is_demo'] = True
+            
+            return jsonify({
+                'success': True,
+                'optimized_cv': demo_cv,
+                'message': 'Czasowy problem z API - pokazano przykładową optymalizację',
+                'is_demo': True
+            })
     
     except Exception as e:
         logging.error(f"Error in optimize_cv_route: {str(e)}")

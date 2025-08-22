@@ -583,15 +583,22 @@ function throttle(func, limit) {
 
 // Service Worker Registration (for offline support)
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    window.addEventListener('load', function() {
         navigator.serviceWorker.register('/static/service-worker.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
+            .then(function(registration) {
+                console.log('SW registered successfully:', registration.scope);
+                return registration.update();
             })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
+            .then(function() {
+                console.log('SW updated');
+            })
+            .catch(function(error) {
+                console.warn('SW registration failed:', error.message);
+                // Nie blokuj aplikacji gdy SW się nie zarejestuje
             });
     });
+} else {
+    console.log('Service Worker not supported');
 }
 
 // Global error handler

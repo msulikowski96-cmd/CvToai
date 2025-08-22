@@ -6,21 +6,46 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', function(event) {
-  console.log('Service Worker installing...');
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', function(event) {
-  console.log('Service Worker activating...');
-  event.waitUntil(self.clients.claim());
+  console.log('SW: Installing...');
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(function(cache) {
+        console.log('SW: Cache opened');
+        return cache.addAll(urlsToCache);
+      })
+      .catch(function(error) {
+        console.error('SW: Cache installation failed:', error);
+      })
+  );
 });
 
 self.addEventListener('fetch', function(event) {
-  // For now, just pass through all requests
+  // Ignoruj zapytania chrome-extension i inne nieobsługiwane protokoły
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request).catch(function() {
-      // Fallback in case of network error
-      return new Response('Offline');
-    })
+    caches.match(event.request)
+      .then(function(response) {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request).catch(function(error) {
+          console.log('SW: Fetch failed:', error);
+          // Zwróć podstawową odpowiedź w przypadku błędu
+          return new Response('Offline content not available', {
+            status: 200,
+            statusText: 'OK'
+          });
+        });
+      })
+      .catch(function(error) {
+        console.error('SW: Response error:', error);
+        return new Response('Service unavailable', {
+          status: 503,
+          statusText: 'Service Unavailable'
+        });
+      })
   );
 });
