@@ -291,22 +291,36 @@ document.addEventListener('DOMContentLoaded', function() {
         // Convert markdown-like formatting to HTML
         let content = cvText.innerHTML;
         
-        // Convert **bold** to <strong>
+        // Convert **bold** to <strong> for company names and job titles
         content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         
-        // Convert bullet points
-        content = content.replace(/^• /gm, '<li>');
-        content = content.replace(/\n\n/g, '</li></ul><p></p><ul><li>');
+        // Convert bullet points and ensure proper text color
+        content = content.replace(/^• /gm, '<li style="color: #333333;">');
+        content = content.replace(/\n\n/g, '</li></ul><p></p><ul><li style="color: #333333;">');
         
         // Wrap in proper HTML structure
         if (content.includes('<li>')) {
             content = '<ul>' + content + '</li></ul>';
         }
         
-        // Convert line breaks to paragraphs
+        // Convert line breaks to paragraphs with proper styling
         content = content.replace(/\n/g, '<br>');
         
+        // Ensure paragraphs have proper text color
+        content = content.replace(/<p>/g, '<p style="color: #333333;">');
+        
+        // Fix any spans that might have wrong colors
+        content = content.replace(/<span[^>]*>/g, '<span style="color: #333333;">');
+        
         cvText.innerHTML = content;
+        
+        // Additional formatting for better readability
+        const allTextNodes = cvText.querySelectorAll('p, li, span, div');
+        allTextNodes.forEach(node => {
+            if (!node.querySelector('strong') && !node.classList.contains('section-header')) {
+                node.style.color = '#333333';
+            }
+        });
     }
 });
 </script>
