@@ -185,7 +185,7 @@
         <div class="toast-body" id="successMessage">
         </div>
     </div>
-    
+
     <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header bg-danger text-white">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -208,19 +208,19 @@ function copyToClipboard() {
         showToast('error', 'Nie ma jeszcze zoptymalizowanego CV do skopiowania.');
         return;
     }
-    
+
     const textArea = document.createElement('textarea');
     textArea.value = cvText.innerText;
     document.body.appendChild(textArea);
     textArea.select();
-    
+
     try {
         document.execCommand('copy');
         showToast('success', 'CV zostało skopiowane do schowka!');
     } catch (err) {
         showToast('error', 'Nie udało się skopiować CV.');
     }
-    
+
     document.body.removeChild(textArea);
 }
 
@@ -230,20 +230,20 @@ function downloadCV() {
         showToast('error', 'Nie ma jeszcze zoptymalizowanego CV do pobrania.');
         return;
     }
-    
+
     const text = cvText.innerText;
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = 'zoptymalizowane_cv_{{ session_data.job_title|replace(" ", "_") }}.txt';
     document.body.appendChild(a);
     a.click();
-    
+
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-    
+
     showToast('success', 'CV zostało pobrane!');
 }
 
@@ -258,17 +258,17 @@ async function optimizeCV() {
                 session_id: sessionId
             })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
-            document.querySelector('.optimized-cv-content').innerHTML = 
+            document.querySelector('.optimized-cv-content').innerHTML =
                 '<div id="optimizedCvText" class="formatted-cv">' + result.optimized_cv + '</div>';
             showToast('success', 'CV zostało pomyślnie zoptymalizowane!');
         } else {
             throw new Error(result.message);
         }
-        
+
     } catch (error) {
         showToast('error', 'Błąd podczas optymalizacji: ' + error.message);
     }
@@ -277,9 +277,9 @@ async function optimizeCV() {
 function showToast(type, message) {
     const toastElement = document.getElementById(type + 'Toast');
     const messageElement = document.getElementById(type + 'Message');
-    
+
     messageElement.textContent = message;
-    
+
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
 }
@@ -292,68 +292,67 @@ document.addEventListener('DOMContentLoaded', function() {
         cvText.style.backgroundColor = '#ffffff';
         cvText.style.color = '#1a1a1a';
         cvText.style.opacity = '1';
-        
+
         // Convert markdown-like formatting to HTML
         let content = cvText.innerHTML;
-        
+
         // Convert **bold** to <strong> with dark color
         content = content.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #1a1a1a !important; font-weight: 700;">$1</strong>');
-        
+
         // Convert bullet points with dark color
         content = content.replace(/^• /gm, '<li style="color: #1a1a1a !important; margin-bottom: 0.5rem;">');
         content = content.replace(/\n\n/g, '</li></ul><p style="color: #1a1a1a !important;"></p><ul><li style="color: #1a1a1a !important;">');
-        
+
         // Wrap in proper HTML structure
         if (content.includes('<li>')) {
             content = '<ul style="color: #1a1a1a !important;">' + content + '</li></ul>';
         }
-        
+
         // Convert line breaks to paragraphs with dark color
         content = content.replace(/\n/g, '<br>');
-        
+
         // Ensure all paragraphs are dark
         content = content.replace(/<p>/g, '<p style="color: #1a1a1a !important; opacity: 1 !important;">');
-        
+
         // Fix spans with proper dark color
         content = content.replace(/<span[^>]*>/g, '<span style="color: #1a1a1a !important; opacity: 1 !important;">');
-        
+
         cvText.innerHTML = content;
-        
-        // Force maximum contrast on ALL elements
-        const allElements = cvText.querySelectorAll('*');
+
+        // Force light colors on ALL elements for dark theme
         allElements.forEach(element => {
-            element.style.color = '#1a1a1a';
+            element.style.color = '#ffffff';
             element.style.opacity = '1';
             element.style.background = 'transparent';
             element.style.backdropFilter = 'none';
             element.style.filter = 'none';
-            
+
             // Special handling for headers
             if (element.tagName && element.tagName.match(/^H[1-6]$/)) {
-                element.style.color = '#2c3e50';
+                element.style.color = '#74c0fc';
                 element.style.fontWeight = '700';
             }
-            
+
             // Special handling for strong elements
             if (element.tagName === 'STRONG') {
-                element.style.color = '#1a1a1a';
+                element.style.color = '#ffffff';
                 element.style.fontWeight = '700';
             }
         });
-        
+
         // Usuń efekty rozmazania z całej karty CV
         const cvCard = cvText.closest('.card');
         if (cvCard) {
             cvCard.style.backdropFilter = 'none';
             cvCard.style.background = '#ffffff';
-            
+
             const cardBody = cvCard.querySelector('.card-body');
             if (cardBody) {
                 cardBody.style.backdropFilter = 'none';
                 cardBody.style.background = '#ffffff';
             }
         }
-        
+
         // Final pass - ensure the container and all content is visible
         setTimeout(function() {
             cvText.style.filter = 'none';
