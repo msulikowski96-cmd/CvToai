@@ -49,19 +49,141 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>{{ current_user.first_name }}
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar me-2">
+                                    {{ current_user.first_name[0].upper() }}
+                                </div>
+                                <div class="d-none d-lg-block">
+                                    <div class="user-name">{{ current_user.first_name }}</div>
+                                    {% if current_user.is_premium_active() %}
+                                        <small class="user-status text-warning">Premium</small>
+                                    {% else %}
+                                        <small class="user-status text-muted">Free</small>
+                                    {% endif %}
+                                </div>
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><h6 class="dropdown-header">{{ current_user.first_name }} {{ current_user.last_name }}</h6></li>
-                                <li><small class="dropdown-item-text text-muted">@{{ current_user.username }}</small></li>
-                                <li><hr class="dropdown-divider"></li>
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                                <!-- User Info Header -->
+                                <li class="dropdown-header p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar-large me-3">
+                                            {{ current_user.first_name[0].upper() }}{{ current_user.last_name[0].upper() if current_user.last_name else '' }}
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h6>
+                                            <small class="text-muted">@{{ current_user.username }}</small>
+                                            <div class="mt-1">
+                                                {% if current_user.is_premium_active() %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="bi bi-star-fill me-1"></i>Premium
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Free</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                
+                                <!-- User Stats -->
+                                <li class="dropdown-item-text p-3 border-top">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="bi bi-graph-up me-1"></i>Twoje statystyki
+                                    </h6>
+                                    <div class="row g-2 text-center">
+                                        <div class="col-4">
+                                            <div class="stat-box">
+                                                <div class="stat-number text-primary">{{ current_user.cv_uploads|length if current_user.cv_uploads else 0 }}</div>
+                                                <small class="text-muted">CV</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="stat-box">
+                                                <div class="stat-number text-success">
+                                                    {% set optimized_count = current_user.cv_uploads|selectattr('optimized_cv')|list|length if current_user.cv_uploads else 0 %}
+                                                    {{ optimized_count }}
+                                                </div>
+                                                <small class="text-muted">Zoptymalizowanych</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="stat-box">
+                                                <div class="stat-number text-info">
+                                                    {{ ((current_user.created_at and (current_user.created_at - current_user.created_at).days) or 0) + 1 if current_user.created_at else 1 }}
+                                                </div>
+                                                <small class="text-muted">Dni</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                
+                                <!-- Premium Info -->
                                 {% if current_user.is_premium_active() %}
-                                    <li><span class="dropdown-item-text"><i class="bi bi-star-fill text-warning me-1"></i>Premium</span></li>
+                                    <li class="dropdown-item-text p-3 border-top">
+                                        <div class="premium-info">
+                                            <h6 class="text-warning mb-2">
+                                                <i class="bi bi-star-fill me-1"></i>Premium aktywne
+                                            </h6>
+                                            <small class="text-muted">
+                                                {% if current_user.premium_until %}
+                                                    Ważne do: {{ current_user.premium_until.strftime('%d.%m.%Y') }}
+                                                {% else %}
+                                                    Nielimitowane
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </li>
+                                {% else %}
+                                    <li class="dropdown-item-text p-3 border-top">
+                                        <div class="upgrade-info">
+                                            <h6 class="text-primary mb-2">
+                                                <i class="bi bi-arrow-up-circle me-1"></i>Ulepsz konto
+                                            </h6>
+                                            <small class="text-muted mb-2 d-block">
+                                                Uzyskaj dostęp do wszystkich funkcji Premium
+                                            </small>
+                                            <button class="btn btn-sm btn-primary w-100">
+                                                <i class="bi bi-star me-1"></i>Przejdź na Premium
+                                            </button>
+                                        </div>
+                                    </li>
                                 {% endif %}
-                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
-                                    <i class="bi bi-box-arrow-right me-1"></i>Wyloguj się
-                                </a></li>
+                                
+                                <!-- Menu Items -->
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('index') }}">
+                                        <i class="bi bi-house me-2"></i>Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="showProfileModal()">
+                                        <i class="bi bi-person-gear me-2"></i>Ustawienia profilu
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="showStatsModal()">
+                                        <i class="bi bi-bar-chart me-2"></i>Szczegółowe statystyki
+                                    </a>
+                                </li>
+                                {% if not current_user.is_premium_active() %}
+                                    <li>
+                                        <a class="dropdown-item text-warning" href="#" onclick="showPremiumModal()">
+                                            <i class="bi bi-star me-2"></i>Kup Premium
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-muted" href="#" onclick="showHelpModal()">
+                                        <i class="bi bi-question-circle me-2"></i>Pomoc
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Wyloguj się
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     {% else %}

@@ -368,6 +368,283 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
+/* User Avatar Styles */
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    color: white;
+}
+
+.user-status {
+    font-size: 11px;
+    line-height: 1;
+}
+
+/* Enhanced Dropdown Menu */
+.user-dropdown {
+    min-width: 320px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.user-dropdown .dropdown-header {
+    background: var(--bs-dark);
+    border: none;
+}
+
+.stat-box {
+    padding: 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.stat-number {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.premium-info,
+.upgrade-info {
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    margin: -12px;
+}
+
+.upgrade-info {
+    background: rgba(13, 110, 253, 0.1);
+}
+
+/* Feature Icon Styles */
+.feature-icon-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.feature-icon-medium {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.feature-item-horizontal {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--glassmorphism-bg);
+    border-radius: 12px;
+    border: 1px solid var(--glassmorphism-border);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+}
+
+.feature-item-horizontal:hover {
+    transform: translateY(-2px);
+}
+
+/* Step Numbers */
+.step-number {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--bs-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.feature-card {
+    position: relative;
+    background: var(--bs-dark);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Pricing Cards */
+.pricing-card {
+    border: 2px solid transparent;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    background: var(--glassmorphism-bg);
+    backdrop-filter: blur(10px);
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.pricing-card.border-primary {
+    border-color: var(--bs-primary);
+}
+
+.price {
+    font-size: 2rem;
+}
+
+.price-amount {
+    font-weight: 700;
+    color: var(--bs-primary);
+}
+
+.price-period {
+    font-size: 1rem;
+    color: var(--bs-muted);
+}
+
+/* Testimonials */
+.testimonial-card {
+    background: var(--glassmorphism-bg);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glassmorphism-border);
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-3px);
+}
+
+.stars {
+    font-size: 18px;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bs-success), var(--bs-info));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* Stats Items */
+.stat-item {
+    padding: 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+}
+
+/* Enhanced animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Dashboard specific styles */
+.activity-item {
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.activity-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+/* Progress enhancement */
+.progress {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* Modal enhancements */
+.modal-content {
+    background: var(--bs-dark);
+    border: 1px solid var(--glassmorphism-border);
+    backdrop-filter: blur(10px);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--glassmorphism-border);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--glassmorphism-border);
+}
+
 /* Success/error states */
 .success-state {
     border-left: 4px solid var(--bs-success);
