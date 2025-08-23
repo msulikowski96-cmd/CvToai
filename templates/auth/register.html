@@ -3,27 +3,26 @@
 {% block title %}Rejestracja - CV Optimizer Pro{% endblock %}
 
 {% block content %}
-<div class="hero-section">
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card glassmorphism">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
-                        <h2 class="card-title">
+                        <h2 class="text-white mb-2">
                             <i class="bi bi-person-plus text-primary me-2"></i>
                             Rejestracja
                         </h2>
-                        <p class="text-muted">Utwórz nowe konto CV Optimizer Pro</p>
+                        <p class="text-white-50">Utwórz nowe konto CV Optimizer Pro</p>
                     </div>
 
-                    <form method="POST">
+                    <form method="POST" id="registerForm">
                         {{ form.hidden_tag() }}
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.first_name.label(class="form-label") }}
-                                {{ form.first_name(class="form-control") }}
+                                {{ form.first_name(class="form-control", placeholder="Twoje imię") }}
                                 {% if form.first_name.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.first_name.errors %}
@@ -35,7 +34,7 @@
                             
                             <div class="col-md-6 mb-3">
                                 {{ form.last_name.label(class="form-label") }}
-                                {{ form.last_name(class="form-control") }}
+                                {{ form.last_name(class="form-control", placeholder="Twoje nazwisko") }}
                                 {% if form.last_name.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.last_name.errors %}
@@ -49,8 +48,8 @@
                         <div class="mb-3">
                             {{ form.username.label(class="form-label") }}
                             <div class="input-group">
-                                <span class="input-group-text">@</span>
-                                {{ form.username(class="form-control") }}
+                                <span class="input-group-text" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: white;">@</span>
+                                {{ form.username(class="form-control", placeholder="nick") }}
                             </div>
                             {% if form.username.errors %}
                                 <div class="text-danger small mt-1">
@@ -59,12 +58,12 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
-                            <div class="form-text">Unikalny nick, który będzie Cię identyfikować</div>
+                            <div class="form-text text-white-50">Unikalny nick, który będzie Cię identyfikować</div>
                         </div>
 
                         <div class="mb-3">
                             {{ form.email.label(class="form-label") }}
-                            {{ form.email(class="form-control") }}
+                            {{ form.email(class="form-control", placeholder="twoj@email.com") }}
                             {% if form.email.errors %}
                                 <div class="text-danger small mt-1">
                                     {% for error in form.email.errors %}
@@ -74,46 +73,59 @@
                             {% endif %}
                         </div>
 
-                        <div class="mb-3">
-                            {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control") }}
-                            {% if form.password.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.password.errors %}
-                                        <div>{{ error }}</div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <div class="form-text">Minimum 6 znaków</div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.password.label(class="form-label") }}
+                                {{ form.password(class="form-control", placeholder="Hasło (min. 6 znaków)") }}
+                                {% if form.password.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                {{ form.confirm_password.label(class="form-label") }}
+                                {{ form.confirm_password(class="form-control", placeholder="Powtórz hasło") }}
+                                {% if form.confirm_password.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.confirm_password.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
 
-                        <div class="mb-4">
-                            {{ form.password2.label(class="form-label") }}
-                            {{ form.password2(class="form-control") }}
-                            {% if form.password2.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.password2.errors %}
-                                        <div>{{ error }}</div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        {{ form.submit(class="btn btn-primary btn-lg w-100 mb-3") }}
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Utwórz konto
+                        </button>
                     </form>
 
-                    <hr>
+                    <hr style="border-color: rgba(255,255,255,0.2);">
                     
                     <div class="text-center">
-                        <p class="text-muted mb-0">
-                            Masz już konto? 
-                            <a href="{{ url_for('login') }}" class="text-primary">Zaloguj się</a>
+                        <p class="text-white-50 mb-3">
+                            Masz już konto?
                         </p>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    validateForm('registerForm');
+});
+</script>
 {% endblock %}

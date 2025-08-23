@@ -3,212 +3,132 @@
 {% block title %}Zoptymalizowane CV - CV Optimizer Pro{% endblock %}
 
 {% block content %}
-<div class="hero-section">
 <div class="container py-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Header -->
-            <div class="text-center mb-5">
-                <h1 class="display-5 fw-bold text-success">
-                    <i class="bi bi-check-circle-fill me-2"></i>
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="text-center">
+                <h1 class="display-5 fw-bold text-white mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
                     CV zostało zoptymalizowane!
                 </h1>
-                <p class="lead text-muted">
-                    Twoje CV zostało dostosowane do stanowiska: <strong>{{ session_data.job_title }}</strong>
+                <p class="lead text-white-50">
+                    Twoje CV zostało dostosowane do stanowiska: <strong class="text-white">{{ session_data.job_title if session_data and session_data.job_title else cv_upload.job_title }}</strong>
                 </p>
             </div>
+        </div>
+    </div>
 
-            <!-- Action Buttons -->
-            <div class="d-flex justify-content-center gap-3 mb-4">
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
                 <button class="btn btn-primary btn-lg" onclick="copyToClipboard()">
                     <i class="bi bi-clipboard me-2"></i>Skopiuj CV
                 </button>
-                <button class="btn btn-outline-success btn-lg" onclick="downloadCV()">
+                <button class="btn btn-outline-primary btn-lg" onclick="downloadCV()">
                     <i class="bi bi-download me-2"></i>Pobierz jako tekst
                 </button>
-                {% if not session_data.cv_analysis %}
-                <button class="btn btn-warning btn-lg" onclick="analyzeCV()" id="analyzeBtn">
-                    <i class="bi bi-graph-up me-2"></i>Analizuj CV
-                </button>
-                {% endif %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
                 <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">
-                    <i class="bi bi-arrow-left me-2"></i>Nowe CV
+                    <i class="bi bi-plus-circle me-2"></i>Nowe CV
                 </a>
             </div>
+        </div>
+    </div>
 
-            <!-- CV Content -->
-            <div class="row">
-                <!-- Original CV -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card glassmorphism h-100">
-                        <div class="card-header">
-                            <h5 class="mb-0 text-white">
-                                <i class="bi bi-file-earmark-text me-2"></i>
-                                Oryginalne CV
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="original-cv-content">
-                                <pre class="bg-dark text-light p-3 rounded small" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.4) !important;">{{ session_data.cv_text }}</pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Optimized CV -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card glassmorphism h-100">
-                        <div class="card-header">
-                            <h5 class="mb-0 text-white">
-                                <i class="bi bi-stars me-2 text-warning"></i>
-                                Zoptymalizowane CV
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="optimized-cv-content">
-                                {% if session_data.optimized_cv %}
-                                    <div id="optimizedCvText" class="formatted-cv">
-                                        {{ session_data.optimized_cv | safe }}
-                                    </div>
-                                {% else %}
-                                    <div class="text-center p-4">
-                                        <div class="spinner-border text-primary mb-3" role="status">
-                                            <span class="visually-hidden">Ładowanie...</span>
-                                        </div>
-                                        <p class="text-muted">Generowanie zoptymalizowanego CV...</p>
-                                        <button class="btn btn-primary" onclick="optimizeCV()">
-                                            <i class="bi bi-magic me-2"></i>Optymalizuj teraz
-                                        </button>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Advanced Analysis Section -->
-            <div class="row mt-4" id="analysisSection" {% if not session_data.cv_analysis %}style="display: none;"{% endif %}>
-                <div class="col-lg-12 mb-4">
-                    <div class="card glassmorphism">
-                        <div class="card-header">
-                            <h5 class="mb-0 text-white">
-                                <i class="bi bi-graph-up-arrow me-2 text-info"></i>
-                                📊 Szczegółowa analiza CV z oceną punktową
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="cvAnalysisContent" class="cv-analysis">
-                                {% if session_data.cv_analysis %}
-                                    <div class="analysis-text" style="white-space: pre-wrap; font-family: inherit; line-height: 1.6;">{{ session_data.cv_analysis }}</div>
-                                {% else %}
-                                    <div class="text-center p-4">
-                                        <div class="spinner-border text-info mb-3" role="status" id="analysisSpinner" style="display: none;">
-                                            <span class="visually-hidden">Analizowanie...</span>
-                                        </div>
-                                        <p class="text-muted" id="analysisPlaceholder">Kliknij "Analizuj CV" aby otrzymać szczegółową ocenę punktową</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Keyword Analysis Section (for future use) -->
-            {% if session_data.get('keyword_analysis') %}
-            <div class="row mt-4">
-                <div class="col-lg-12 mb-4">
-                    <div class="card glassmorphism">
-                        <div class="card-header">
-                            <h5 class="mb-0 text-white">
-                                <i class="bi bi-tags me-2 text-warning"></i>
-                                Analiza słów kluczowych
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="keywords-analysis small">
-                                <pre class="text-white-50" style="white-space: pre-wrap; font-family: inherit;">{{ session_data.keyword_analysis }}</pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-
-            <!-- Tips Section -->
-            <div class="card glassmorphism mt-4">
-                <div class="card-header">
+    <!-- CV Content -->
+    <div class="row">
+        <!-- Original CV -->
+        <div class="col-lg-6 mb-4">
+            <div class="card glassmorphism h-100">
+                <div class="card-header" style="background: rgba(255, 255, 255, 0.1); border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
                     <h5 class="mb-0 text-white">
-                        <i class="bi bi-lightbulb me-2 text-success"></i>
-                        Ulepszenia wprowadzone przez AI
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        Oryginalne CV
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="fw-bold text-success">✅ Co zostało zoptymalizowane:</h6>
-                            <ul class="list-unstyled text-white">
-                                <li><i class="bi bi-check text-success me-1"></i> Analiza jakości CV (0-100 pkt)</li>
-                                <li><i class="bi bi-check text-success me-1"></i> Dopasowanie słów kluczowych</li>
-                                <li><i class="bi bi-check text-success me-1"></i> Struktura pod systemy ATS</li>
-                                <li><i class="bi bi-check text-success me-1"></i> Profesjonalne sformułowania</li>
-                                <li><i class="bi bi-check text-success me-1"></i> Podkreślenie osiągnięć</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="fw-bold text-primary">🚀 Zaawansowane funkcje AI:</h6>
-                            <ul class="list-unstyled text-white">
-                                <li><i class="bi bi-cpu text-primary me-1"></i> Multi-step analiza CV</li>
-                                <li><i class="bi bi-cpu text-primary me-1"></i> Psychologia rekrutacji</li>
-                                <li><i class="bi bi-cpu text-primary me-1"></i> Branżowe standardy</li>
-                                <li><i class="bi bi-cpu text-primary me-1"></i> Optymalizacja ATS</li>
-                                <li><i class="bi bi-cpu text-primary me-1"></i> Konkretne mierniki</li>
-                            </ul>
+                    <div class="original-cv-content">
+                        <div class="p-3 rounded" style="background: rgba(0,0,0,0.3); max-height: 500px; overflow-y: auto;">
+                            <pre class="text-white-50 mb-0 small" style="white-space: pre-wrap; font-family: 'Courier New', monospace;">{{ session_data.cv_text if session_data and session_data.cv_text else cv_upload.original_cv if cv_upload else 'Brak danych oryginalnego CV' }}</pre>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Job Description -->
-            {% if session_data.job_description %}
-            <div class="card glassmorphism mt-4">
-                <div class="card-header">
+        <!-- Optimized CV -->
+        <div class="col-lg-6 mb-4">
+            <div class="card glassmorphism h-100">
+                <div class="card-header" style="background: rgba(255, 255, 255, 0.1); border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
                     <h5 class="mb-0 text-white">
-                        <i class="bi bi-briefcase me-2 text-primary"></i>
-                        Opis stanowiska
+                        <i class="bi bi-stars me-2 text-warning"></i>
+                        Zoptymalizowane CV
                     </h5>
                 </div>
                 <div class="card-body">
-                    <pre class="text-white-50" style="white-space: pre-wrap; font-family: inherit;">{{ session_data.job_description }}</pre>
+                    <div class="optimized-cv-content">
+                        {% set optimized_text = session_data.optimized_cv if session_data and session_data.optimized_cv else cv_upload.optimized_cv if cv_upload else None %}
+                        {% if optimized_text %}
+                            <div id="optimizedCvText" class="p-3 rounded text-white" style="background: rgba(0,0,0,0.3); max-height: 500px; overflow-y: auto;">
+                                <div style="white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; line-height: 1.6;">
+                                    {{ optimized_text }}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center p-4">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Ładowanie...</span>
+                                </div>
+                                <p class="text-white-50">Trwa optymalizacja CV...</p>
+                                <p class="text-white-50 small">To może potrwać do 60 sekund</p>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
-</div>
-</div>
 
-<!-- Toast Notifications -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-success text-white">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            <strong class="me-auto">Sukces</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body" id="successMessage">
+    <!-- CV Analysis -->
+    {% if session_data and session_data.cv_analysis %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card glassmorphism">
+                <div class="card-header" style="background: rgba(255, 255, 255, 0.1); border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
+                    <h5 class="mb-0 text-white">
+                        <i class="bi bi-graph-up text-info me-2"></i>
+                        Analiza CV
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="analysis-content text-white" style="white-space: pre-wrap; line-height: 1.6;">
+                        {{ session_data.cv_analysis }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-danger text-white">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <strong class="me-auto">Błąd</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body" id="errorMessage">
+    {% endif %}
+
+    <!-- Success Message -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-success" style="background: rgba(40, 167, 69, 0.2); border: 1px solid rgba(40, 167, 69, 0.3);">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-lightbulb text-success me-3" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <h6 class="alert-heading text-white mb-1">Gratulacje!</h6>
+                        <p class="mb-0 text-success">
+                            Twoje CV zostało zoptymalizowane przy pomocy najnowszych technologii AI. 
+                            Zwiększyłeś swoje szanse na otrzymanie rozmowy kwalifikacyjnej!
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -216,165 +136,45 @@
 
 {% block scripts %}
 <script>
-const sessionId = '{{ session_id }}';
-
 function copyToClipboard() {
-    const cvText = document.getElementById('optimizedCvText');
-    if (!cvText) {
-        showToast('error', 'Nie ma jeszcze zoptymalizowanego CV do skopiowania.');
-        return;
+    const optimizedText = document.getElementById('optimizedCvText');
+    if (optimizedText) {
+        const text = optimizedText.innerText || optimizedText.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            showToast('success', 'CV zostało skopiowane do schowka!');
+        }).catch(function(err) {
+            showToast('error', 'Błąd podczas kopiowania: ' + err);
+        });
+    } else {
+        showToast('error', 'Nie znaleziono tekstu do skopiowania');
     }
-    
-    const textArea = document.createElement('textarea');
-    textArea.value = cvText.innerText;
-    document.body.appendChild(textArea);
-    textArea.select();
-    
-    try {
-        document.execCommand('copy');
-        showToast('success', 'CV zostało skopiowane do schowka!');
-    } catch (err) {
-        showToast('error', 'Nie udało się skopiować CV.');
-    }
-    
-    document.body.removeChild(textArea);
 }
 
 function downloadCV() {
-    const cvText = document.getElementById('optimizedCvText');
-    if (!cvText) {
-        showToast('error', 'Nie ma jeszcze zoptymalizowanego CV do pobrania.');
-        return;
-    }
-    
-    const text = cvText.innerText;
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'zoptymalizowane_cv_{{ session_data.job_title|replace(" ", "_") }}.txt';
-    document.body.appendChild(a);
-    a.click();
-    
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-    
-    showToast('success', 'CV zostało pobrane!');
-}
-
-async function optimizeCV() {
-    try {
-        const response = await fetch('/optimize-cv', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                session_id: sessionId
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            document.querySelector('.optimized-cv-content').innerHTML = 
-                '<div id="optimizedCvText" class="formatted-cv">' + result.optimized_cv + '</div>';
-            showToast('success', 'CV zostało pomyślnie zoptymalizowane!');
-        } else {
-            throw new Error(result.message);
-        }
-        
-    } catch (error) {
-        showToast('error', 'Błąd podczas optymalizacji: ' + error.message);
+    const optimizedText = document.getElementById('optimizedCvText');
+    if (optimizedText) {
+        const text = optimizedText.innerText || optimizedText.textContent;
+        const element = document.createElement('a');
+        const file = new Blob([text], {type: 'text/plain'});
+        element.href = URL.createObjectURL(file);
+        element.download = 'zoptymalizowane_cv.txt';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        showToast('success', 'CV zostało pobrane jako plik tekstowy!');
+    } else {
+        showToast('error', 'Nie znaleziono tekstu do pobrania');
     }
 }
 
-async function analyzeCV() {
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    const analysisSection = document.getElementById('analysisSection');
-    const analysisSpinner = document.getElementById('analysisSpinner');
-    const analysisPlaceholder = document.getElementById('analysisPlaceholder');
-    const cvAnalysisContent = document.getElementById('cvAnalysisContent');
-    
-    try {
-        // Show loading state
-        analyzeBtn.disabled = true;
-        analyzeBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analizuję...';
-        analysisSection.style.display = 'block';
-        analysisSpinner.style.display = 'block';
-        analysisPlaceholder.textContent = 'AI analizuje Twoje CV - może to potrwać do 30 sekund...';
-        
-        const response = await fetch('/analyze-cv', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                session_id: sessionId
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            // Replace content with analysis
-            cvAnalysisContent.innerHTML = 
-                '<div class="analysis-text" style="white-space: pre-wrap; font-family: inherit; line-height: 1.6;">' + 
-                result.cv_analysis + '</div>';
-            
-            // Hide the analyze button
-            analyzeBtn.style.display = 'none';
-            
-            showToast('success', 'Analiza CV została zakończona!');
-        } else {
-            throw new Error(result.message);
-        }
-        
-    } catch (error) {
-        showToast('error', 'Błąd podczas analizy: ' + error.message);
-        
-        // Reset UI state
-        analyzeBtn.disabled = false;
-        analyzeBtn.innerHTML = '<i class="bi bi-graph-up me-2"></i>Analizuj CV';
-        analysisSpinner.style.display = 'none';
-        analysisPlaceholder.textContent = 'Błąd podczas analizy. Spróbuj ponownie.';
-    }
-}
-
-function showToast(type, message) {
-    const toastElement = document.getElementById(type + 'Toast');
-    const messageElement = document.getElementById(type + 'Message');
-    
-    messageElement.textContent = message;
-    
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-}
-
-// Format the CV text for better readability
+// Auto refresh if CV is still processing
 document.addEventListener('DOMContentLoaded', function() {
-    const cvText = document.getElementById('optimizedCvText');
-    if (cvText) {
-        // Convert markdown-like formatting to HTML
-        let content = cvText.innerHTML;
-        
-        // Convert **bold** to <strong>
-        content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        
-        // Convert bullet points
-        content = content.replace(/^• /gm, '<li>');
-        content = content.replace(/\n\n/g, '</li></ul><p></p><ul><li>');
-        
-        // Wrap in proper HTML structure
-        if (content.includes('<li>')) {
-            content = '<ul>' + content + '</li></ul>';
-        }
-        
-        // Convert line breaks to paragraphs
-        content = content.replace(/\n/g, '<br>');
-        
-        cvText.innerHTML = content;
+    const optimizedCvText = document.getElementById('optimizedCvText');
+    if (!optimizedCvText || optimizedCvText.innerHTML.trim() === '') {
+        // Refresh page every 10 seconds if CV is still processing
+        setTimeout(function() {
+            location.reload();
+        }, 10000);
     }
 });
 </script>

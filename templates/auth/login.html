@@ -3,21 +3,20 @@
 {% block title %}Logowanie - CV Optimizer Pro{% endblock %}
 
 {% block content %}
-<div class="hero-section">
 <div class="container py-5">
-    <div class="row justify-content-center">
+    <div class="row justify-content-center min-vh-50 align-items-center">
         <div class="col-md-6 col-lg-5">
             <div class="card glassmorphism">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
-                        <h2 class="card-title">
+                        <h2 class="text-white mb-2">
                             <i class="bi bi-person-circle text-primary me-2"></i>
                             Logowanie
                         </h2>
-                        <p class="text-muted">Zaloguj się do swojego konta</p>
+                        <p class="text-white-50">Zaloguj się do swojego konta</p>
                     </div>
 
-                    <form method="POST">
+                    <form method="POST" id="loginForm">
                         {{ form.hidden_tag() }}
                         
                         <div class="mb-3">
@@ -30,12 +29,12 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
-                            <div class="form-text">Możesz użyć nick lub adres email</div>
+                            <div class="form-text text-white-50">Możesz użyć nick lub adres email</div>
                         </div>
 
                         <div class="mb-4">
                             {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control") }}
+                            {{ form.password(class="form-control", placeholder="Twoje hasło") }}
                             {% if form.password.errors %}
                                 <div class="text-danger small mt-1">
                                     {% for error in form.password.errors %}
@@ -45,21 +44,44 @@
                             {% endif %}
                         </div>
 
-                        {{ form.submit(class="btn btn-primary btn-lg w-100 mb-3") }}
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            Zaloguj się
+                        </button>
                     </form>
 
-                    <hr>
+                    <hr style="border-color: rgba(255,255,255,0.2);">
                     
                     <div class="text-center">
-                        <p class="text-muted mb-0">
+                        <p class="text-white-50 mb-3">
                             Nie masz konta? 
-                            <a href="{{ url_for('register') }}" class="text-primary">Zarejestruj się</a>
                         </p>
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-person-plus me-2"></i>Zarejestruj się
+                        </a>
+                    </div>
+
+                    <!-- Demo Account Info -->
+                    <div class="alert alert-info mt-4" style="background: rgba(13, 202, 240, 0.2); border: 1px solid rgba(13, 202, 240, 0.3);">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <div>
+                                <strong>Konto testowe:</strong><br>
+                                <small>Login: developer | Hasło: developer</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    validateForm('loginForm');
+});
+</script>
 {% endblock %}
