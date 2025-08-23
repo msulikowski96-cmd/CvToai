@@ -1,0 +1,329 @@
+
+{% extends "base.html" %}
+
+{% block title %}Profil - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<!-- Hero Section for Profile -->
+<div class="hero-section">
+    <div class="container">
+        <div class="hero-content py-5">
+            <div class="row min-vh-100 align-items-center">
+                <div class="col-lg-8 mx-auto">
+                    <div class="text-center mb-5">
+                        <div class="user-avatar-large mx-auto mb-3" style="width: 120px; height: 120px; font-size: 48px;">
+                            {{ current_user.first_name[0].upper() }}{{ current_user.last_name[0].upper() if current_user.last_name else '' }}
+                        </div>
+                        <h1 class="display-4 fw-bold mb-2">
+                            {{ current_user.first_name }} {{ current_user.last_name or '' }}
+                        </h1>
+                        <p class="lead mb-3">@{{ current_user.username }}</p>
+                        
+                        <div class="d-flex justify-content-center gap-3 mb-4">
+                            {% if current_user.is_premium_active() %}
+                                <span class="badge bg-warning fs-6 px-3 py-2">
+                                    <i class="bi bi-star-fill me-1"></i>Premium
+                                    {% if current_user.premium_until %}
+                                        do {{ current_user.premium_until.strftime('%d.%m.%Y') }}
+                                    {% endif %}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary fs-6 px-3 py-2">
+                                    <i class="bi bi-person me-1"></i>Free
+                                </span>
+                            {% endif %}
+                            <span class="badge bg-info fs-6 px-3 py-2">
+                                <i class="bi bi-calendar me-1"></i>
+                                Członek od {{ current_user.created_at.strftime('%m.%Y') if current_user.created_at else 'dziś' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Profile Form Card -->
+                    <div class="upload-card glassmorphism p-4">
+                        <h3 class="text-center mb-4">
+                            <i class="bi bi-person-gear text-primary me-2"></i>
+                            Ustawienia profilu
+                        </h3>
+                        
+                        <form id="profileForm" method="POST">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="first_name" class="form-label">Imię</label>
+                                        {{ form.first_name(class="form-control") }}
+                                        {% if form.first_name.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in form.first_name.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="last_name" class="form-label">Nazwisko</label>
+                                        {{ form.last_name(class="form-control") }}
+                                        {% if form.last_name.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in form.last_name.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                {{ form.email(class="form-control") }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nazwa użytkownika</label>
+                                {{ form.username(class="form-control") }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h5 class="mb-3">
+                                <i class="bi bi-shield-lock text-warning me-2"></i>
+                                Zmiana hasła
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">Obecne hasło</label>
+                                {{ form.current_password(class="form-control") }}
+                                {% if form.current_password.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.current_password.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="new_password" class="form-label">Nowe hasło</label>
+                                        {{ form.new_password(class="form-control") }}
+                                        {% if form.new_password.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in form.new_password.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="confirm_password" class="form-label">Potwierdź hasło</label>
+                                        {{ form.confirm_password(class="form-control") }}
+                                        {% if form.confirm_password.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in form.confirm_password.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-3 justify-content-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-4">
+                                    <i class="bi bi-check-circle me-2"></i>Zapisz zmiany
+                                </button>
+                                <a href="{{ url_for('index') }}" class="btn btn-outline-light btn-lg px-4">
+                                    <i class="bi bi-arrow-left me-2"></i>Powrót
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<section class="py-5 bg-dark">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center mb-5">Twoje statystyki</h2>
+                
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="feature-card text-center">
+                            <div class="feature-icon mb-3 bg-primary">
+                                <i class="bi bi-file-earmark-text text-white"></i>
+                            </div>
+                            <h4 class="text-primary mb-2">{{ current_user.cv_uploads|length if current_user.cv_uploads else 0 }}</h4>
+                            <p class="text-muted">CV przesłanych</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="feature-card text-center">
+                            <div class="feature-icon mb-3 bg-success">
+                                <i class="bi bi-check-circle text-white"></i>
+                            </div>
+                            <h4 class="text-success mb-2">
+                                {% set optimized_count = current_user.cv_uploads|selectattr('optimized_cv')|list|length if current_user.cv_uploads else 0 %}
+                                {{ optimized_count }}
+                            </h4>
+                            <p class="text-muted">Zoptymalizowanych</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="feature-card text-center">
+                            <div class="feature-icon mb-3 bg-info">
+                                <i class="bi bi-bar-chart text-white"></i>
+                            </div>
+                            <h4 class="text-info mb-2">
+                                {% set analyzed_count = current_user.cv_uploads|selectattr('cv_analysis')|list|length if current_user.cv_uploads else 0 %}
+                                {{ analyzed_count }}
+                            </h4>
+                            <p class="text-muted">Przeanalizowanych</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="feature-card text-center">
+                            <div class="feature-icon mb-3 bg-warning">
+                                <i class="bi bi-calendar-week text-white"></i>
+                            </div>
+                            <h4 class="text-warning mb-2">
+                                {{ ((now() - current_user.created_at).days + 1) if current_user.created_at else 1 }}
+                            </h4>
+                            <p class="text-muted">Dni z nami</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Account Management Section -->
+{% if not current_user.is_premium_active() %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="text-center">
+                    <h2 class="mb-4">Ulepsz swoje konto</h2>
+                    <p class="lead mb-4">Uzyskaj dostęp do wszystkich funkcji Premium</p>
+                    
+                    <div class="feature-item-horizontal glassmorphism p-4 mb-4">
+                        <div class="feature-icon-medium bg-warning me-3">
+                            <i class="bi bi-star text-white"></i>
+                        </div>
+                        <div class="text-start">
+                            <h5 class="mb-2">CV Optimizer Pro Premium</h5>
+                            <ul class="list-unstyled text-muted mb-0">
+                                <li><i class="bi bi-check text-success me-2"></i>Nielimitowane optymalizacje</li>
+                                <li><i class="bi bi-check text-success me-2"></i>Zaawansowana analiza ATS</li>
+                                <li><i class="bi bi-check text-success me-2"></i>Eksport do Word</li>
+                                <li><i class="bi bi-check text-success me-2"></i>Priorytetowa obsługa</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <a href="#" onclick="showPremiumModal()" class="btn btn-warning btn-lg px-4">
+                        <i class="bi bi-star me-2"></i>Przejdź na Premium
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profileForm');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Zapisuję...';
+        submitBtn.disabled = true;
+        
+        // Submit form
+        const formData = new FormData(form);
+        
+        fetch('/profile', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', 'Profil został zaktualizowany!');
+                // Reload page after short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showToast('error', data.message || 'Wystąpił błąd podczas zapisywania');
+            }
+        })
+        .catch(error => {
+            showToast('error', 'Wystąpił błąd podczas zapisywania');
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+});
+
+function showToast(type, message) {
+    // Toast implementation
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'error' ? 'danger' : 'success'} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+function showPremiumModal() {
+    alert('Funkcja płatności będzie dostępna wkrótce!');
+}
+</script>
+{% endblock %}
