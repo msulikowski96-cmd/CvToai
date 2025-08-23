@@ -192,90 +192,90 @@
     animation: pulse 2s infinite;
 }
 
-/* CV content styling - ciemne tło z jasnym tekstem */
+/* CV content styling - dokładnie jak na screenie */
 .formatted-cv {
     font-family: 'Segoe UI', 'Arial', sans-serif;
-    line-height: 1.7;
+    line-height: 1.6;
     color: #ffffff !important;
-    background-color: #2c3e50 !important;
+    background-color: #1a1a1a !important;
     padding: 1.5rem;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 14px;
     backdrop-filter: none !important;
     filter: none !important;
 }
 
 .formatted-cv h1, .formatted-cv h2, .formatted-cv h3 {
     color: #74c0fc !important;
-    margin-top: 1.8rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
     text-shadow: none;
-    border-bottom: 2px solid #495057;
-    padding-bottom: 0.5rem;
+    font-size: 1rem;
 }
 
 .formatted-cv h1 {
-    font-size: 1.8rem;
+    font-size: 1.1rem;
     color: #74c0fc !important;
-    border-bottom: 3px solid #339af0;
 }
 
 .formatted-cv h2 {
-    font-size: 1.4rem;
+    font-size: 1rem;
     color: #74c0fc !important;
 }
 
 .formatted-cv h3 {
-    font-size: 1.2rem;
-    color: #a5d8ff !important;
+    font-size: 0.95rem;
+    color: #74c0fc !important;
 }
 
-/* Nagłówki pozycji/firm - bardzo wyraźne */
+/* Nagłówki pozycji/firm - białe jak na screenie */
 .formatted-cv strong {
     color: #ffffff !important;
-    font-weight: 700;
-    font-size: 1.05em;
+    font-weight: 600;
+    font-size: 1em;
 }
 
-/* Główny tekst zawartości - maksymalny kontrast */
+/* Główny tekst zawartości - biały jak na screenie */
 .formatted-cv p, .formatted-cv li, .formatted-cv span, .formatted-cv div {
     color: #ffffff !important;
     font-weight: 400;
     opacity: 1;
     text-shadow: none;
     background: transparent;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-/* Specjalne formatowanie dla umiejętności i kluczowych punktów */
+/* Punktory - białe kropki */
 .formatted-cv ul {
-    padding-left: 1.5rem;
+    padding-left: 1.2rem;
     margin-bottom: 1rem;
 }
 
 .formatted-cv li {
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.5rem;
     color: #ffffff !important;
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
 .formatted-cv ul li::marker {
-    color: #74c0fc;
-    font-weight: bold;
+    color: #ffffff;
+    font-size: 0.8rem;
 }
 
-/* Daty i informacje pomocnicze */
+/* Daty i informacje pomocnicze - szare */
 .formatted-cv em, .formatted-cv i {
-    color: #ced4da !important;
+    color: #a0a0a0 !important;
     font-style: italic;
-    font-weight: 500;
+    font-weight: 400;
 }
 
-/* Linki i kontakt */
+/* Linki i kontakt - niebieskie */
 .formatted-cv a {
     color: #74c0fc !important;
-    text-decoration: underline;
-    font-weight: 500;
+    text-decoration: none;
+    font-weight: 400;
 }
 
 .formatted-cv a:hover {
@@ -289,21 +289,14 @@
     background: transparent !important;
 }
 
-/* Sekcje CV z lepszym kontrastem */
-.formatted-cv .cv-section {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #495057;
-}
-
-/* Dodatkowe wzmocnienie kontrastu dla wszystkich elementów */
+/* Karta CV - ciemne tło */
 .card .formatted-cv,
 .card-body .formatted-cv,
 #optimizedCvText,
 #optimizedCvText * {
     color: #ffffff !important;
     opacity: 1 !important;
-    background: #2c3e50 !important;
+    background: #1a1a1a !important;
     backdrop-filter: none !important;
     filter: none !important;
 }
@@ -312,12 +305,13 @@
 .card:has(.formatted-cv),
 .card:has(#optimizedCvText) {
     backdrop-filter: none !important;
+    background: #1a1a1a !important;
 }
 
 .card-body:has(.formatted-cv),
 .card-body:has(#optimizedCvText) {
     backdrop-filter: none !important;
-    background: #2c3e50 !important;
+    background: #1a1a1a !important;
 }
 
 /* Original CV display */

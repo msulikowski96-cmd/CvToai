@@ -319,26 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         cvText.innerHTML = content;
 
-        // Force light colors on ALL elements for dark theme
-        allElements.forEach(element => {
-            element.style.color = '#ffffff';
-            element.style.opacity = '1';
-            element.style.background = 'transparent';
-            element.style.backdropFilter = 'none';
-            element.style.filter = 'none';
-
-            // Special handling for headers
-            if (element.tagName && element.tagName.match(/^H[1-6]$/)) {
-                element.style.color = '#74c0fc';
-                element.style.fontWeight = '700';
-            }
-
-            // Special handling for strong elements
-            if (element.tagName === 'STRONG') {
-                element.style.color = '#ffffff';
-                element.style.fontWeight = '700';
-            }
-        });
+        
 
         // Usuń efekty rozmazania z całej karty CV
         const cvCard = cvText.closest('.card');
