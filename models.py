@@ -15,6 +15,9 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime)
     active = db.Column(db.Boolean, default=True)
     
+    # Relacja do CVUpload
+    uploads = db.relationship('CVUpload', backref='user', lazy='dynamic')
+    
     def is_premium_active(self):
         # Konto developer ma zawsze dostęp do wszystkich funkcji premium
         if self.is_developer():
@@ -39,6 +42,9 @@ class CVUpload(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     optimized_at = db.Column(db.DateTime, nullable=True)
     analyzed_at = db.Column(db.DateTime, nullable=True)
+    
+    # Klucz obcy do User
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
     def __repr__(self):
         return f'<CVUpload {self.filename}>'

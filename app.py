@@ -219,7 +219,8 @@ def upload_cv():
                 filename=filename,
                 original_text=cv_text,
                 job_title=job_title,
-                job_description=job_description
+                job_description=job_description,
+                user_id=current_user.id
             )
             db.session.add(cv_upload)
             db.session.commit()
