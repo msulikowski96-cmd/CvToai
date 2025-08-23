@@ -55,7 +55,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # Set login view after initialization
-login_manager.login_view = 'login'
+login_manager.login_view = 'login'  # type: ignore
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -109,7 +109,7 @@ def login():
         username_or_email = form.username_or_email.data
         
         # Sprawdź czy to email czy nick
-        if '@' in username_or_email:
+        if username_or_email and '@' in username_or_email:
             # Jeśli zawiera @, traktuj jako email
             user = User.query.filter_by(email=username_or_email).first()
         else:
