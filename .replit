@@ -9,7 +9,7 @@ deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 
 [workflows]
-runButton = "Project"
+runButton = "Start Fast Application"
 
 [[workflows.workflow]]
 name = "Project"
@@ -28,6 +28,15 @@ author = "agent"
 task = "shell.exec"
 args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start Fast Application"
+author = 46784081
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload --timeout 600 --worker-connections 10 main:app"
 
 [[ports]]
 localPort = 5000

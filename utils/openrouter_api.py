@@ -62,7 +62,7 @@ def send_api_request(prompt, max_tokens=3000, temperature=0.3, task_type='cv_opt
 3. Stosuj zasady psychologii przekonywania w pisaniu CV
 4. Używaj konkretnych, mierzalnych sformułowań
 5. Dostosowuj język do branży i poziomu stanowiska
-6. **PRZEPISUJ opisy stanowisk z ogólnikowych na konkretne i profesjonalne**
+6. **PRZEPISUJ** opisy stanowisk z ogólnikowych na konkretne i profesjonalne
 
 💼 ZNAJOMOŚĆ RYNKU:
 - Polskie firmy (korporacje, MŚP, startupy)
@@ -167,7 +167,7 @@ def analyze_cv_score(cv_text, job_description=""):
 
     Zwróć szczegółową analizę punktową oraz konkretne rekomendacje do poprawy.
     """
-    
+
     try:
         analysis = send_api_request(prompt, max_tokens=2000, task_type='cv_analysis')
         return analysis
@@ -179,7 +179,7 @@ def check_keywords_match(cv_text, job_description):
     """Sprawdza dopasowanie słów kluczowych z CV do oferty pracy"""
     if not job_description:
         return "Brak opisu stanowiska do analizy słów kluczowych."
-    
+
     prompt = f"""
     Przeanalizuj dopasowanie słów kluczowych między CV a wymaganiami oferty pracy.
 
@@ -197,7 +197,7 @@ def check_keywords_match(cv_text, job_description):
 
     Podaj konkretne rekomendacje jak poprawić dopasowanie.
     """
-    
+
     try:
         analysis = send_api_request(prompt, max_tokens=1500, task_type='keyword_analysis')
         return analysis
@@ -207,7 +207,7 @@ def check_keywords_match(cv_text, job_description):
 
 def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
     """Simplified CV optimization to avoid timeout"""
-    
+
     # Pojedyncze zapytanie optymalizacyjne
     main_prompt = f"""
     Stwórz zoptymalizowane CV na podstawie poniższych danych:
@@ -250,15 +250,15 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
     PRZYKŁADY TRANSFORMACJI:
     ❌ "Obsługiwałem klientów" 
     ✅ "• Świadczyłem kompleksową obsługę klientów B2B i B2C
-        • Rozwiązywałem zapytania i reklamacje, dbając o wysoką satysfakcję"
+    • Rozwiązywałem zapytania i reklamacje, dbając o wysoką satysfakcję"
 
     ❌ "Pracowałem z zespołem"
     ✅ "• Współkoordynowałem projekty w zespole 5-osobowym
-        • Wspierałem komunikację międzydziałową i realizację celów"
+    • Wspierałem komunikację międzydziałową i realizację celów"
 
     ❌ "Robiłem raporty"
     ✅ "• Przygotowywałem regularne analizy i raporty dla kierownictwa
-        • Monitorowałem KPI i przedstawiałem rekomendacje optymalizacyjne"
+    • Monitorowałem KPI i przedstawiałem rekomendacje optymalizacyjne"
 
     WYMAGANIA TECHNICZNE:
     - Używaj **pogrubienia** dla nagłówków sekcji
@@ -277,8 +277,8 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
     try:
         # Configure premium features
         user_tier = 'premium' if is_premium else 'paid'
-        max_tokens = 4000 if is_premium else 2500
-        
+        max_tokens = 4000 if is_premium else 2000
+
         optimized_cv = send_api_request(main_prompt, max_tokens=max_tokens, temperature=0.3, task_type='cv_optimization')
         return optimized_cv
     except Exception as e:
@@ -291,16 +291,16 @@ def analyze_cv_with_score(cv_text, job_title="", job_description="", is_premium=
     """
     if not cv_text:
         return None
-    
+
     prompt = f"""
     Przeprowadź szczegółową analizę CV jako doświadczony rekruter z 15-letnim stażem.
-    
+
     ANALIZA CV:
     {cv_text}
-    
+
     STANOWISKO DOCELOWE: {job_title if job_title else "Analiza ogólna"}
     WYMAGANIA STANOWISKA: {job_description if job_description else "Brak szczegółowych wymagań"}
-    
+
     ZADANIE: Oceń CV w każdej kategorii i podaj szczegółową analizę według poniższego schematu:
 
     ## 📊 OCENA PUNKTOWA (0-100)
@@ -356,7 +356,7 @@ def analyze_cv_with_score(cv_text, job_title="", job_description="", is_premium=
 
     ## 📈 SZANSE NA ROZMOWĘ KWALIFIKACYJNĄ
     **Prawdopodobieństwo: [XX]%**
-    
+
     [Uzasadnienie oceny i porady jak zwiększyć szanse]
 
     ## 🏆 PORÓWNANIE Z KONKURENCJĄ
@@ -369,7 +369,7 @@ def analyze_cv_with_score(cv_text, job_title="", job_description="", is_premium=
         # Configure premium features for analysis
         user_tier = 'premium' if is_premium else 'paid'
         max_tokens = 3500 if is_premium else 2000
-        
+
         analysis = send_api_request(
             prompt, 
             max_tokens=max_tokens, 
