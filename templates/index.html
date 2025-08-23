@@ -5,103 +5,116 @@
 <!-- Hero Section -->
 <div class="hero-section">
     <div class="container">
-        <div class="row align-items-center min-vh-100">
+        <div class="row align-items-center min-vh-100" style="padding-top: 80px;">
             <div class="col-lg-6">
                 <div class="hero-content">
-                    <div class="badge bg-primary mb-3 px-3 py-2">
-                        <i class="bi bi-magic me-1"></i>Powered by AI
+                    <div class="badge bg-primary mb-4 px-4 py-2 fs-6 hover-glow pulse-animation">
+                        <i class="bi bi-cpu me-2"></i>Powered by Advanced AI
                     </div>
-                    <h1 class="display-4 fw-bold text-white mb-4">
-                        Zoptymalizuj swoje CV z pomocą AI
+                    <h1 class="display-3 fw-bold mb-4 slide-in-left">
+                        Zoptymalizuj swoje CV z pomocą <span class="neon-text">AI</span>
                     </h1>
-                    <p class="lead text-white-50 mb-4">
-                        Przekształć swoje CV w potężne narzędzie kariery. Nasza sztuczna inteligencja dostosuje Twoje CV do konkretnego stanowiska, zwiększając szanse na rozmowę kwalifikacyjną nawet o 85%.
+                    <p class="lead mb-5 fs-4" style="color: var(--text-secondary);">
+                        Przekształć swoje CV w potężne narzędzie kariery. Nasza zaawansowana sztuczna inteligencja dostosuje Twoje CV do konkretnego stanowiska, zwiększając szanse na rozmowę kwalifikacyjną nawet o <strong class="text-gradient">85%</strong>.
                     </p>
                     
                     <!-- Key Benefits -->
-                    <div class="row g-3 mb-4">
+                    <div class="row g-4 mb-5">
                         <div class="col-md-6">
-                            <div class="d-flex align-items-center">
+                            <div class="feature-item-horizontal hover-glow">
                                 <div class="feature-icon-small bg-success me-3">
-                                    <i class="bi bi-check-lg text-white"></i>
+                                    <i class="bi bi-shield-check text-white"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-0 text-white">ATS Optimized</h6>
-                                    <small class="text-white-50">Przejdzie przez systemy rekrutacyjne</small>
+                                    <h6 class="mb-1 text-white fw-bold">ATS Optimized</h6>
+                                    <small class="text-muted">Przejdzie przez systemy rekrutacyjne</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex align-items-center">
+                            <div class="feature-item-horizontal hover-glow">
                                 <div class="feature-icon-small bg-info me-3">
                                     <i class="bi bi-lightning-charge text-white"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-0 text-white">Szybka optymalizacja</h6>
-                                    <small class="text-white-50">Wyniki w mniej niż 60 sekund</small>
+                                    <h6 class="mb-1 text-white fw-bold">Szybka optymalizacja</h6>
+                                    <small class="text-muted">Wyniki w mniej niż 60 sekund</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex align-items-center">
+                            <div class="feature-item-horizontal hover-glow">
                                 <div class="feature-icon-small bg-warning me-3">
-                                    <i class="bi bi-target text-white"></i>
+                                    <i class="bi bi-bullseye text-white"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-0 text-white">Precyzyjne dopasowanie</h6>
-                                    <small class="text-white-50">Dostosowane do stanowiska</small>
+                                    <h6 class="mb-1 text-white fw-bold">Precyzyjne dopasowanie</h6>
+                                    <small class="text-muted">Dostosowane do stanowiska</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex align-items-center">
+                            <div class="feature-item-horizontal hover-glow">
                                 <div class="feature-icon-small bg-danger me-3">
-                                    <i class="bi bi-shield-check text-white"></i>
+                                    <i class="bi bi-lock text-white"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-0 text-white">Bezpieczne</h6>
-                                    <small class="text-white-50">Twoje dane są chronione</small>
+                                    <h6 class="mb-1 text-white fw-bold">100% Bezpieczne</h6>
+                                    <small class="text-muted">Twoje dane są chronione</small>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-flex gap-3">
-                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
-                            <i class="bi bi-person-plus me-2"></i>Rozpocznij za darmo
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg hover-glow">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Rozpocznij za darmo
                         </a>
                         <a href="#how-it-works" class="btn btn-outline-light btn-lg">
                             <i class="bi bi-play-circle me-2"></i>Zobacz jak działa
                         </a>
                     </div>
+
+                    <!-- Social proof -->
+                    <div class="row g-3 mt-5">
+                        <div class="col-auto">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-2" style="width: 30px; height: 30px; font-size: 12px;">M</div>
+                                <div class="avatar me-2" style="width: 30px; height: 30px; font-size: 12px;">A</div>
+                                <div class="avatar me-2" style="width: 30px; height: 30px; font-size: 12px;">T</div>
+                                <div class="avatar me-2" style="width: 30px; height: 30px; font-size: 12px;">K</div>
+                                <small class="text-muted ms-2">+1,234 zadowolonych użytkowników</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="upload-card glassmorphism">
+                <div class="upload-card glassmorphism hover-glow">
                     <div class="card-body p-4">
-                        <h3 class="card-title text-center mb-4 text-white">
-                            <i class="bi bi-upload text-primary me-2"></i>
-                            Wypróbuj teraz
+                        <h3 class="card-title text-center mb-4 text-gradient">
+                            <i class="bi bi-upload me-2"></i>
+                            Wypróbuj teraz za darmo
                         </h3>
                         
-                        <!-- Stats Preview -->
-                        <div class="row g-2 mb-4">
+                        <!-- Live Stats -->
+                        <div class="row g-3 mb-4">
                             <div class="col-4 text-center">
-                                <div class="stat-item">
-                                    <h4 class="text-primary mb-0">1,234</h4>
-                                    <small class="text-white-50">CV zoptymalizowanych</small>
+                                <div class="stat-item hover-glow">
+                                    <div class="stat-number text-primary">1,234</div>
+                                    <small class="text-muted">CV zoptymalizowanych</small>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
-                                <div class="stat-item">
-                                    <h4 class="text-success mb-0">85%</h4>
-                                    <small class="text-white-50">Większe szanse</small>
+                                <div class="stat-item hover-glow">
+                                    <div class="stat-number text-success">85%</div>
+                                    <small class="text-muted">Większe szanse</small>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
-                                <div class="stat-item">
-                                    <h4 class="text-warning mb-0">4.9★</h4>
-                                    <small class="text-white-50">Ocena użytkowników</small>
+                                <div class="stat-item hover-glow">
+                                    <div class="stat-number text-warning">4.9★</div>
+                                    <small class="text-muted">Ocena użytkowników</small>
                                 </div>
                             </div>
                         </div>
@@ -109,35 +122,36 @@
                         <form id="cvUploadForm" enctype="multipart/form-data">
                             <!-- Job Title Input -->
                             <div class="mb-3">
-                                <label for="jobTitle" class="form-label text-white">
-                                    <i class="bi bi-briefcase me-1"></i>Nazwa stanowiska *
+                                <label for="jobTitle" class="form-label">
+                                    <i class="bi bi-briefcase me-2"></i>Nazwa stanowiska *
                                 </label>
                                 <input type="text" class="form-control" id="jobTitle" name="job_title" 
                                        placeholder="np. Frontend Developer, Marketing Manager" required>
-                                <div class="form-text text-white-50">Podaj nazwę stanowiska, o które się ubiegasz</div>
+                                <div class="form-text">Podaj nazwę stanowiska, o które się ubiegasz</div>
                             </div>
 
                             <!-- Job Description Input -->
                             <div class="mb-3">
-                                <label for="jobDescription" class="form-label text-white">
-                                    <i class="bi bi-file-text me-1"></i>Opis stanowiska (opcjonalnie)
+                                <label for="jobDescription" class="form-label">
+                                    <i class="bi bi-file-text me-2"></i>Opis stanowiska (opcjonalnie)
                                 </label>
                                 <textarea class="form-control" id="jobDescription" name="job_description" 
                                           rows="3" placeholder="Wklej tutaj treść ogłoszenia o pracę..."></textarea>
+                                <div class="form-text">Im więcej szczegółów, tym lepsze dopasowanie</div>
                             </div>
 
                             <!-- File Upload -->
                             <div class="mb-4">
-                                <label for="cvFile" class="form-label text-white">
-                                    <i class="bi bi-file-pdf me-1"></i>Plik CV (PDF) *
+                                <label for="cvFile" class="form-label">
+                                    <i class="bi bi-file-pdf me-2"></i>Plik CV (PDF) *
                                 </label>
                                 <input type="file" class="form-control" id="cvFile" name="cv_file" 
                                        accept=".pdf" required>
-                                <div class="form-text text-white-50">Maksymalny rozmiar: 16MB</div>
+                                <div class="form-text">Maksymalny rozmiar: 16MB</div>
                             </div>
 
                             <!-- Submit Button -->
-                            <button type="submit" class="btn btn-primary btn-lg w-100" id="uploadBtn">
+                            <button type="submit" class="btn btn-primary btn-lg w-100 hover-glow" id="uploadBtn">
                                 <i class="bi bi-magic me-2"></i>
                                 Zoptymalizuj CV za darmo
                             </button>
@@ -148,15 +162,15 @@
                                     <span class="visually-hidden">Ładowanie...</span>
                                 </div>
                                 <div class="mt-2">
-                                    <small class="text-white-50">Analizuję CV i generuję optymalizację...</small>
+                                    <small class="text-muted">AI analizuje CV i generuje optymalizację...</small>
                                 </div>
                             </div>
                         </form>
 
                         <div class="text-center mt-3">
-                            <small class="text-white-50">
+                            <small class="text-muted">
                                 <i class="bi bi-shield-check me-1"></i>
-                                Twoje dane są bezpieczne i chronione
+                                Twoje dane są bezpieczne i chronione 256-bit SSL
                             </small>
                         </div>
                     </div>
@@ -167,49 +181,58 @@
 </div>
 
 <!-- How It Works Section -->
-<section id="how-it-works" class="py-5 bg-dark">
+<section id="how-it-works" class="py-5" style="background: rgba(10, 10, 10, 0.5);">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-12">
-                <h2 class="display-5 fw-bold text-white mb-3">Jak to działa?</h2>
+                <h2 class="display-5 fw-bold text-gradient mb-3">Jak to działa?</h2>
                 <p class="lead text-muted">Prosty proces optymalizacji CV w trzech krokach</p>
             </div>
         </div>
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="feature-card h-100 text-center">
-                    <div class="feature-icon mx-auto mb-3">
-                        <i class="bi bi-upload fs-1 text-primary"></i>
+                <div class="feature-card h-100 text-center glassmorphism hover-glow">
+                    <div class="feature-icon mx-auto mb-4">
+                        <i class="bi bi-upload fs-1"></i>
                     </div>
                     <div class="step-number">01</div>
-                    <h4 class="mb-3">Prześlij CV</h4>
+                    <h4 class="mb-3 text-gradient">Prześlij CV</h4>
                     <p class="text-muted">
                         Wgraj swoje aktualne CV w formacie PDF oraz podaj informacje o stanowisku, o które się ubiegasz.
                     </p>
+                    <div class="mt-auto">
+                        <i class="bi bi-arrow-down text-primary fs-3"></i>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="feature-card h-100 text-center">
-                    <div class="feature-icon mx-auto mb-3">
-                        <i class="bi bi-cpu fs-1 text-success"></i>
+                <div class="feature-card h-100 text-center glassmorphism hover-glow">
+                    <div class="feature-icon mx-auto mb-4">
+                        <i class="bi bi-cpu fs-1"></i>
                     </div>
                     <div class="step-number">02</div>
-                    <h4 class="mb-3">AI analizuje</h4>
+                    <h4 class="mb-3 text-gradient">AI analizuje</h4>
                     <p class="text-muted">
                         Zaawansowana sztuczna inteligencja analizuje Twoje CV i dostosowuje je do wymagań stanowiska w czasie rzeczywistym.
                     </p>
+                    <div class="mt-auto">
+                        <i class="bi bi-arrow-down text-success fs-3"></i>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="feature-card h-100 text-center">
-                    <div class="feature-icon mx-auto mb-3">
-                        <i class="bi bi-download fs-1 text-info"></i>
+                <div class="feature-card h-100 text-center glassmorphism hover-glow">
+                    <div class="feature-icon mx-auto mb-4">
+                        <i class="bi bi-download fs-1"></i>
                     </div>
                     <div class="step-number">03</div>
-                    <h4 class="mb-3">Pobierz wynik</h4>
+                    <h4 class="mb-3 text-gradient">Pobierz wynik</h4>
                     <p class="text-muted">
                         Otrzymaj profesjonalnie zoptymalizowane CV gotowe do wysłania wraz z analizą i sugestiami ulepszeń.
                     </p>
+                    <div class="mt-auto">
+                        <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -221,59 +244,59 @@
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-12">
-                <h2 class="display-5 fw-bold mb-3">Dlaczego CV Optimizer Pro?</h2>
+                <h2 class="display-5 fw-bold text-gradient mb-3">Dlaczego CV Optimizer Pro?</h2>
                 <p class="lead text-muted">Zaawansowane funkcje AI dla Twojej kariery</p>
             </div>
         </div>
         <div class="row g-4">
             <div class="col-lg-6">
-                <div class="feature-item-horizontal">
-                    <div class="feature-icon-medium bg-primary me-3">
+                <div class="feature-item-horizontal glassmorphism hover-glow">
+                    <div class="feature-icon-medium me-4">
                         <i class="bi bi-robot text-white"></i>
                     </div>
                     <div>
-                        <h5 class="mb-2">Zaawansowana AI</h5>
+                        <h5 class="mb-2 text-gradient">Zaawansowana AI</h5>
                         <p class="text-muted mb-0">
-                            Wykorzystujemy najnowsze modele językowe do analizy i optymalizacji treści CV
+                            Wykorzystujemy najnowsze modele językowe GPT-4 do analizy i optymalizacji treści CV
                         </p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="feature-item-horizontal">
-                    <div class="feature-icon-medium bg-success me-3">
+                <div class="feature-item-horizontal glassmorphism hover-glow">
+                    <div class="feature-icon-medium me-4">
                         <i class="bi bi-search text-white"></i>
                     </div>
                     <div>
-                        <h5 class="mb-2">Optymalizacja ATS</h5>
+                        <h5 class="mb-2 text-gradient">Optymalizacja ATS</h5>
                         <p class="text-muted mb-0">
-                            Twoje CV przejdzie przez systemy rekrutacyjne używane przez 95% firm
+                            Twoje CV przejdzie przez systemy rekrutacyjne używane przez 95% firm technologicznych
                         </p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="feature-item-horizontal">
-                    <div class="feature-icon-medium bg-info me-3">
+                <div class="feature-item-horizontal glassmorphism hover-glow">
+                    <div class="feature-icon-medium me-4">
                         <i class="bi bi-bullseye text-white"></i>
                     </div>
                     <div>
-                        <h5 class="mb-2">Dopasowanie słów kluczowych</h5>
+                        <h5 class="mb-2 text-gradient">Inteligentne dopasowanie</h5>
                         <p class="text-muted mb-0">
-                            Automatyczne dopasowanie słów kluczowych do wymagań stanowiska
+                            Automatyczne dopasowanie słów kluczowych i umiejętności do wymagań stanowiska
                         </p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="feature-item-horizontal">
-                    <div class="feature-icon-medium bg-warning me-3">
+                <div class="feature-item-horizontal glassmorphism hover-glow">
+                    <div class="feature-icon-medium me-4">
                         <i class="bi bi-graph-up-arrow text-white"></i>
                     </div>
                     <div>
-                        <h5 class="mb-2">Analiza i statystyki</h5>
+                        <h5 class="mb-2 text-gradient">Analiza i statystyki</h5>
                         <p class="text-muted mb-0">
-                            Szczegółowa analiza CV z oceną i konkretnymi sugestiami poprawy
+                            Szczegółowa analiza CV z oceną punktową i konkretnymi sugestiami poprawy
                         </p>
                     </div>
                 </div>
@@ -283,21 +306,24 @@
 </section>
 
 <!-- Pricing Section -->
-<section class="py-5 bg-light">
+<section class="py-5" style="background: rgba(10, 10, 10, 0.3);">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-12">
-                <h2 class="display-5 fw-bold mb-3">Wybierz swój plan</h2>
-                <p class="lead text-muted">Dostosowane rozwiązania dla każdego budżetu</p>
+                <h2 class="display-5 fw-bold text-gradient mb-3">Wybierz swój plan</h2>
+                <p class="lead text-muted">Dostosowane rozwiązania dla każdego budżetu i potrzeb</p>
             </div>
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card pricing-card h-100">
+                <div class="pricing-card h-100 glassmorphism">
                     <div class="card-body text-center p-4">
-                        <h5 class="card-title">Starter</h5>
+                        <div class="feature-icon-small mx-auto mb-3">
+                            <i class="bi bi-person text-white"></i>
+                        </div>
+                        <h5 class="card-title text-gradient">Starter</h5>
                         <div class="price mb-4">
-                            <span class="price-amount">Darmowy</span>
+                            <span class="price-amount fs-1">Darmowy</span>
                         </div>
                         <ul class="list-unstyled mb-4">
                             <li class="mb-2">
@@ -318,25 +344,30 @@
                             </li>
                             <li class="mb-2 text-muted">
                                 <i class="bi bi-x-circle me-2"></i>
-                                Generowanie listów motywacyjnych
+                                Priorytetowe wsparcie
                             </li>
                         </ul>
-                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100">
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 hover-glow">
                             Rozpocznij za darmo
                         </a>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card pricing-card h-100 border-primary">
+                <div class="pricing-card h-100 border-primary glassmorphism hover-glow">
                     <div class="card-header bg-primary text-white text-center">
-                        <span class="badge bg-warning">Najpopularniejszy</span>
+                        <span class="badge bg-warning">
+                            <i class="bi bi-star-fill me-1"></i>Najpopularniejszy
+                        </span>
                     </div>
                     <div class="card-body text-center p-4">
-                        <h5 class="card-title">Premium</h5>
+                        <div class="feature-icon-small mx-auto mb-3">
+                            <i class="bi bi-star text-white"></i>
+                        </div>
+                        <h5 class="card-title text-gradient">Premium</h5>
                         <div class="price mb-4">
-                            <span class="price-amount">29,99 zł</span>
-                            <span class="price-period">/miesiąc</span>
+                            <span class="price-amount fs-1">29,99 zł</span>
+                            <span class="price-period text-muted">/miesiąc</span>
                         </div>
                         <ul class="list-unstyled mb-4">
                             <li class="mb-2">
@@ -353,15 +384,15 @@
                             </li>
                             <li class="mb-2">
                                 <i class="bi bi-check-circle text-success me-2"></i>
-                                Generowanie listów motywacyjnych
+                                Lista motywacyjna AI
                             </li>
                             <li class="mb-2">
                                 <i class="bi bi-check-circle text-success me-2"></i>
-                                Wsparcie priorytetowe
+                                Priorytetowe wsparcie 24/7
                             </li>
                         </ul>
-                        <a href="{{ url_for('register') }}" class="btn btn-primary w-100">
-                            Wybierz Premium
+                        <a href="{{ url_for('register') }}" class="btn btn-primary w-100 hover-glow">
+                            <i class="bi bi-rocket me-1"></i>Wybierz Premium
                         </a>
                     </div>
                 </div>
@@ -375,73 +406,93 @@
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-12">
-                <h2 class="display-5 fw-bold mb-3">Historie sukcesu</h2>
-                <p class="lead text-muted">Zobacz jak inni znaleźli wymarzoną pracę</p>
+                <h2 class="display-5 fw-bold text-gradient mb-3">Historie sukcesu</h2>
+                <p class="lead text-muted">Zobacz jak inni znaleźli wymarzoną pracę dzięki naszej AI</p>
             </div>
         </div>
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="testimonial-card">
+                <div class="testimonial-card glassmorphism hover-glow">
                     <div class="stars mb-3">
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
                     </div>
-                    <p class="mb-3">
-                        "Dzięki CV Optimizer Pro dostałem pracę w wymarzonej firmie! AI idealnie dostosowało moje CV do stanowiska."
+                    <p class="mb-3 fst-italic">
+                        "Niesamowite! Dzięki CV Optimizer Pro dostałem pracę w wymarzonej firmie technologicznej. AI idealnie dostosowało moje CV do stanowiska."
                     </p>
                     <div class="d-flex align-items-center">
                         <div class="avatar me-3">M</div>
                         <div>
-                            <h6 class="mb-0">Marcin K.</h6>
-                            <small class="text-muted">Frontend Developer</small>
+                            <h6 class="mb-0 text-gradient">Marcin K.</h6>
+                            <small class="text-muted">Senior Frontend Developer @ Google</small>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="testimonial-card">
+                <div class="testimonial-card glassmorphism hover-glow">
                     <div class="stars mb-3">
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
                     </div>
-                    <p class="mb-3">
-                        "Niesamowite! Po optymalizacji CV dostałam 3 razy więcej zaproszeń na rozmowy kwalifikacyjne."
+                    <p class="mb-3 fst-italic">
+                        "Po optymalizacji CV dostałam 3 razy więcej zaproszeń na rozmowy kwalifikacyjne. To był game-changer dla mojej kariery!"
                     </p>
                     <div class="d-flex align-items-center">
                         <div class="avatar me-3">A</div>
                         <div>
-                            <h6 class="mb-0">Anna W.</h6>
-                            <small class="text-muted">Marketing Manager</small>
+                            <h6 class="mb-0 text-gradient">Anna W.</h6>
+                            <small class="text-muted">Marketing Manager @ Microsoft</small>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="testimonial-card">
+                <div class="testimonial-card glassmorphism hover-glow">
                     <div class="stars mb-3">
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
                     </div>
-                    <p class="mb-3">
-                        "Wreszcie moje CV przechodzi przez systemy ATS! Polecam każdemu, kto szuka nowej pracy."
+                    <p class="mb-3 fst-italic">
+                        "Wreszcie moje CV przechodzi przez systemy ATS! Polecam każdemu, kto szuka nowej pracy w tech."
                     </p>
                     <div class="d-flex align-items-center">
                         <div class="avatar me-3">T</div>
                         <div>
-                            <h6 class="mb-0">Tomasz N.</h6>
-                            <small class="text-muted">Project Manager</small>
+                            <h6 class="mb-0 text-gradient">Tomasz N.</h6>
+                            <small class="text-muted">DevOps Engineer @ Amazon</small>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5" style="background: var(--primary-gradient);">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold text-white mb-3">
+                    Gotowy na nową pracę?
+                </h2>
+                <p class="lead text-white mb-4">
+                    Dołącz do tysięcy zadowolonych użytkowników, którzy znaleźli wymarzoną pracę
+                </p>
+                <a href="{{ url_for('register') }}" class="btn btn-light btn-lg hover-glow">
+                    <i class="bi bi-rocket-takeoff me-2"></i>
+                    Rozpocznij za darmo już dziś
+                </a>
             </div>
         </div>
     </div>
@@ -498,17 +549,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Form submission
+    // Form submission with enhanced loading state
     uploadForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Check if user is logged in by trying to submit
         const formData = new FormData(uploadForm);
         
-        // Show loading state
+        // Show enhanced loading state
         uploadBtn.disabled = true;
         loadingState.style.display = 'block';
         uploadBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Przetwarzam...';
+        uploadBtn.classList.add('pulse-animation');
         
         try {
             // First, upload CV
@@ -520,7 +571,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const uploadResult = await uploadResponse.json();
             
             if (!uploadResult.success) {
-                // If user is not logged in, redirect to register
                 if (uploadResponse.status === 401) {
                     showToast('error', 'Musisz się zarejestrować, aby korzystać z aplikacji.');
                     setTimeout(() => {
@@ -530,6 +580,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 throw new Error(uploadResult.message);
             }
+            
+            // Update loading message
+            loadingState.querySelector('small').textContent = 'AI optymalizuje Twoje CV...';
             
             // Then optimize CV
             const optimizeResponse = await fetch('/optimize-cv', {
@@ -548,16 +601,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(optimizeResult.message);
             }
             
+            // Success animation
+            uploadBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Gotowe!';
+            uploadBtn.classList.remove('pulse-animation');
+            uploadBtn.classList.add('btn-success');
+            
             // Redirect to results
-            window.location.href = `/result/${uploadResult.session_id}`;
+            setTimeout(() => {
+                window.location.href = `/result/${uploadResult.session_id}`;
+            }, 1000);
             
         } catch (error) {
-            showToast('error', error.message);
+            showToast('error', error.message || 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.');
             
             // Reset form state
             uploadBtn.disabled = false;
             loadingState.style.display = 'none';
             uploadBtn.innerHTML = '<i class="bi bi-magic me-2"></i>Zoptymalizuj CV za darmo';
+            uploadBtn.classList.remove('pulse-animation', 'btn-success');
         }
     });
     
@@ -572,6 +633,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     block: 'start'
                 });
             }
+        });
+    });
+
+    // Add hover effects to feature cards
+    document.querySelectorAll('.feature-card, .pricing-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-12px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
         });
     });
 });
