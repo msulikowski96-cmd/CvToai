@@ -3,6 +3,7 @@
 {% block title %}Zoptymalizowane CV - CV Optimizer Pro{% endblock %}
 
 {% block content %}
+<div class="hero-section">
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-8 mx-auto">
@@ -39,16 +40,16 @@
             <div class="row">
                 <!-- Original CV -->
                 <div class="col-lg-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-secondary">
-                            <h5 class="mb-0">
+                    <div class="card glassmorphism h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0 text-white">
                                 <i class="bi bi-file-earmark-text me-2"></i>
                                 Oryginalne CV
                             </h5>
                         </div>
                         <div class="card-body">
                             <div class="original-cv-content">
-                                <pre class="bg-secondary text-light p-3 rounded small" style="max-height: 400px; overflow-y: auto;">{{ session_data.cv_text }}</pre>
+                                <pre class="bg-dark text-light p-3 rounded small" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.4) !important;">{{ session_data.cv_text }}</pre>
                             </div>
                         </div>
                     </div>
@@ -56,10 +57,10 @@
 
                 <!-- Optimized CV -->
                 <div class="col-lg-6 mb-4">
-                    <div class="card h-100 border-success">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0">
-                                <i class="bi bi-stars me-2"></i>
+                    <div class="card glassmorphism h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0 text-white">
+                                <i class="bi bi-stars me-2 text-warning"></i>
                                 Zoptymalizowane CV
                             </h5>
                         </div>
@@ -89,10 +90,10 @@
             <!-- Advanced Analysis Section -->
             <div class="row mt-4" id="analysisSection" {% if not session_data.cv_analysis %}style="display: none;"{% endif %}>
                 <div class="col-lg-12 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">
-                                <i class="bi bi-graph-up-arrow me-2"></i>
+                    <div class="card glassmorphism">
+                        <div class="card-header">
+                            <h5 class="mb-0 text-white">
+                                <i class="bi bi-graph-up-arrow me-2 text-info"></i>
                                 📊 Szczegółowa analiza CV z oceną punktową
                             </h5>
                         </div>
@@ -118,16 +119,16 @@
             {% if session_data.get('keyword_analysis') %}
             <div class="row mt-4">
                 <div class="col-lg-12 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-warning text-dark">
-                            <h5 class="mb-0">
-                                <i class="bi bi-tags me-2"></i>
+                    <div class="card glassmorphism">
+                        <div class="card-header">
+                            <h5 class="mb-0 text-white">
+                                <i class="bi bi-tags me-2 text-warning"></i>
                                 Analiza słów kluczowych
                             </h5>
                         </div>
                         <div class="card-body">
                             <div class="keywords-analysis small">
-                                <pre style="white-space: pre-wrap; font-family: inherit;">{{ session_data.keyword_analysis }}</pre>
+                                <pre class="text-white-50" style="white-space: pre-wrap; font-family: inherit;">{{ session_data.keyword_analysis }}</pre>
                             </div>
                         </div>
                     </div>
@@ -137,10 +138,10 @@
 
 
             <!-- Tips Section -->
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-lightbulb me-2"></i>
+            <div class="card glassmorphism mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0 text-white">
+                        <i class="bi bi-lightbulb me-2 text-success"></i>
                         Ulepszenia wprowadzone przez AI
                     </h5>
                 </div>
@@ -148,7 +149,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <h6 class="fw-bold text-success">✅ Co zostało zoptymalizowane:</h6>
-                            <ul class="list-unstyled">
+                            <ul class="list-unstyled text-white">
                                 <li><i class="bi bi-check text-success me-1"></i> Analiza jakości CV (0-100 pkt)</li>
                                 <li><i class="bi bi-check text-success me-1"></i> Dopasowanie słów kluczowych</li>
                                 <li><i class="bi bi-check text-success me-1"></i> Struktura pod systemy ATS</li>
@@ -158,7 +159,7 @@
                         </div>
                         <div class="col-md-6">
                             <h6 class="fw-bold text-primary">🚀 Zaawansowane funkcje AI:</h6>
-                            <ul class="list-unstyled">
+                            <ul class="list-unstyled text-white">
                                 <li><i class="bi bi-cpu text-primary me-1"></i> Multi-step analiza CV</li>
                                 <li><i class="bi bi-cpu text-primary me-1"></i> Psychologia rekrutacji</li>
                                 <li><i class="bi bi-cpu text-primary me-1"></i> Branżowe standardy</li>
@@ -172,20 +173,21 @@
 
             <!-- Job Description -->
             {% if session_data.job_description %}
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-briefcase me-2"></i>
+            <div class="card glassmorphism mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0 text-white">
+                        <i class="bi bi-briefcase me-2 text-primary"></i>
                         Opis stanowiska
                     </h5>
                 </div>
                 <div class="card-body">
-                    <pre class="text-muted">{{ session_data.job_description }}</pre>
+                    <pre class="text-white-50" style="white-space: pre-wrap; font-family: inherit;">{{ session_data.job_description }}</pre>
                 </div>
             </div>
             {% endif %}
         </div>
     </div>
+</div>
 </div>
 
 <!-- Toast Notifications -->
