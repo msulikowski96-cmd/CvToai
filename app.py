@@ -57,6 +57,11 @@ def load_user(user_id):
 # Set login view after initialization
 login_manager.login_view = 'login'  # type: ignore
 
+# Add global template functions
+@app.template_global()
+def now():
+    return datetime.utcnow()
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
