@@ -172,7 +172,7 @@ def upload_cv():
             
             # Store session data in database
             from models import CVUpload
-            cv_upload = CVUpload(
+            cv_upload = CVUpload(  # type: ignore
                 session_id=session_id,
                 filename=filename,
                 original_text=cv_text,
