@@ -143,43 +143,6 @@ def logout():
     flash('Zostałeś wylogowany.', 'info')
     return redirect(url_for('index'))
 
-@app.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    from forms import ProfileForm
-    form = ProfileForm(obj=current_user)
-    
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            try:
-                # Update basic info
-                current_user.first_name = form.first_name.data
-                current_user.last_name = form.last_name.data
-                current_user.email = form.email.data
-                current_user.username = form.username.data
-                
-                # Update password if provided
-                if form.current_password.data and form.new_password.data:
-                    if current_user.check_password(form.current_password.data):
-                        current_user.set_password(form.new_password.data)
-                    else:
-                        return jsonify({'success': False, 'message': 'Nieprawidłowe obecne hasło'})
-                
-                db.session.commit()
-                return jsonify({'success': True, 'message': 'Profil został zaktualizowany!'})
-                
-            except Exception as e:
-                db.session.rollback()
-                return jsonify({'success': False, 'message': f'Błąd: {str(e)}'})
-        else:
-            errors = []
-            for field, field_errors in form.errors.items():
-                for error in field_errors:
-                    errors.append(f"{field}: {error}")
-            return jsonify({'success': False, 'message': '; '.join(errors)})
-    
-    return render_template('profile.html', form=form)
-
 @app.route('/upload-cv', methods=['POST'])
 @login_required
 def upload_cv():
@@ -219,8 +182,7 @@ def upload_cv():
                 filename=filename,
                 original_text=cv_text,
                 job_title=job_title,
-                job_description=job_description,
-                user_id=current_user.id
+                job_description=job_description
             )
             db.session.add(cv_upload)
             db.session.commit()
