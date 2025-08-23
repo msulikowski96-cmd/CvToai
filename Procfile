@@ -1,1 +1,1 @@
-web: python3 main.py
+web: gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
