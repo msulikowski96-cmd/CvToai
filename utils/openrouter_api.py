@@ -122,7 +122,7 @@ PRZYKŁADY TRANSFORMACJI:
 
     try:
         logger.debug("Wysyłanie zapytania do OpenRouter API")
-        response = requests.post(OPENROUTER_BASE_URL, headers=headers, json=payload, timeout=120)
+        response = requests.post(OPENROUTER_BASE_URL, headers=headers, json=payload, timeout=300)
         response.raise_for_status()
 
         result = response.json()
