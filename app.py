@@ -61,8 +61,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# In-memory storage for CV sessions (for MVP)
-cv_sessions = {}
+# CV sessions are stored in database using CVUpload model
 
 @app.route('/')
 def index():
@@ -171,14 +170,17 @@ def upload_cv():
             # Generate session ID
             session_id = str(uuid.uuid4())
             
-            # Store session data
-            cv_sessions[session_id] = {
-                'cv_text': cv_text,
-                'job_title': job_title,
-                'job_description': job_description,
-                'filename': filename,
-                'created_at': datetime.now()
-            }
+            # Store session data in database
+            from models import CVUpload
+            cv_upload = CVUpload(
+                session_id=session_id,
+                filename=filename,
+                original_text=cv_text,
+                job_title=job_title,
+                job_description=job_description
+            )
+            db.session.add(cv_upload)
+            db.session.commit()
             
             # Clean up uploaded file
             os.remove(file_path)
@@ -202,13 +204,15 @@ def optimize_cv_route():
         data = request.get_json()
         session_id = data.get('session_id')
         
-        if not session_id or session_id not in cv_sessions:
+        from models import CVUpload
+        cv_upload = CVUpload.query.filter_by(session_id=session_id).first()
+        
+        if not cv_upload:
             return jsonify({'success': False, 'message': 'Sesja wygasła. Proszę przesłać CV ponownie.'})
         
-        session_data = cv_sessions[session_id]
-        cv_text = session_data['cv_text']
-        job_title = session_data['job_title']
-        job_description = session_data['job_description']
+        cv_text = cv_upload.original_text
+        job_title = cv_upload.job_title
+        job_description = cv_upload.job_description
         
         # Call OpenRouter API to optimize CV
         optimized_cv = optimize_cv(cv_text, job_title, job_description)
@@ -216,12 +220,10 @@ def optimize_cv_route():
         if not optimized_cv:
             return jsonify({'success': False, 'message': 'Nie udało się zoptymalizować CV. Spróbuj ponownie.'})
         
-        # Add advanced analysis to session data
-        session_data = cv_sessions[session_id]
-        
-        # Store optimized CV in session
-        cv_sessions[session_id]['optimized_cv'] = optimized_cv
-        cv_sessions[session_id]['optimized_at'] = datetime.now()
+        # Store optimized CV in database
+        cv_upload.optimized_cv = optimized_cv
+        cv_upload.optimized_at = datetime.utcnow()
+        db.session.commit()
         
         return jsonify({
             'success': True,
@@ -236,11 +238,24 @@ def optimize_cv_route():
 @app.route('/result/<session_id>')
 @login_required
 def result(session_id):
-    if session_id not in cv_sessions:
+    from models import CVUpload
+    cv_upload = CVUpload.query.filter_by(session_id=session_id).first()
+    
+    if not cv_upload:
         flash('Sesja wygasła. Proszę przesłać CV ponownie.', 'error')
         return redirect(url_for('index'))
     
-    session_data = cv_sessions[session_id]
+    # Convert to dict format for template compatibility
+    session_data = {
+        'cv_text': cv_upload.original_text,
+        'job_title': cv_upload.job_title,
+        'job_description': cv_upload.job_description,
+        'filename': cv_upload.filename,
+        'optimized_cv': cv_upload.optimized_cv,
+        'created_at': cv_upload.created_at,
+        'optimized_at': cv_upload.optimized_at
+    }
+    
     return render_template('result.html', session_data=session_data, session_id=session_id)
 
 @app.route('/health')
