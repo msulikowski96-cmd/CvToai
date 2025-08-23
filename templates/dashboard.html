@@ -1,178 +1,181 @@
 
 {% extends "base.html" %}
 
-{% block title %}Dashboard - CV Optimizer Pro{% endblock %}
+{% block title %}Panel Główny - CV Optimizer Pro{% endblock %}
 
 {% block content %}
-<!-- Hero Section for Dashboard -->
-<div class="hero-section">
-    <div class="container">
-        <div class="hero-content py-5">
-            <div class="row align-items-center min-vh-100">
-                <div class="col-lg-6">
-                    <div class="text-center text-lg-start mb-5 mb-lg-0">
-                        <h1 class="display-4 fw-bold mb-4">
-                            Witaj ponownie, {{ current_user.first_name }}! 👋
-                        </h1>
-                        <p class="lead mb-4">
-                            Zarządzaj swoimi CV, śledź postępy i optymalizuj swoją karierę z pomocą AI
-                        </p>
-                        
-                        <!-- Quick Stats -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-4">
-                                <div class="stat-item glassmorphism text-center p-3">
-                                    <div class="stat-number text-primary fs-2">{{ current_user.cv_uploads|length if current_user.cv_uploads else 0 }}</div>
-                                    <small class="text-white-50">CV przesłanych</small>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-item glassmorphism text-center p-3">
-                                    <div class="stat-number text-success fs-2">
-                                        {% set optimized_count = current_user.cv_uploads|selectattr('optimized_cv')|list|length if current_user.cv_uploads else 0 %}
-                                        {{ optimized_count }}
-                                    </div>
-                                    <small class="text-white-50">Zoptymalizowanych</small>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-item glassmorphism text-center p-3">
-                                    <div class="stat-number text-warning fs-2">
-                                        {{ ((now() - current_user.created_at).days + 1) if current_user.created_at else 1 }}
-                                    </div>
-                                    <small class="text-white-50">Dni z nami</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Actions -->
-                        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
-                            <a href="#uploadSection" class="btn btn-primary btn-lg px-4">
-                                <i class="bi bi-plus-circle me-2"></i>Nowe CV
-                            </a>
-                            <a href="#" onclick="showHistoryModal()" class="btn btn-outline-light btn-lg px-4">
-                                <i class="bi bi-clock-history me-2"></i>Historia
-                            </a>
-                        </div>
-                    </div>
+<!-- Hero Section -->
+<section class="hero-section text-white position-relative overflow-hidden">
+    <div class="hero-bg"></div>
+    <div class="container py-5 position-relative">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="mb-4">
+                    <span class="badge bg-primary-gradient px-3 py-2 rounded-pill mb-3">
+                        <i class="bi bi-person-check me-2"></i>Witaj, {{ current_user.first_name }}!
+                    </span>
                 </div>
                 
-                <div class="col-lg-6">
-                    <!-- Upload Card -->
-                    <div class="upload-card glassmorphism p-4" id="uploadSection">
-                        <h3 class="text-center mb-4">
-                            <i class="bi bi-magic text-primary me-2"></i>
-                            Zoptymalizuj CV z AI
-                        </h3>
-                        
-                        <form id="cvUploadForm" enctype="multipart/form-data">
-                            <!-- Job Title Input -->
-                            <div class="mb-3">
-                                <label for="jobTitle" class="form-label">
-                                    <i class="bi bi-briefcase me-1"></i>Nazwa stanowiska
-                                </label>
-                                <input type="text" class="form-control" id="jobTitle" name="job_title" 
-                                       placeholder="np. Frontend Developer, Marketing Manager" required>
-                            </div>
+                <h1 class="display-4 fw-bold mb-4 gradient-text">
+                    Twój Panel CV
+                </h1>
+                
+                <p class="lead mb-5 text-white-75">
+                    Zarządzaj swoimi CV, śledź postępy i optymalizuj swoją karierę
+                </p>
 
-                            <!-- Job Description Input -->
-                            <div class="mb-3">
-                                <label for="jobDescription" class="form-label">
-                                    <i class="bi bi-file-text me-1"></i>Opis stanowiska
-                                </label>
-                                <textarea class="form-control" id="jobDescription" name="job_description" 
-                                          rows="3" placeholder="Wklej opis stanowiska (opcjonalne)..."></textarea>
-                            </div>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <button class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow-lg" data-bs-toggle="modal" data-bs-target="#cvUploadModal">
+                        <i class="bi bi-upload me-2"></i>
+                        Nowe CV
+                    </button>
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
+                        <i class="bi bi-person-gear me-2"></i>
+                        Profil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-                            <!-- File Upload -->
-                            <div class="mb-4">
-                                <label for="cvFile" class="form-label">
-                                    <i class="bi bi-file-pdf me-1"></i>Plik CV (PDF)
-                                </label>
-                                <input type="file" class="form-control" id="cvFile" name="cv_file" 
-                                       accept=".pdf" required>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <button type="submit" class="btn btn-primary btn-lg w-100" id="uploadBtn">
-                                <i class="bi bi-rocket me-2"></i>
-                                Optymalizuj z AI
-                            </button>
-
-                            <!-- Loading State -->
-                            <div id="loadingState" class="text-center mt-3" style="display: none;">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Ładowanie...</span>
-                                </div>
-                                <div class="mt-2">
-                                    <small class="text-white-50">Analizuję CV i generuję optymalizację...</small>
-                                </div>
-                            </div>
-                        </form>
+<!-- Quick Stats -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 shadow-sm glassmorphism">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary mb-3">
+                            <i class="bi bi-file-earmark-text text-white"></i>
+                        </div>
+                        <h3 class="h4 fw-bold">{{ current_user.uploads.count() }}</h3>
+                        <p class="text-muted mb-0">Przesłanych CV</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 shadow-sm glassmorphism">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success mb-3">
+                            <i class="bi bi-check-circle text-white"></i>
+                        </div>
+                        <h3 class="h4 fw-bold">{{ current_user.uploads.filter_by(optimized_cv__ne=None).count() }}</h3>
+                        <p class="text-muted mb-0">Zoptymalizowanych</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 shadow-sm glassmorphism">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-info mb-3">
+                            <i class="bi bi-graph-up text-white"></i>
+                        </div>
+                        <h3 class="h4 fw-bold">{{ current_user.uploads.filter_by(cv_analysis__ne=None).count() }}</h3>
+                        <p class="text-muted mb-0">Przeanalizowanych</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 shadow-sm glassmorphism">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-warning mb-3">
+                            <i class="bi bi-calendar text-white"></i>
+                        </div>
+                        <h3 class="h4 fw-bold">{{ (now() - current_user.created_at).days }}</h3>
+                        <p class="text-muted mb-0">Dni z nami</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Recent Activity Section -->
-{% if current_user.cv_uploads %}
-<section class="py-5 bg-dark">
+<!-- Recent Activity -->
+<section class="py-5">
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2 class="text-center mb-5">
-                    <i class="bi bi-clock-history text-info me-2"></i>
-                    Ostatnia aktywność
-                </h2>
-                
-                <div class="row g-4">
-                    {% for cv_upload in current_user.cv_uploads[:6] %}
-                        <div class="col-md-6 col-lg-4">
-                            <div class="feature-card h-100">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="feature-icon-small me-3 {% if cv_upload.optimized_cv %}bg-success{% else %}bg-primary{% endif %}">
-                                        {% if cv_upload.optimized_cv %}
-                                            <i class="bi bi-check-circle text-white"></i>
-                                        {% else %}
-                                            <i class="bi bi-upload text-white"></i>
-                                        {% endif %}
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">{{ cv_upload.job_title }}</h6>
-                                        <small class="text-muted">
-                                            {{ cv_upload.created_at.strftime('%d.%m.%Y') }}
-                                        </small>
-                                    </div>
-                                </div>
-                                
-                                <p class="text-muted small mb-3">
-                                    {% if cv_upload.optimized_cv %}
-                                        CV zostało zoptymalizowane i jest gotowe do pobrania
-                                    {% else %}
-                                        CV oczekuje na optymalizację
-                                    {% endif %}
-                                </p>
-                                
-                                {% if cv_upload.optimized_cv %}
-                                    <a href="/result/{{ cv_upload.session_id }}" class="btn btn-sm btn-outline-primary w-100">
-                                        <i class="bi bi-eye me-1"></i>Zobacz wynik
-                                    </a>
-                                {% else %}
-                                    <button class="btn btn-sm btn-outline-secondary w-100" disabled>
-                                        <i class="bi bi-hourglass-split me-1"></i>W trakcie...
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h2 class="h3 fw-bold mb-0">Ostatnie CV</h2>
+                    <small class="text-muted">Ostatnie {{ current_user.uploads.limit(5).count() }} z {{ current_user.uploads.count() }}</small>
                 </div>
                 
-                {% if current_user.cv_uploads|length > 6 %}
-                    <div class="text-center mt-4">
-                        <button onclick="showHistoryModal()" class="btn btn-outline-primary">
-                            <i class="bi bi-plus me-1"></i>Zobacz wszystkie ({{ current_user.cv_uploads|length }})
+                {% set recent_uploads = current_user.uploads.order_by(current_user.uploads.model.created_at.desc()).limit(5) %}
+                
+                {% if recent_uploads.count() > 0 %}
+                    <div class="row g-4">
+                        {% for upload in recent_uploads %}
+                        <div class="col-lg-6">
+                            <div class="card h-100 border-0 shadow-sm glassmorphism">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-start justify-content-between mb-3">
+                                        <div>
+                                            <h5 class="card-title fw-bold">{{ upload.job_title }}</h5>
+                                            <p class="text-muted small mb-2">
+                                                <i class="bi bi-file-earmark-text me-1"></i>
+                                                {{ upload.filename }}
+                                            </p>
+                                        </div>
+                                        <span class="badge bg-light text-dark">
+                                            {{ upload.created_at.strftime('%d.%m') }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            {% if upload.optimized_cv %}
+                                                <small class="text-success d-block">
+                                                    <i class="bi bi-check-circle me-1"></i>Zoptymalizowane
+                                                </small>
+                                            {% else %}
+                                                <small class="text-muted d-block">
+                                                    <i class="bi bi-circle me-1"></i>Nie zoptymalizowane
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6">
+                                            {% if upload.cv_analysis %}
+                                                <small class="text-info d-block">
+                                                    <i class="bi bi-graph-up me-1"></i>Przeanalizowane
+                                                </small>
+                                            {% else %}
+                                                <small class="text-muted d-block">
+                                                    <i class="bi bi-circle me-1"></i>Nie przeanalizowane
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ url_for('result', session_id=upload.session_id) }}" 
+                                           class="btn btn-primary btn-sm flex-grow-1">
+                                            <i class="bi bi-eye me-1"></i>Zobacz
+                                        </a>
+                                        {% if not upload.optimized_cv %}
+                                        <button class="btn btn-outline-primary btn-sm" 
+                                                onclick="optimizeExistingCV('{{ upload.session_id }}')">
+                                            <i class="bi bi-magic"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-file-earmark-plus display-1 text-muted"></i>
+                        </div>
+                        <h4 class="text-muted">Brak przesłanych CV</h4>
+                        <p class="text-muted mb-4">Zacznij od przesłania swojego pierwszego CV</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cvUploadModal">
+                            <i class="bi bi-upload me-2"></i>Prześlij CV
                         </button>
                     </div>
                 {% endif %}
@@ -180,99 +183,62 @@
         </div>
     </div>
 </section>
-{% endif %}
 
-<!-- Features Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="text-center mb-5">Dostępne funkcje</h2>
-                
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="feature-item-horizontal">
-                            <div class="feature-icon-medium bg-primary me-3">
-                                <i class="bi bi-magic text-white"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Optymalizacja AI</h5>
-                                <p class="text-muted mb-0">Dostosuj CV do konkretnego stanowiska</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <div class="feature-item-horizontal">
-                            <div class="feature-icon-medium bg-success me-3">
-                                <i class="bi bi-bar-chart text-white"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Analiza ATS</h5>
-                                <p class="text-muted mb-0">Sprawdź zgodność z systemami rekrutacyjnymi</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <div class="feature-item-horizontal">
-                            <div class="feature-icon-medium bg-info me-3">
-                                <i class="bi bi-download text-white"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Gotowe CV</h5>
-                                <p class="text-muted mb-0">Pobierz w formatach PDF i DOCX</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- History Modal -->
-<div class="modal fade" id="historyModal" tabindex="-1">
+<!-- Upload Modal -->
+<div class="modal fade" id="cvUploadModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-clock-history me-2"></i>Historia CV
+        <div class="modal-content glassmorphism border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-upload me-2 text-primary"></i>
+                    Prześlij nowe CV
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                {% if current_user.cv_uploads %}
-                    <div class="row g-3">
-                        {% for cv_upload in current_user.cv_uploads %}
-                            <div class="col-12">
-                                <div class="d-flex align-items-center p-3 border rounded">
-                                    <div class="feature-icon-small me-3 {% if cv_upload.optimized_cv %}bg-success{% else %}bg-secondary{% endif %}">
-                                        {% if cv_upload.optimized_cv %}
-                                            <i class="bi bi-check-circle text-white"></i>
-                                        {% else %}
-                                            <i class="bi bi-clock text-white"></i>
-                                        {% endif %}
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">{{ cv_upload.job_title }}</h6>
-                                        <small class="text-muted">{{ cv_upload.created_at.strftime('%d.%m.%Y o %H:%M') }}</small>
-                                    </div>
-                                    {% if cv_upload.optimized_cv %}
-                                        <a href="/result/{{ cv_upload.session_id }}" class="btn btn-sm btn-primary">
-                                            Zobacz
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
+            
+            <div class="modal-body p-4">
+                <form id="cvUploadForm" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label for="job_title" class="form-label fw-semibold">Stanowisko docelowe *</label>
+                        <input type="text" class="form-control form-control-lg" id="job_title" name="job_title" 
+                               placeholder="np. Frontend Developer, Analityk biznesowy" required>
+                        <div class="form-text">Podaj stanowisko, na które aplikujesz</div>
                     </div>
-                {% else %}
-                    <div class="text-center py-4">
-                        <i class="bi bi-inbox fs-1 text-muted"></i>
-                        <p class="text-muted mt-2">Brak historii CV</p>
+
+                    <div class="mb-4">
+                        <label for="job_description" class="form-label fw-semibold">Opis stanowiska</label>
+                        <textarea class="form-control" id="job_description" name="job_description" rows="4"
+                                  placeholder="Wklej tutaj opis stanowiska z ogłoszenia o pracę (opcjonalne)"></textarea>
+                        <div class="form-text">Im więcej informacji, tym lepsze dopasowanie CV</div>
                     </div>
-                {% endif %}
+
+                    <div class="mb-4">
+                        <label for="cv_file" class="form-label fw-semibold">Plik CV (PDF) *</label>
+                        <div class="upload-area border-2 border-dashed rounded-4 p-4 text-center">
+                            <input type="file" class="form-control d-none" id="cv_file" name="cv_file" 
+                                   accept=".pdf" required>
+                            <label for="cv_file" class="d-block cursor-pointer">
+                                <i class="bi bi-cloud-upload display-4 text-primary mb-3"></i>
+                                <h5 class="fw-semibold">Przeciągnij plik PDF tutaj</h5>
+                                <p class="text-muted mb-0">lub kliknij, aby wybrać plik</p>
+                                <small class="text-muted">Maksymalny rozmiar: 16MB</small>
+                            </label>
+                        </div>
+                        <div id="selectedFile" class="mt-2 text-success d-none">
+                            <i class="bi bi-check-circle me-1"></i>
+                            <span id="fileName"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anuluj</button>
+                <button type="button" class="btn btn-primary" id="submitCV">
+                    <span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner"></span>
+                    <i class="bi bi-magic me-2" id="submitIcon"></i>
+                    Optymalizuj CV
+                </button>
             </div>
         </div>
     </div>
@@ -298,103 +264,124 @@
         <div class="toast-body" id="errorMessage"></div>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const uploadForm = document.getElementById('cvUploadForm');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const loadingState = document.getElementById('loadingState');
-    const fileInput = document.getElementById('cvFile');
+// File upload handling
+document.getElementById('cv_file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const selectedFile = document.getElementById('selectedFile');
+    const fileName = document.getElementById('fileName');
     
-    // File validation
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const maxSize = 16 * 1024 * 1024; // 16MB
-            if (file.size > maxSize) {
-                showToast('error', 'Plik jest za duży. Maksymalny rozmiar to 16MB.');
-                this.value = '';
-                return;
-            }
-            
-            if (file.type !== 'application/pdf') {
-                showToast('error', 'Dozwolone są tylko pliki PDF.');
-                this.value = '';
-                return;
-            }
-        }
-    });
-    
-    // Form submission
-    uploadForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(uploadForm);
-        
-        // Show loading state
-        uploadBtn.disabled = true;
-        loadingState.style.display = 'block';
-        uploadBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Przetwarzam...';
-        
-        try {
-            // First, upload CV
-            const uploadResponse = await fetch('/upload-cv', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const uploadResult = await uploadResponse.json();
-            
-            if (!uploadResult.success) {
-                throw new Error(uploadResult.message);
-            }
-            
-            // Then optimize CV
-            const optimizeResponse = await fetch('/optimize-cv', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    session_id: uploadResult.session_id
-                })
-            });
-            
-            const optimizeResult = await optimizeResponse.json();
-            
-            if (!optimizeResult.success) {
-                throw new Error(optimizeResult.message);
-            }
-            
-            // Redirect to results
-            window.location.href = `/result/${uploadResult.session_id}`;
-            
-        } catch (error) {
-            showToast('error', error.message);
-            
-            // Reset form state
-            uploadBtn.disabled = false;
-            loadingState.style.display = 'none';
-            uploadBtn.innerHTML = '<i class="bi bi-rocket me-2"></i>Optymalizuj z AI';
-        }
-    });
+    if (file) {
+        fileName.textContent = file.name;
+        selectedFile.classList.remove('d-none');
+    } else {
+        selectedFile.classList.add('d-none');
+    }
 });
 
-function showToast(type, message) {
-    const toastElement = document.getElementById(type + 'Toast');
-    const messageElement = document.getElementById(type + 'Message');
+// Form submission
+document.getElementById('submitCV').addEventListener('click', async function() {
+    const form = document.getElementById('cvUploadForm');
+    const formData = new FormData(form);
+    const submitBtn = this;
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const submitIcon = document.getElementById('submitIcon');
     
-    messageElement.textContent = message;
+    // Validate form
+    if (!formData.get('job_title') || !formData.get('cv_file')) {
+        showToast('error', 'Wypełnij wszystkie wymagane pola');
+        return;
+    }
     
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
+    // Show loading state
+    submitBtn.disabled = true;
+    loadingSpinner.classList.remove('d-none');
+    submitIcon.classList.add('d-none');
+    submitBtn.textContent = ' Przetwarzam...';
+    
+    try {
+        // Upload CV
+        const uploadResponse = await fetch('/upload-cv', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const uploadResult = await uploadResponse.json();
+        
+        if (!uploadResult.success) {
+            throw new Error(uploadResult.message);
+        }
+        
+        // Optimize CV
+        const optimizeResponse = await fetch('/optimize-cv', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_id: uploadResult.session_id
+            })
+        });
+        
+        const optimizeResult = await optimizeResponse.json();
+        
+        if (!optimizeResult.success) {
+            throw new Error(optimizeResult.message);
+        }
+        
+        // Success - redirect to results
+        window.location.href = `/result/${uploadResult.session_id}`;
+        
+    } catch (error) {
+        showToast('error', error.message);
+        
+        // Reset button state
+        submitBtn.disabled = false;
+        loadingSpinner.classList.add('d-none');
+        submitIcon.classList.remove('d-none');
+        submitBtn.innerHTML = '<i class="bi bi-magic me-2"></i>Optymalizuj CV';
+    }
+});
+
+// Optimize existing CV
+async function optimizeExistingCV(sessionId) {
+    try {
+        const response = await fetch('/optimize-cv', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_id: sessionId
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showToast('success', 'CV zostało zoptymalizowane!');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        showToast('error', error.message);
+    }
 }
 
-function showHistoryModal() {
-    const modal = new bootstrap.Modal(document.getElementById('historyModal'));
-    modal.show();
+// Toast helper
+function showToast(type, message) {
+    const toast = type === 'success' ? 
+        new bootstrap.Toast(document.getElementById('successToast')) :
+        new bootstrap.Toast(document.getElementById('errorToast'));
+    
+    const messageElement = type === 'success' ? 
+        document.getElementById('successMessage') :
+        document.getElementById('errorMessage');
+    
+    messageElement.textContent = message;
+    toast.show();
 }
 </script>
 {% endblock %}
