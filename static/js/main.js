@@ -581,38 +581,17 @@ function throttle(func, limit) {
     };
 }
 
-// Service Worker Registration (for offline support) - with better error handling
-if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
-    window.addEventListener('load', function() {
+// Service Worker Registration (for offline support)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
         navigator.serviceWorker.register('/static/service-worker.js')
-            .then(function(registration) {
-                console.log('SW registered successfully');
-                
-                // Sprawdź aktualizacje co minutę
-                setInterval(function() {
-                    registration.update();
-                }, 60000);
-                
-                // Obsługa aktualizacji
-                registration.addEventListener('updatefound', function() {
-                    const newWorker = registration.installing;
-                    if (newWorker) {
-                        newWorker.addEventListener('statechange', function() {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // Nowa wersja dostępna
-                                console.log('SW: New version available');
-                            }
-                        });
-                    }
-                });
+            .then(registration => {
+                console.log('SW registered: ', registration);
             })
-            .catch(function(error) {
-                console.warn('SW registration failed - app will work without offline support');
-                // Aplikacja działa normalnie bez SW
+            .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
             });
     });
-} else {
-    console.log('Service Worker not supported or not HTTPS');
 }
 
 // Global error handler

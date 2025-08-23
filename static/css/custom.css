@@ -192,126 +192,29 @@
     animation: pulse 2s infinite;
 }
 
-/* CV content styling - dokładnie jak na screenie */
+/* CV content styling */
 .formatted-cv {
-    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-family: 'Georgia', serif;
     line-height: 1.6;
-    color: #ffffff !important;
-    background-color: #1a1a1a !important;
-    padding: 1.5rem;
-    border-radius: 8px;
-    font-size: 14px;
-    backdrop-filter: none !important;
-    filter: none !important;
+    color: var(--bs-body-color);
 }
 
 .formatted-cv h1, .formatted-cv h2, .formatted-cv h3 {
-    color: #74c0fc !important;
+    color: var(--bs-primary);
     margin-top: 1.5rem;
-    margin-bottom: 0.8rem;
-    font-weight: 600;
-    text-shadow: none;
-    font-size: 1rem;
-}
-
-.formatted-cv h1 {
-    font-size: 1.1rem;
-    color: #74c0fc !important;
-}
-
-.formatted-cv h2 {
-    font-size: 1rem;
-    color: #74c0fc !important;
-}
-
-.formatted-cv h3 {
-    font-size: 0.95rem;
-    color: #74c0fc !important;
-}
-
-/* Nagłówki pozycji/firm - białe jak na screenie */
-.formatted-cv strong {
-    color: #ffffff !important;
-    font-weight: 600;
-    font-size: 1em;
-}
-
-/* Główny tekst zawartości - biały jak na screenie */
-.formatted-cv p, .formatted-cv li, .formatted-cv span, .formatted-cv div {
-    color: #ffffff !important;
-    font-weight: 400;
-    opacity: 1;
-    text-shadow: none;
-    background: transparent;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-/* Punktory - białe kropki */
-.formatted-cv ul {
-    padding-left: 1.2rem;
     margin-bottom: 1rem;
+}
+
+.formatted-cv strong {
+    color: var(--bs-info);
+}
+
+.formatted-cv ul {
+    padding-left: 1.5rem;
 }
 
 .formatted-cv li {
     margin-bottom: 0.5rem;
-    color: #ffffff !important;
-    line-height: 1.5;
-}
-
-.formatted-cv ul li::marker {
-    color: #ffffff;
-    font-size: 0.8rem;
-}
-
-/* Daty i informacje pomocnicze - szare */
-.formatted-cv em, .formatted-cv i {
-    color: #a0a0a0 !important;
-    font-style: italic;
-    font-weight: 400;
-}
-
-/* Linki i kontakt - niebieskie */
-.formatted-cv a {
-    color: #74c0fc !important;
-    text-decoration: none;
-    font-weight: 400;
-}
-
-.formatted-cv a:hover {
-    color: #a5d8ff !important;
-    text-decoration: underline;
-}
-
-/* Usuwamy wszystkie potencjalne przezroczystości */
-.formatted-cv * {
-    opacity: 1 !important;
-    background: transparent !important;
-}
-
-/* Karta CV - ciemne tło */
-.card .formatted-cv,
-.card-body .formatted-cv,
-#optimizedCvText,
-#optimizedCvText * {
-    color: #ffffff !important;
-    opacity: 1 !important;
-    background: #1a1a1a !important;
-    backdrop-filter: none !important;
-    filter: none !important;
-}
-
-/* Usuń efekty rozmazania z kart zawierających CV */
-.card:has(.formatted-cv),
-.card:has(#optimizedCvText) {
-    backdrop-filter: none !important;
-    background: #1a1a1a !important;
-}
-
-.card-body:has(.formatted-cv),
-.card-body:has(#optimizedCvText) {
-    backdrop-filter: none !important;
-    background: #1a1a1a !important;
 }
 
 /* Original CV display */
