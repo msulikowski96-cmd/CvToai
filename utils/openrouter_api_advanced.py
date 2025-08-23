@@ -367,7 +367,7 @@ def generate_interview_tips(cv_text, job_description="", language='pl'):
     )
 
 # Funkcja kompatybilności z istniejącym kodem
-def optimize_cv(cv_text, job_title, job_description=""):
+def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
     """
     Enhanced CV optimization using advanced AI capabilities
     """
@@ -378,6 +378,9 @@ def optimize_cv(cv_text, job_title, job_description=""):
             return result
         
         # Fallback do podstawowej optymalizacji
+        user_tier = 'premium' if is_premium else 'paid'
+        max_tokens = 4000 if is_premium else 2500
+        
         prompt = f"""
         Stwórz całkowicie nowe, zoptymalizowane CV na podstawie poniższych informacji.
 
@@ -418,7 +421,12 @@ def optimize_cv(cv_text, job_title, job_description=""):
         ⚠️ KRYTYCZNE: NIE DODAWAJ żadnych informacji, których nie ma w oryginalnym CV!
         """
 
-        optimized_cv = send_api_request(prompt, max_tokens=3000, task_type='cv_optimization')
+        optimized_cv = send_api_request(
+            prompt, 
+            max_tokens=max_tokens, 
+            user_tier=user_tier,
+            task_type='cv_optimization'
+        )
         return optimized_cv
         
     except Exception as e:

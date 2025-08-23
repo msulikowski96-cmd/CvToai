@@ -16,6 +16,9 @@ class User(UserMixin, db.Model):
     active = db.Column(db.Boolean, default=True)
     
     def is_premium_active(self):
+        # Konto developer ma zawsze dostęp do wszystkich funkcji premium
+        if self.is_developer():
+            return True
         return self.premium_until and datetime.utcnow() < self.premium_until
     
     def is_developer(self):

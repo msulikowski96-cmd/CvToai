@@ -214,8 +214,11 @@ def optimize_cv_route():
         job_title = cv_upload.job_title
         job_description = cv_upload.job_description
         
-        # Call OpenRouter API to optimize CV
-        optimized_cv = optimize_cv(cv_text, job_title, job_description)
+        # Check if user has premium access (includes developer account)
+        is_premium = current_user.is_premium_active()
+        
+        # Call OpenRouter API to optimize CV with premium status
+        optimized_cv = optimize_cv(cv_text, job_title, job_description, is_premium=is_premium)
         
         if not optimized_cv:
             return jsonify({'success': False, 'message': 'Nie udało się zoptymalizować CV. Spróbuj ponownie.'})

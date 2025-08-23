@@ -205,7 +205,7 @@ def check_keywords_match(cv_text, job_description):
         logger.error(f"Błąd analizy słów kluczowych: {str(e)}")
         return None
 
-def optimize_cv(cv_text, job_title, job_description=""):
+def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
     """Simplified CV optimization to avoid timeout"""
     
     # Pojedyncze zapytanie optymalizacyjne
@@ -275,7 +275,11 @@ def optimize_cv(cv_text, job_title, job_description=""):
     """
 
     try:
-        optimized_cv = send_api_request(main_prompt, max_tokens=3000, temperature=0.3, task_type='cv_optimization')
+        # Configure premium features
+        user_tier = 'premium' if is_premium else 'paid'
+        max_tokens = 4000 if is_premium else 2500
+        
+        optimized_cv = send_api_request(main_prompt, max_tokens=max_tokens, temperature=0.3, task_type='cv_optimization')
         return optimized_cv
     except Exception as e:
         logger.error(f"Błąd optymalizacji CV: {str(e)}")
