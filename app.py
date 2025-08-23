@@ -309,6 +309,40 @@ def result(session_id):
     
     return render_template('result.html', session_data=session_data, session_id=session_id)
 
+@app.route('/cv/<int:cv_id>')
+@login_required
+def view_cv(cv_id):
+    """View a specific CV result"""
+    from models import CVUpload
+    cv_upload = CVUpload.query.filter_by(id=cv_id, user_id=current_user.id).first()
+    
+    if not cv_upload:
+        flash('CV nie zostało znalezione.', 'error')
+        return redirect(url_for('index'))
+    
+    return render_template('result.html', cv_upload=cv_upload)
+
+@app.route('/download-cv/<int:cv_id>')
+@login_required
+def download_cv(cv_id):
+    """Download CV as text file"""
+    from models import CVUpload
+    from flask import make_response
+    
+    cv_upload = CVUpload.query.filter_by(id=cv_id, user_id=current_user.id).first()
+    
+    if not cv_upload:
+        flash('CV nie zostało znalezione.', 'error')
+        return redirect(url_for('index'))
+    
+    cv_text = cv_upload.optimized_cv if cv_upload.optimized_cv else cv_upload.original_text
+    
+    response = make_response(cv_text)
+    response.headers['Content-Disposition'] = f'attachment; filename=CV_{cv_upload.job_title or "bez_tytulu"}.txt'
+    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    
+    return response
+
 @app.route('/health')
 def health():
     return {'status': 'healthy', 'timestamp': datetime.now().isoformat()}
