@@ -25,6 +25,11 @@
                 <button class="btn btn-outline-success btn-lg" onclick="downloadCV()">
                     <i class="bi bi-download me-2"></i>Pobierz jako tekst
                 </button>
+                {% if not session_data.cv_analysis %}
+                <button class="btn btn-warning btn-lg" onclick="analyzeCV()" id="analyzeBtn">
+                    <i class="bi bi-graph-up me-2"></i>Analizuj CV
+                </button>
+                {% endif %}
                 <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">
                     <i class="bi bi-arrow-left me-2"></i>Nowe CV
                 </a>
@@ -82,29 +87,38 @@
             </div>
 
             <!-- Advanced Analysis Section -->
-            {% if session_data.get('cv_analysis') or session_data.get('keyword_analysis') %}
-            <div class="row mt-4">
-                {% if session_data.get('cv_analysis') %}
-                <div class="col-lg-6 mb-4">
-                    <div class="card h-100">
+            <div class="row mt-4" id="analysisSection" {% if not session_data.cv_analysis %}style="display: none;"{% endif %}>
+                <div class="col-lg-12 mb-4">
+                    <div class="card">
                         <div class="card-header bg-info text-white">
                             <h5 class="mb-0">
-                                <i class="bi bi-bar-chart me-2"></i>
-                                Analiza jakości CV
+                                <i class="bi bi-graph-up-arrow me-2"></i>
+                                📊 Szczegółowa analiza CV z oceną punktową
                             </h5>
                         </div>
                         <div class="card-body">
-                            <div class="cv-analysis small">
-                                <pre style="white-space: pre-wrap; font-family: inherit;">{{ session_data.cv_analysis }}</pre>
+                            <div id="cvAnalysisContent" class="cv-analysis">
+                                {% if session_data.cv_analysis %}
+                                    <div class="analysis-text" style="white-space: pre-wrap; font-family: inherit; line-height: 1.6;">{{ session_data.cv_analysis }}</div>
+                                {% else %}
+                                    <div class="text-center p-4">
+                                        <div class="spinner-border text-info mb-3" role="status" id="analysisSpinner" style="display: none;">
+                                            <span class="visually-hidden">Analizowanie...</span>
+                                        </div>
+                                        <p class="text-muted" id="analysisPlaceholder">Kliknij "Analizuj CV" aby otrzymać szczegółową ocenę punktową</p>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
-                {% endif %}
-
-                {% if session_data.get('keyword_analysis') %}
-                <div class="col-lg-6 mb-4">
-                    <div class="card h-100">
+            </div>
+            
+            <!-- Keyword Analysis Section (for future use) -->
+            {% if session_data.get('keyword_analysis') %}
+            <div class="row mt-4">
+                <div class="col-lg-12 mb-4">
+                    <div class="card">
                         <div class="card-header bg-warning text-dark">
                             <h5 class="mb-0">
                                 <i class="bi bi-tags me-2"></i>
@@ -118,9 +132,9 @@
                         </div>
                     </div>
                 </div>
-                {% endif %}
             </div>
             {% endif %}
+
 
             <!-- Tips Section -->
             <div class="card mt-4">
@@ -271,6 +285,58 @@ async function optimizeCV() {
         
     } catch (error) {
         showToast('error', 'Błąd podczas optymalizacji: ' + error.message);
+    }
+}
+
+async function analyzeCV() {
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const analysisSection = document.getElementById('analysisSection');
+    const analysisSpinner = document.getElementById('analysisSpinner');
+    const analysisPlaceholder = document.getElementById('analysisPlaceholder');
+    const cvAnalysisContent = document.getElementById('cvAnalysisContent');
+    
+    try {
+        // Show loading state
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analizuję...';
+        analysisSection.style.display = 'block';
+        analysisSpinner.style.display = 'block';
+        analysisPlaceholder.textContent = 'AI analizuje Twoje CV - może to potrwać do 30 sekund...';
+        
+        const response = await fetch('/analyze-cv', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_id: sessionId
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Replace content with analysis
+            cvAnalysisContent.innerHTML = 
+                '<div class="analysis-text" style="white-space: pre-wrap; font-family: inherit; line-height: 1.6;">' + 
+                result.cv_analysis + '</div>';
+            
+            // Hide the analyze button
+            analyzeBtn.style.display = 'none';
+            
+            showToast('success', 'Analiza CV została zakończona!');
+        } else {
+            throw new Error(result.message);
+        }
+        
+    } catch (error) {
+        showToast('error', 'Błąd podczas analizy: ' + error.message);
+        
+        // Reset UI state
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '<i class="bi bi-graph-up me-2"></i>Analizuj CV';
+        analysisSpinner.style.display = 'none';
+        analysisPlaceholder.textContent = 'Błąd podczas analizy. Spróbuj ponownie.';
     }
 }
 

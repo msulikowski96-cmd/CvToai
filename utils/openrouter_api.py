@@ -285,6 +285,102 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
         logger.error(f"Błąd optymalizacji CV: {str(e)}")
         return None
 
+def analyze_cv_with_score(cv_text, job_title="", job_description="", is_premium=False):
+    """
+    Szczegółowa analiza CV z oceną punktową i feedbackiem rekrutera
+    """
+    if not cv_text:
+        return None
+    
+    prompt = f"""
+    Przeprowadź szczegółową analizę CV jako doświadczony rekruter z 15-letnim stażem.
+    
+    ANALIZA CV:
+    {cv_text}
+    
+    STANOWISKO DOCELOWE: {job_title if job_title else "Analiza ogólna"}
+    WYMAGANIA STANOWISKA: {job_description if job_description else "Brak szczegółowych wymagań"}
+    
+    ZADANIE: Oceń CV w każdej kategorii i podaj szczegółową analizę według poniższego schematu:
+
+    ## 📊 OCENA PUNKTOWA (0-100)
+
+    **OGÓLNA OCENA: [XX]/100**
+
+    ### Szczegółowa punktacja:
+
+    **1. STRUKTURA I FORMATOWANIE** [XX]/20
+    - Czytelność i organizacja treści
+    - Logiczna kolejność sekcji
+    - Długość CV (optymalna 1-2 strony)
+    - Profesjonalne formatowanie
+
+    **2. TREŚĆ I KOMPLETNOŚĆ** [XX]/25  
+    - Kompletność informacji kontaktowych
+    - Jakość opisu doświadczenia zawodowego
+    - Konkretność i mierzalność osiągnięć
+    - Profesjonalizm sformułowań
+
+    **3. DOPASOWANIE DO STANOWISKA** [XX]/25
+    - Zgodność umiejętności z wymaganiami
+    - Releantne doświadczenie zawodowe  
+    - Słowa kluczowe z branży
+    - Dopasowanie poziomu seniorności
+
+    **4. OPTYMALIZACJA ATS** [XX]/15
+    - Struktura przyjazna systemom rekrutacyjnym
+    - Odpowiednie nagłówki sekcji
+    - Unikanie grafik i nietypowych formatów
+    - Słowa kluczowe w odpowiednich miejscach
+
+    **5. POTENCJAŁ ROZWOJU** [XX]/15
+    - Progresja kariery
+    - Różnorodność doświadczeń
+    - Edukacja i rozwój zawodowy
+    - Dodatkowe kompetencje
+
+    ## 💪 MOCNE STRONY
+    • [Lista konkretnych mocnych stron CV]
+    • [Co wyróżnia tego kandydata]
+    • [Jakie elementy przyciągną uwagę rekrutera]
+
+    ## ⚠️ OBSZARY DO POPRAWY
+    • [Konkretne elementy wymagające poprawy]
+    • [Co może zniechęcić rekrutera]
+    • [Braki które obniżają atrakcyjność CV]
+
+    ## 🎯 REKOMENDACJE PRIORYTETOWE
+    1. **PILNE**: [Najważniejsze zmiany do wprowadzenia]
+    2. **ŚREDNI PRIORYTET**: [Istotne ulepszenia]
+    3. **DŁUGOTERMINOWE**: [Strategiczne kierunki rozwoju]
+
+    ## 📈 SZANSE NA ROZMOWĘ KWALIFIKACYJNĄ
+    **Prawdopodobieństwo: [XX]%**
+    
+    [Uzasadnienie oceny i porady jak zwiększyć szanse]
+
+    ## 🏆 PORÓWNANIE Z KONKURENCJĄ
+    [Pozycja względem innych kandydatów w branży]
+
+    UWAGA: Oceń realistycznie i konstruktywnie. Bądź konkretny w rekomendacjach.
+    """
+
+    try:
+        # Configure premium features for analysis
+        user_tier = 'premium' if is_premium else 'paid'
+        max_tokens = 3500 if is_premium else 2000
+        
+        analysis = send_api_request(
+            prompt, 
+            max_tokens=max_tokens, 
+            temperature=0.2,
+            task_type='cv_analysis'
+        )
+        return analysis
+    except Exception as e:
+        logger.error(f"Błąd analizy CV: {str(e)}")
+        return None
+
 def generate_demo_cv_optimization(cv_text, job_title, job_description=""):
     """Generate demo CV optimization when API key is not available"""
     return f"""

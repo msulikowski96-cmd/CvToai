@@ -10,7 +10,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 import uuid
 from datetime import datetime
 from utils.pdf_extraction import extract_text_from_pdf
-from utils.openrouter_api import optimize_cv, analyze_cv_score, check_keywords_match
+from utils.openrouter_api import optimize_cv, analyze_cv_with_score
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -238,6 +238,47 @@ def optimize_cv_route():
         logging.error(f"Error in optimize_cv_route: {str(e)}")
         return jsonify({'success': False, 'message': f'Wystąpił błąd podczas optymalizacji CV: {str(e)}'})
 
+@app.route('/analyze-cv', methods=['POST'])
+@login_required
+def analyze_cv_route():
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        
+        from models import CVUpload
+        cv_upload = CVUpload.query.filter_by(session_id=session_id).first()
+        
+        if not cv_upload:
+            return jsonify({'success': False, 'message': 'Sesja wygasła. Proszę przesłać CV ponownie.'})
+        
+        cv_text = cv_upload.original_text
+        job_title = cv_upload.job_title
+        job_description = cv_upload.job_description
+        
+        # Check if user has premium access (includes developer account)
+        is_premium = current_user.is_premium_active()
+        
+        # Call OpenRouter API to analyze CV
+        cv_analysis = analyze_cv_with_score(cv_text, job_title, job_description, is_premium=is_premium)
+        
+        if not cv_analysis:
+            return jsonify({'success': False, 'message': 'Nie udało się przeanalizować CV. Spróbuj ponownie.'})
+        
+        # Store analysis in database
+        cv_upload.cv_analysis = cv_analysis
+        cv_upload.analyzed_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'cv_analysis': cv_analysis,
+            'message': 'CV zostało pomyślnie przeanalizowane'
+        })
+    
+    except Exception as e:
+        logging.error(f"Error in analyze_cv_route: {str(e)}")
+        return jsonify({'success': False, 'message': f'Wystąpił błąd podczas analizy CV: {str(e)}'})
+
 @app.route('/result/<session_id>')
 @login_required
 def result(session_id):
@@ -255,8 +296,10 @@ def result(session_id):
         'job_description': cv_upload.job_description,
         'filename': cv_upload.filename,
         'optimized_cv': cv_upload.optimized_cv,
+        'cv_analysis': cv_upload.cv_analysis,
         'created_at': cv_upload.created_at,
-        'optimized_at': cv_upload.optimized_at
+        'optimized_at': cv_upload.optimized_at,
+        'analyzed_at': cv_upload.analyzed_at
     }
     
     return render_template('result.html', session_data=session_data, session_id=session_id)

@@ -35,8 +35,10 @@ class CVUpload(db.Model):
     job_title = db.Column(db.String(200), nullable=False)
     job_description = db.Column(db.Text, nullable=True)
     optimized_cv = db.Column(db.Text, nullable=True)
+    cv_analysis = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     optimized_at = db.Column(db.DateTime, nullable=True)
+    analyzed_at = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f'<CVUpload {self.filename}>'
