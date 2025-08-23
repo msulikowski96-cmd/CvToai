@@ -322,9 +322,10 @@ def too_large(e):
 def internal_error(e):
     return jsonify({'success': False, 'message': 'Wystąpił błąd wewnętrzny serwera.'}), 500
 
+# Create database tables
+with app.app_context():
+    import models
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        import models
-        db.create_all()
-    
     app.run(debug=True, host='0.0.0.0', port=5000)
