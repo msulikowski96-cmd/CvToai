@@ -3,6 +3,15 @@ import sys
 import logging
 import uuid
 from datetime import datetime
+from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
+from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.security import check_password_hash, generate_password_hash
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
+from sqlalchemy import or_
+
 
 # Force UTF-8 encoding
 os.environ['PYTHONIOENCODING'] = 'utf-8'
@@ -19,14 +28,7 @@ try:
             sys.stderr.reconfigure(encoding='utf-8')
 except (AttributeError, OSError):
     pass
-from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
-from werkzeug.utils import secure_filename
-from werkzeug.middleware.proxy_fix import ProxyFix
-from werkzeug.security import check_password_hash, generate_password_hash
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
-from sqlalchemy import or_
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
