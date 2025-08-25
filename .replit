@@ -47,3 +47,6 @@ externalPort = 80
 localPort = 8000
 externalPort = 3000
 exposeLocalhost = true
+
+[agent]
+integrations = ["python_database==1.0.0"]
