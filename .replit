@@ -31,15 +31,6 @@ args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
 
 [[workflows.workflow]]
-name = "Start Fast Application"
-author = 46784081
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py"
-
-[[workflows.workflow]]
 name = "Start Flask App"
 author = 46875409
 mode = "sequential"
