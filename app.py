@@ -49,7 +49,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_message = 'Zaloguj się, aby uzyskać dostęp do tej strony.'
 login_manager.login_message_category = 'info'
-login_manager.login_view = 'login'
+login_manager.login_view = 'auth.login'
 
 # Models
 class User(UserMixin, db.Model):
@@ -113,91 +113,7 @@ def index():
         return render_template('dashboard.html')
     return render_template('index.html')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    
-    if request.method == 'POST':
-        username = request.form.get('username', '').strip()
-        email = request.form.get('email', '').strip()
-        first_name = request.form.get('first_name', '').strip()
-        last_name = request.form.get('last_name', '').strip()
-        password = request.form.get('password', '').strip()
-        password2 = request.form.get('password2', '').strip()
-        
-        # Validation
-        if not all([username, email, first_name, last_name, password, password2]):
-            flash('Wszystkie pola są wymagane.', 'error')
-            return render_template('auth/register.html')
-        
-        if password != password2:
-            flash('Hasła muszą być identyczne.', 'error')
-            return render_template('auth/register.html')
-        
-        if len(password) < 6:
-            flash('Hasło musi mieć co najmniej 6 znaków.', 'error')
-            return render_template('auth/register.html')
-        
-        # Check if user exists
-        if User.query.filter_by(username=username).first():
-            flash('Ten nick jest już zajęty.', 'error')
-            return render_template('auth/register.html')
-        
-        if User.query.filter_by(email=email).first():
-            flash('Ten email jest już zarejestrowany.', 'error')
-            return render_template('auth/register.html')
-        
-        # Create user
-        user = User()
-        user.username = username
-        user.email = email
-        user.first_name = first_name
-        user.last_name = last_name
-        user.password_hash = generate_password_hash(password)
-        
-        db.session.add(user)
-        db.session.commit()
-        
-        flash('Rejestracja przebiegła pomyślnie! Możesz się teraz zalogować.', 'success')
-        return redirect(url_for('login'))
-    
-    return render_template('auth/register.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    
-    if request.method == 'POST':
-        username_or_email = request.form.get('username_or_email', '').strip()
-        password = request.form.get('password', '').strip()
-        
-        if not username_or_email or not password:
-            flash('Wypełnij wszystkie pola.', 'error')
-            return render_template('auth/login.html')
-        
-        # Find user
-        if '@' in username_or_email:
-            user = User.query.filter_by(email=username_or_email).first()
-        else:
-            user = User.query.filter(
-                or_(User.username == username_or_email, User.email == username_or_email)
-            ).first()
-        
-        if user and check_password_hash(user.password_hash, password):
-            login_user(user)
-            user.last_login = datetime.utcnow()
-            db.session.commit()
-            
-            flash(f'Witaj, {user.first_name}! Zalogowano pomyślnie.', 'success')
-            
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('index'))
-        else:
-            flash('Nieprawidłowy nick/email lub hasło.', 'error')
-    
-    return render_template('auth/login.html')
 
 @app.route('/logout')
 @login_required
@@ -371,6 +287,103 @@ def too_large(e):
 @app.errorhandler(500)
 def internal_error(e):
     return jsonify({'success': False, 'message': 'Wystąpił błąd wewnętrzny serwera.'}), 500
+
+# Create auth blueprint
+from flask import Blueprint
+auth = Blueprint('auth', __name__, url_prefix='/auth')
+
+@auth.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        username_or_email = request.form.get('username_or_email', '').strip()
+        password = request.form.get('password', '').strip()
+        
+        if not username_or_email or not password:
+            flash('Wypełnij wszystkie pola.', 'error')
+            return render_template('auth/login.html')
+        
+        # Find user
+        if '@' in username_or_email:
+            user = User.query.filter_by(email=username_or_email).first()
+        else:
+            user = User.query.filter(
+                or_(User.username == username_or_email, User.email == username_or_email)
+            ).first()
+        
+        if user and check_password_hash(user.password_hash, password):
+            login_user(user)
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            flash(f'Witaj, {user.first_name}! Zalogowano pomyślnie.', 'success')
+            
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
+        else:
+            flash('Nieprawidłowy nick/email lub hasło.', 'error')
+    
+    return render_template('auth/login.html')
+
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        first_name = request.form.get('first_name', '').strip()
+        last_name = request.form.get('last_name', '').strip()
+        password = request.form.get('password', '').strip()
+        password2 = request.form.get('password2', '').strip()
+        
+        # Validation
+        if not all([username, email, first_name, last_name, password, password2]):
+            flash('Wszystkie pola są wymagane.', 'error')
+            return render_template('auth/register.html')
+        
+        if password != password2:
+            flash('Hasła muszą być identyczne.', 'error')
+            return render_template('auth/register.html')
+        
+        if len(password) < 6:
+            flash('Hasło musi mieć co najmniej 6 znaków.', 'error')
+            return render_template('auth/register.html')
+        
+        # Check if user exists
+        if User.query.filter_by(username=username).first():
+            flash('Ten nick jest już zajęty.', 'error')
+            return render_template('auth/register.html')
+        
+        if User.query.filter_by(email=email).first():
+            flash('Ten email jest już zarejestrowany.', 'error')
+            return render_template('auth/register.html')
+        
+        # Create user
+        user = User()
+        user.username = username
+        user.email = email
+        user.first_name = first_name
+        user.last_name = last_name
+        user.password_hash = generate_password_hash(password)
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        flash('Rejestracja przebiegła pomyślnie! Możesz się teraz zalogować.', 'success')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('auth/register.html')
+
+# Register blueprint
+app.register_blueprint(auth)
+
+# Remove old routes
+app.route_map = {rule: func for rule, func in app.route_map.items() 
+                 if rule not in ['/register', '/login']}
 
 # Create database tables
 with app.app_context():

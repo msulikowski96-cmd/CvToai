@@ -23,23 +23,16 @@
                     <form method="POST" class="needs-validation" novalidate>
                         {{ form.hidden_tag() }}
 
-                        <!-- Email Field -->
+                        <!-- Email/Username Field -->
                         <div class="mb-4">
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
                                     <i class="bi bi-envelope text-primary"></i>
                                 </span>
-                                {{ form.email(class="form-control border-start-0 ps-0", 
-                                   style="border-radius: 0 12px 12px 0; border-left: none !important;", 
-                                   placeholder="twój@email.com") }}
+                                <input type="text" name="username_or_email" class="form-control border-start-0 ps-0" required
+                                   style="border-radius: 0 12px 12px 0; border-left: none !important;" 
+                                   placeholder="Email lub nazwa użytkownika">
                             </div>
-                            {% if form.email.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.email.errors %}
-                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
 
                         <!-- Password Field -->
@@ -48,20 +41,13 @@
                                 <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
                                     <i class="bi bi-lock text-primary"></i>
                                 </span>
-                                {{ form.password(class="form-control border-start-0 ps-0", 
-                                   style="border-radius: 0 12px 12px 0; border-left: none !important;", 
-                                   placeholder="Twoje hasło") }}
+                                <input type="password" name="password" class="form-control border-start-0 ps-0" required
+                                   style="border-radius: 0 12px 12px 0; border-left: none !important;" 
+                                   placeholder="Twoje hasło">
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword" style="border-radius: 0 12px 12px 0; border-left: none;">
                                     <i class="bi bi-eye" id="togglePasswordIcon"></i>
                                 </button>
                             </div>
-                            {% if form.password.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.password.errors %}
-                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
 
                         <!-- Remember Me & Forgot Password -->
@@ -77,8 +63,10 @@
 
                         <!-- Submit Button -->
                         <div class="d-grid mb-4">
-                            {{ form.submit(class="btn btn-primary btn-lg fw-bold", 
-                               style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px;") }}
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold"
+                               style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px;">
+                                <i class="bi bi-box-arrow-in-right"></i> Zaloguj się
+                            </button>
                         </div>
                     </form>
 
