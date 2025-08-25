@@ -42,3 +42,8 @@ SQLAlchemy
 stripe
 Werkzeug
 WTForms
+beautifulsoup4
+gunicorn
+PyPDF2
+python-dotenv
+requests
