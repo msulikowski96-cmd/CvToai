@@ -381,10 +381,6 @@ def register():
 # Register blueprint
 app.register_blueprint(auth)
 
-# Remove old routes
-app.route_map = {rule: func for rule, func in app.route_map.items() 
-                 if rule not in ['/register', '/login']}
-
 # Create database tables
 with app.app_context():
     db.create_all()
