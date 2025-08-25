@@ -74,6 +74,10 @@ def clean_extracted_text(text):
     if not text:
         return ""
     
+    # Ensure proper UTF-8 encoding
+    if isinstance(text, bytes):
+        text = text.decode('utf-8', errors='replace')
+    
     # Remove excessive whitespace and normalize line breaks
     lines = []
     for line in text.split('\n'):
@@ -87,6 +91,12 @@ def clean_extracted_text(text):
     # Remove excessive spaces
     import re
     cleaned_text = re.sub(r' +', ' ', cleaned_text)
+    
+    # Ensure proper encoding for database storage
+    try:
+        cleaned_text.encode('utf-8')
+    except UnicodeEncodeError:
+        cleaned_text = cleaned_text.encode('utf-8', errors='replace').decode('utf-8')
     
     return cleaned_text
 

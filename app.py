@@ -1,8 +1,15 @@
 
 import os
+import sys
 import logging
 import uuid
 from datetime import datetime
+
+# Force UTF-8 encoding
+if sys.stdout.encoding != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+if sys.stderr.encoding != 'utf-8':
+    sys.stderr.reconfigure(encoding='utf-8')
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -27,10 +34,18 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-prod
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///cv_optimizer.db")
+database_url = os.environ.get("DATABASE_URL", "sqlite:///cv_optimizer.db")
+
+# Add UTF-8 charset for SQLite
+if database_url.startswith("sqlite"):
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url + "?charset=utf8mb4"
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
+    "connect_args": {"charset": "utf8mb4"} if not database_url.startswith("postgresql") else {}
 }
 
 # File upload configuration
