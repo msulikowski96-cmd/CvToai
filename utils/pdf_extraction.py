@@ -1,3 +1,4 @@
+
 import logging
 import PyPDF2
 from io import BytesIO
@@ -42,62 +43,6 @@ def extract_text_from_pdf(file_path):
                 except Exception as e:
                     logger.warning(f"Błąd odczytywania strony {page_num + 1}: {str(e)}")
                     continue
-        
-        # Clean up the text
-        text = text.strip()
-        
-        if not text:
-            logger.error("Nie udało się wyodrębnić tekstu z PDF")
-            return None
-        
-        # Basic text cleanup
-        text = clean_extracted_text(text)
-        
-        logger.info(f"Pomyślnie wyodrębniono tekst z PDF (długość: {len(text)} znaków)")
-        return text
-    
-    except Exception as e:
-        logger.error(f"Błąd podczas ekstrakcji tekstu z PDF: {str(e)}")
-        return None
-
-def extract_text_from_pdf_bytes(pdf_bytes):
-    """
-    Extract text from PDF bytes
-    
-    Args:
-        pdf_bytes (bytes): PDF file as bytes
-    
-    Returns:
-        str: Extracted text from PDF or None if extraction fails
-    """
-    try:
-        text = ""
-        
-        pdf_file = BytesIO(pdf_bytes)
-        pdf_reader = PyPDF2.PdfReader(pdf_file)
-        
-        # Check if PDF is encrypted
-        if pdf_reader.is_encrypted:
-            logger.warning("PDF jest zaszyfrowany - próba otworzenia bez hasła")
-            try:
-                pdf_reader.decrypt('')
-            except:
-                logger.error("Nie udało się otworzyć zaszyfrowanego PDF")
-                return None
-        
-        # Extract text from all pages
-        for page_num in range(len(pdf_reader.pages)):
-            try:
-                page = pdf_reader.pages[page_num]
-                page_text = page.extract_text()
-                
-                if page_text:
-                    text += page_text + "\n"
-                    logger.debug(f"Wyodrębniono tekst ze strony {page_num + 1}")
-            
-            except Exception as e:
-                logger.warning(f"Błąd odczytywania strony {page_num + 1}: {str(e)}")
-                continue
         
         # Clean up the text
         text = text.strip()

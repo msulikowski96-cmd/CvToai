@@ -1,184 +1,278 @@
+
 {% extends "base.html" %}
 
 {% block title %}Dashboard - CV Optimizer Pro{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <!-- Welcome Header -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="card glassmorphism">
-                <div class="card-body p-4">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h1 class="text-white mb-2">
-                                <i class="bi bi-speedometer2 text-primary me-2"></i>
-                                Witaj, {{ current_user.first_name }}!
-                            </h1>
-                            <p class="text-white-50 mb-3">
-                                {% if current_user.last_login %}
-                                    Ostatnie logowanie: {{ current_user.last_login.strftime('%d.%m.%Y o %H:%M') }}
-                                {% else %}
-                                    Zarządzaj swoimi CV i śledź postępy w optymalizacji
-                                {% endif %}
-                            </p>
-                            <div class="d-flex gap-2">
-                                {% if current_user.is_premium_active() %}
-                                    <span class="badge bg-warning">
-                                        <i class="bi bi-star-fill me-1"></i>Premium
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-secondary">
-                                        <i class="bi bi-person me-1"></i>Free
-                                    </span>
-                                {% endif %}
-                                <span class="badge bg-info">
-                                    <i class="bi bi-calendar me-1"></i>
-                                    Członek od {{ current_user.created_at.strftime('%m.%Y') if current_user.created_at else 'dziś' }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-md-end">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <a href="{{ url_for('index') }}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle me-1"></i>Nowe CV
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card glassmorphism h-100 text-center">
-                <div class="card-body p-4">
-                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-                        <i class="bi bi-file-earmark-text fs-4 text-white"></i>
-                    </div>
-                    <h3 class="text-primary mb-1">{{ current_user.cv_uploads|length if current_user.cv_uploads else 0 }}</h3>
-                    <p class="text-white-50 mb-0">Przesłanych CV</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card glassmorphism h-100 text-center">
-                <div class="card-body p-4">
-                    <div class="bg-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-                        <i class="bi bi-check-circle fs-4 text-white"></i>
-                    </div>
-                    {% set optimized_count = current_user.cv_uploads|selectattr('optimized_cv')|list|length if current_user.cv_uploads else 0 %}
-                    <h3 class="text-success mb-1">{{ optimized_count }}</h3>
-                    <p class="text-white-50 mb-0">Zoptymalizowanych</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card glassmorphism h-100 text-center">
-                <div class="card-body p-4">
-                    <div class="bg-info rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-                        <i class="bi bi-calendar-date fs-4 text-white"></i>
-                    </div>
-                    <h3 class="text-info mb-1">
-                        {% if current_user.created_at %}
-                            {{ ((current_user.created_at.now() - current_user.created_at).days + 1) if current_user.created_at else 1 }}
-                        {% else %}
-                            1
-                        {% endif %}
-                    </h3>
-                    <p class="text-white-50 mb-0">Dni z nami</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card glassmorphism h-100 text-center">
-                <div class="card-body p-4">
-                    <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-                        <i class="bi bi-star fs-4 text-white"></i>
-                    </div>
-                    <h3 class="text-warning mb-1">
-                        {% if current_user.is_premium_active() %}Premium{% else %}Free{% endif %}
-                    </h3>
-                    <p class="text-white-50 mb-0">Status konta</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CV History -->
+<div class="container my-5">
     <div class="row">
         <div class="col-12">
-            <div class="card glassmorphism">
-                <div class="card-body p-4">
-                    <h3 class="text-white mb-4">
-                        <i class="bi bi-clock-history text-primary me-2"></i>
-                        Historia CV
+            <h1 class="mb-4">
+                <i class="bi bi-speedometer2 me-3"></i>Dashboard
+            </h1>
+            
+            {% if current_user.is_premium_active() %}
+                <div class="alert alert-success d-flex align-items-center mb-4">
+                    <i class="bi bi-star-fill me-2"></i>
+                    <strong>Konto Premium aktywne!</strong> Masz dostęp do wszystkich funkcji.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-cloud-upload me-2"></i>Prześlij CV do optymalizacji
                     </h3>
-                    
-                    {% if current_user.cv_uploads and current_user.cv_uploads|length > 0 %}
+                </div>
+                <div class="card-body">
+                    <form id="cv-upload-form" enctype="multipart/form-data">
                         <div class="row g-3">
-                            {% for cv in current_user.cv_uploads[-6:] %}
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card glassmorphism h-100">
-                                    <div class="card-body p-3">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <i class="bi bi-file-earmark-pdf text-primary me-2"></i>
-                                            <h6 class="text-white mb-0">{{ cv.job_title or 'CV bez tytułu' }}</h6>
-                                        </div>
-                                        <p class="text-white-50 small mb-2">
-                                            <i class="bi bi-calendar me-1"></i>
-                                            {{ cv.created_at.strftime('%d.%m.%Y %H:%M') if cv.created_at else 'Brak daty' }}
-                                        </p>
-                                        <div class="mb-3">
-                                            {% if cv.optimized_cv %}
-                                                <span class="badge bg-success">
-                                                    <i class="bi bi-check-circle me-1"></i>Zoptymalizowane
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">
-                                                    <i class="bi bi-clock me-1"></i>W trakcie
-                                                </span>
-                                            {% endif %}
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            {% if cv.optimized_cv %}
-                                                <a href="{{ url_for('view_cv', cv_id=cv.id) }}" class="btn btn-primary btn-sm">
-                                                    <i class="bi bi-eye me-1"></i>Zobacz
-                                                </a>
-                                            {% endif %}
-                                            <a href="{{ url_for('download_cv', cv_id=cv.id) }}" class="btn btn-outline-primary btn-sm">
-                                                <i class="bi bi-download me-1"></i>Pobierz
-                                            </a>
-                                        </div>
-                                    </div>
+                            <div class="col-md-6">
+                                <label for="job_title" class="form-label">Nazwa stanowiska *</label>
+                                <input type="text" class="form-control" id="job_title" name="job_title" required>
+                                <div class="form-text text-white-75">
+                                    np. "Developer Python", "Specjalista ds. marketingu"
                                 </div>
                             </div>
-                            {% endfor %}
+                            <div class="col-md-6">
+                                <label for="cv_file" class="form-label">Plik CV (PDF) *</label>
+                                <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf" required>
+                                <div class="form-text text-white-75">
+                                    Maksymalny rozmiar: 16MB
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="job_description" class="form-label">Opis stanowiska / Ogłoszenie</label>
+                                <textarea class="form-control" id="job_description" name="job_description" rows="4" 
+                                          placeholder="Wklej tutaj opis stanowiska z ogłoszenia o pracę (opcjonalne, ale zalecane dla lepszej optymalizacji)"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-light btn-lg">
+                                    <i class="bi bi-magic me-2"></i>Zoptymalizuj CV
+                                </button>
+                            </div>
                         </div>
-                        
-                        {% if current_user.cv_uploads|length > 6 %}
-                        <div class="text-center mt-4">
-                            <button class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-down me-1"></i>Pokaż więcej
-                            </button>
-                        </div>
-                        {% endif %}
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-file-earmark-plus text-primary" style="font-size: 4rem;"></i>
-                            <h4 class="text-white mt-3 mb-3">Nie masz jeszcze żadnych CV</h4>
-                            <p class="text-white-50 mb-4">Prześlij swoje pierwsze CV i zacznij optymalizację</p>
-                            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
-                                <i class="bi bi-plus-circle me-2"></i>Prześlij CV
-                            </a>
-                        </div>
-                    {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Section -->
+    <div id="loading-section" class="row d-none">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Ładowanie...</span>
+                    </div>
+                    <h4>Przetwarzanie CV...</h4>
+                    <p class="text-muted">To może potrwać kilka minut. Nie zamykaj tej strony.</p>
+                    <div class="progress mt-3" style="height: 10px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-section" class="row d-none">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>CV zostało przesłane
+                    </h3>
+                    <div>
+                        <button id="optimize-btn" class="btn btn-primary me-2">
+                            <i class="bi bi-magic me-1"></i>Optymalizuj
+                        </button>
+                        <button id="analyze-btn" class="btn btn-success">
+                            <i class="bi bi-graph-up me-1"></i>Analizuj
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        CV zostało pomyślnie przesłane. Możesz teraz je zoptymalizować lub przeanalizować.
+                    </p>
+                    <div id="session-info" class="mt-3"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal for results -->
+<div class="modal fade" id="resultsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Wyniki</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadForm = document.getElementById('cv-upload-form');
+    const loadingSection = document.getElementById('loading-section');
+    const resultsSection = document.getElementById('results-section');
+    const optimizeBtn = document.getElementById('optimize-btn');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const resultsModal = new bootstrap.Modal(document.getElementById('resultsModal'));
+    
+    let currentSessionId = null;
+    
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(uploadForm);
+        
+        // Show loading
+        loadingSection.classList.remove('d-none');
+        uploadForm.style.display = 'none';
+        
+        let progress = 0;
+        const progressBar = loadingSection.querySelector('.progress-bar');
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+        }, 500);
+        
+        fetch('/upload-cv', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            
+            setTimeout(() => {
+                loadingSection.classList.add('d-none');
+                
+                if (data.success) {
+                    currentSessionId = data.session_id;
+                    resultsSection.classList.remove('d-none');
+                    document.getElementById('session-info').innerHTML = `
+                        <div class="alert alert-info">
+                            <strong>ID sesji:</strong> ${data.session_id}<br>
+                            <strong>Komunikat:</strong> ${data.message}
+                        </div>
+                    `;
+                } else {
+                    alert('Błąd: ' + data.message);
+                    uploadForm.style.display = 'block';
+                }
+            }, 1000);
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            loadingSection.classList.add('d-none');
+            uploadForm.style.display = 'block';
+            alert('Wystąpił błąd podczas przesyłania pliku: ' + error.message);
+        });
+    });
+    
+    optimizeBtn.addEventListener('click', function() {
+        if (!currentSessionId) return;
+        
+        optimizeBtn.disabled = true;
+        optimizeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Optymalizowanie...';
+        
+        fetch('/optimize-cv', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({session_id: currentSessionId})
+        })
+        .then(response => response.json())
+        .then(data => {
+            optimizeBtn.disabled = false;
+            optimizeBtn.innerHTML = '<i class="bi bi-magic me-1"></i>Optymalizuj';
+            
+            if (data.success) {
+                document.getElementById('modal-content').innerHTML = `
+                    <h4>Zoptymalizowane CV:</h4>
+                    <div class="bg-light p-3 rounded" style="white-space: pre-wrap; max-height: 500px; overflow-y: auto;">${data.optimized_cv}</div>
+                `;
+                resultsModal.show();
+                
+                // Redirect to results page
+                setTimeout(() => {
+                    window.location.href = '/result/' + currentSessionId;
+                }, 2000);
+            } else {
+                alert('Błąd: ' + data.message);
+            }
+        })
+        .catch(error => {
+            optimizeBtn.disabled = false;
+            optimizeBtn.innerHTML = '<i class="bi bi-magic me-1"></i>Optymalizuj';
+            alert('Wystąpił błąd: ' + error.message);
+        });
+    });
+    
+    analyzeBtn.addEventListener('click', function() {
+        if (!currentSessionId) return;
+        
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analizowanie...';
+        
+        fetch('/analyze-cv', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({session_id: currentSessionId})
+        })
+        .then(response => response.json())
+        .then(data => {
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = '<i class="bi bi-graph-up me-1"></i>Analizuj';
+            
+            if (data.success) {
+                document.getElementById('modal-content').innerHTML = `
+                    <h4>Analiza CV:</h4>
+                    <div class="bg-light p-3 rounded" style="white-space: pre-wrap; max-height: 500px; overflow-y: auto;">${data.cv_analysis}</div>
+                `;
+                resultsModal.show();
+                
+                // Redirect to results page
+                setTimeout(() => {
+                    window.location.href = '/result/' + currentSessionId;
+                }, 2000);
+            } else {
+                alert('Błąd: ' + data.message);
+            }
+        })
+        .catch(error => {
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = '<i class="bi bi-graph-up me-1"></i>Analizuj';
+            alert('Wystąpił błąd: ' + error.message);
+        });
+    });
+});
+</script>
 {% endblock %}

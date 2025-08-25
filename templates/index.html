@@ -1,224 +1,115 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container py-5">
-    <!-- Hero Section -->
-    <div class="row align-items-center min-vh-50 mb-5">
-        <div class="col-lg-6 mb-4 mb-lg-0">
-            <div class="hero-content">
-                <div class="badge bg-primary mb-3 px-3 py-2">
-                    <i class="bi bi-magic me-1"></i>Powered by AI
-                </div>
-                <h1 class="display-4 fw-bold text-white mb-4">
-                    Zoptymalizuj swoje CV z pomocą AI
-                </h1>
-                <p class="lead text-white-50 mb-4">
-                    Przekształć swoje CV w potężne narzędzie kariery. Nasza sztuczna inteligencja dostosuje Twoje CV do konkretnego stanowiska, zwiększając szanse na rozmowę kwalifikacyjną.
-                </p>
-                
-                <!-- Key Benefits -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                <i class="bi bi-check-lg text-white"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 text-white">ATS Optimized</h6>
-                                <small class="text-white-50">Przejdzie przez systemy rekrutacyjne</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                <i class="bi bi-lightning-charge text-white"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 text-white">Szybka optymalizacja</h6>
-                                <small class="text-white-50">Wyniki w mniej niż 60 sekund</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+{% block title %}CV Optimizer Pro - Strona Główna{% endblock %}
 
-                <div class="d-flex gap-3">
-                    {% if not current_user.is_authenticated %}
-                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+{% block content %}
+<div class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 70vh;">
+    <div class="container">
+        <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4 text-white">
+                    Zoptymalizuj swoje CV z AI
+                </h1>
+                <p class="lead mb-4 text-white-75">
+                    Wykorzystaj moc sztucznej inteligencji do stworzenia CV, które wyróżni Cię na tle konkurencji
+                </p>
+                {% if not current_user.is_authenticated %}
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5 py-3">
                             <i class="bi bi-person-plus me-2"></i>Rozpocznij za darmo
                         </a>
-                    {% endif %}
-                    <a href="#features" class="btn btn-outline-primary btn-lg">
-                        <i class="bi bi-arrow-down me-2"></i>Zobacz funkcje
-                    </a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-5 py-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 bg-primary text-white">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-file-earmark-arrow-up fs-1"></i>
+                    </div>
+                    <div class="badge bg-light text-primary mb-3">01</div>
+                    <h4 class="mb-3">Prześlij CV</h4>
+                    <p class="text-white-75">
+                        Wgraj swoje aktualne CV w formacie PDF oraz podaj informacje o stanowisku, o które się ubiegasz.
+                    </p>
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="card glassmorphism">
-                <div class="card-body p-4">
-                    <h3 class="card-title text-center mb-4 text-white">
-                        <i class="bi bi-upload text-primary me-2"></i>
-                        Wypróbuj teraz
-                    </h3>
-                    
-                    <!-- Stats Preview -->
-                    <div class="row g-2 mb-4">
-                        <div class="col-4 text-center">
-                            <div class="stat-item">
-                                <h4 class="text-primary mb-0">1,234</h4>
-                                <small class="text-white-50">CV zoptymalizowanych</small>
-                            </div>
-                        </div>
-                        <div class="col-4 text-center">
-                            <div class="stat-item">
-                                <h4 class="text-success mb-0">85%</h4>
-                                <small class="text-white-50">Większe szanse</small>
-                            </div>
-                        </div>
-                        <div class="col-4 text-center">
-                            <div class="stat-item">
-                                <h4 class="text-warning mb-0">4.9★</h4>
-                                <small class="text-white-50">Ocena użytkowników</small>
-                            </div>
-                        </div>
+        <div class="col-md-4">
+            <div class="card h-100 bg-success text-white">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-cpu fs-1"></i>
                     </div>
-
-                    {% if current_user.is_authenticated %}
-                        <!-- Upload Form for Logged Users -->
-                        <form id="cvUploadForm" method="POST" action="{{ url_for('upload_cv') }}" enctype="multipart/form-data">
-                            <!-- Job Title Input -->
-                            <div class="mb-3">
-                                <label for="jobTitle" class="form-label">
-                                    <i class="bi bi-briefcase me-1"></i>Nazwa stanowiska *
-                                </label>
-                                <input type="text" class="form-control" id="jobTitle" name="job_title" 
-                                       placeholder="np. Frontend Developer, Marketing Manager" required>
-                            </div>
-
-                            <!-- Job Description Input -->
-                            <div class="mb-3">
-                                <label for="jobDescription" class="form-label">
-                                    <i class="bi bi-file-text me-1"></i>Opis stanowiska (opcjonalnie)
-                                </label>
-                                <textarea class="form-control" id="jobDescription" name="job_description" 
-                                          rows="3" placeholder="Wklej tutaj treść ogłoszenia o pracę..."></textarea>
-                            </div>
-
-                            <!-- File Upload -->
-                            <div class="mb-4">
-                                <label for="cvFile" class="form-label">
-                                    <i class="bi bi-file-pdf me-1"></i>Plik CV (PDF) *
-                                </label>
-                                <input type="file" class="form-control" id="cvFile" name="cv_file" 
-                                       accept=".pdf" required>
-                                <div class="form-text text-white-50">Maksymalny rozmiar: 16MB</div>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <button type="submit" class="btn btn-primary btn-lg w-100">
-                                <i class="bi bi-magic me-2"></i>
-                                Zoptymalizuj CV
-                            </button>
-                        </form>
-                    {% else %}
-                        <!-- Login Prompt -->
-                        <div class="text-center">
-                            <p class="text-white mb-4">Zaloguj się, aby zoptymalizować swoje CV</p>
-                            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg w-100 mb-2">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
-                            </a>
-                            <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-person-plus me-2"></i>Utwórz konto
-                            </a>
-                        </div>
-                    {% endif %}
+                    <div class="badge bg-light text-success mb-3">02</div>
+                    <h4 class="mb-3">AI analizuje</h4>
+                    <p class="text-white-75">
+                        Zaawansowana sztuczna inteligencja analizuje Twoje CV i dostosowuje je do wymagań stanowiska w czasie rzeczywistym.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 bg-warning text-white">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-download fs-1"></i>
+                    </div>
+                    <div class="badge bg-light text-warning mb-3">03</div>
+                    <h4 class="mb-3">Pobierz wyniki</h4>
+                    <p class="text-white-75">
+                        Otrzymaj zoptymalizowane CV oraz szczegółową analizę z rekomendacjami do dalszych poprawek.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Features Section -->
-    <section id="features" class="py-5">
-        <div class="row text-center mb-5">
-            <div class="col-12">
-                <h2 class="display-5 fw-bold text-white mb-3">Jak to działa?</h2>
-                <p class="lead text-white-50">Prosty proces optymalizacji CV w trzech krokach</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card glassmorphism h-100 text-center">
-                    <div class="card-body p-4">
-                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
-                            <i class="bi bi-upload fs-1 text-white"></i>
-                        </div>
-                        <div class="badge bg-primary mb-3">01</div>
-                        <h4 class="mb-3 text-white">Prześlij CV</h4>
-                        <p class="text-white-50">
-                            Wgraj swoje aktualne CV w formacie PDF oraz podaj informacje o stanowisku, o które się ubiegasz.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card glassmorphism h-100 text-center">
-                    <div class="card-body p-4">
-                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
-                            <i class="bi bi-cpu fs-1 text-white"></i>
-                        </div>
-                        <div class="badge bg-success mb-3">02</div>
-                        <h4 class="mb-3 text-white">AI analizuje</h4>
-                        <p class="text-white-50">
-                            Zaawansowana sztuczna inteligencja analizuje Twoje CV i dostosowuje je do wymagań stanowiska w czasie rzeczywistym.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card glassmorphism h-100 text-center">
-                    <div class="card-body p-4">
-                        <div class="bg-info rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
-                            <i class="bi bi-download fs-1 text-white"></i>
-                        </div>
-                        <div class="badge bg-info mb-3">03</div>
-                        <h4 class="mb-3 text-white">Pobierz wynik</h4>
-                        <p class="text-white-50">
-                            Otrzymaj profesjonalnie zoptymalizowane CV gotowe do wysłania wraz z analizą i sugestiami ulepszeń.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 </div>
-{% endblock %}
 
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    validateForm('cvUploadForm');
-    
-    const fileInput = document.getElementById('cvFile');
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const maxSize = 16 * 1024 * 1024; // 16MB
-                if (file.size > maxSize) {
-                    showToast('error', 'Plik jest za duży. Maksymalny rozmiar to 16MB.');
-                    this.value = '';
-                    return;
-                }
-                
-                if (file.type !== 'application/pdf') {
-                    showToast('error', 'Proszę wybrać plik w formacie PDF.');
-                    this.value = '';
-                    return;
-                }
-            }
-        });
-    }
-});
-</script>
+<!-- Stats Section -->
+<div class="bg-secondary py-5 my-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h2 class="display-4 fw-bold text-primary">98%</h2>
+                <p class="text-muted">Zadowolonych użytkowników</p>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h2 class="display-4 fw-bold text-success">1500+</h2>
+                <p class="text-muted">Zoptymalizowanych CV</p>
+            </div>
+            <div class="col-md-4">
+                <h2 class="display-4 fw-bold text-warning">24/7</h2>
+                <p class="text-muted">Dostępność systemu</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+{% if not current_user.is_authenticated %}
+<div class="container text-center my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-4">Gotowy na zwiększenie swoich szans?</h2>
+            <p class="lead mb-4 text-muted">
+                Dołącz do tysięcy użytkowników, którzy już poprawili swoje CV dzięki naszemu AI
+            </p>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3">
+                <i class="bi bi-rocket-takeoff me-2"></i>Zacznij teraz
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
