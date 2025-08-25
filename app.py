@@ -41,12 +41,21 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database - using local SQLite
-database_url = os.environ.get("DATABASE_URL", "sqlite:///instance/cv_optimizer.db")
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+# Configure the database
+database_url = os.environ.get("DATABASE_URL", "postgresql://neondb_owner:npg_Kwxn8tab4vur@ep-weathered-bar-a27c3h3w.eu-central-1.aws.neon.tech/neondb?sslmode=require")
+
+# Add UTF-8 charset for SQLite (this can be removed if you're not using SQLite anymore)
+if database_url.startswith("sqlite"):
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url + "?charset=utf8mb4"
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
+    "connect_args": {
+        "options": "-c client_encoding=utf8"
+    }
 }
 
 # File upload configuration
