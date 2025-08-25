@@ -6,6 +6,10 @@ import uuid
 from datetime import datetime
 
 # Force UTF-8 encoding
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+os.environ['LC_ALL'] = 'C.UTF-8'
+os.environ['LANG'] = 'C.UTF-8'
+
 if sys.stdout.encoding != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
 if sys.stderr.encoding != 'utf-8':
@@ -45,7 +49,11 @@ else:
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
-    "connect_args": {"charset": "utf8mb4"} if not database_url.startswith("postgresql") else {}
+    "connect_args": {
+        "charset": "utf8mb4"
+    } if not database_url.startswith("postgresql") else {
+        "options": "-c client_encoding=utf8"
+    }
 }
 
 # File upload configuration
@@ -170,14 +178,27 @@ def upload_cv():
             # Generate session ID
             session_id = str(uuid.uuid4())
             
-            # Store session data in database
+            # Ensure UTF-8 encoding for all text fields
+            def ensure_utf8(text):
+                if text is None:
+                    return None
+                if isinstance(text, bytes):
+                    return text.decode('utf-8', errors='replace')
+                try:
+                    # Test if string can be encoded to UTF-8
+                    text.encode('utf-8')
+                    return text
+                except UnicodeEncodeError:
+                    return text.encode('utf-8', errors='replace').decode('utf-8')
+            
+            # Store session data in database with UTF-8 encoding
             cv_upload = CVUpload(
                 user_id=current_user.id,
                 session_id=session_id,
-                filename=filename,
-                original_text=cv_text,
-                job_title=job_title,
-                job_description=job_description
+                filename=ensure_utf8(filename),
+                original_text=ensure_utf8(cv_text),
+                job_title=ensure_utf8(job_title),
+                job_description=ensure_utf8(job_description)
             )
             db.session.add(cv_upload)
             db.session.commit()
