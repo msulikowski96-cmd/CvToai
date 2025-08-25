@@ -38,9 +38,9 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-prod
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure the database
-database_url = os.environ.get("DATABASE_URL", "sqlite:///cv_optimizer.db")
+database_url = os.environ.get("DATABASE_URL", "postgresql://neondb_owner:npg_Kwxn8tab4vur@ep-weathered-bar-a27c3h3w.eu-central-1.aws.neon.tech/neondb?sslmode=require")
 
-# Add UTF-8 charset for SQLite
+# Add UTF-8 charset for SQLite (this can be removed if you're not using SQLite anymore)
 if database_url.startswith("sqlite"):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url + "?charset=utf8mb4"
 else:
@@ -50,8 +50,6 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
     "connect_args": {
-        "charset": "utf8mb4"
-    } if not database_url.startswith("postgresql") else {
         "options": "-c client_encoding=utf8"
     }
 }
