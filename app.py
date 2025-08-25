@@ -10,10 +10,14 @@ os.environ['PYTHONIOENCODING'] = 'utf-8'
 os.environ['LC_ALL'] = 'C.UTF-8'
 os.environ['LANG'] = 'C.UTF-8'
 
-if sys.stdout.encoding != 'utf-8':
-    sys.stdout.reconfigure(encoding='utf-8')
-if sys.stderr.encoding != 'utf-8':
-    sys.stderr.reconfigure(encoding='utf-8')
+# Skip reconfigure on systems where it's not available
+try:
+    if sys.stdout.encoding != 'utf-8':
+        sys.stdout.reconfigure(encoding='utf-8')
+    if sys.stderr.encoding != 'utf-8':
+        sys.stderr.reconfigure(encoding='utf-8')
+except AttributeError:
+    pass
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -70,7 +74,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_message = 'Zaloguj się, aby uzyskać dostęp do tej strony.'
 login_manager.login_message_category = 'info'
-login_manager.login_view = 'auth.login'
+login_manager.login_view = 'login'
 
 # Models
 class User(UserMixin, db.Model):
