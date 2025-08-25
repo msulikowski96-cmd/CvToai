@@ -231,15 +231,18 @@ def upload_cv():
                     return text.encode('utf-8',
                                        errors='replace').decode('utf-8')
 
-            # Store session data in session
-            session[session_id] = {
-                'user_id': current_user.id,
-                'filename': ensure_utf8(filename),
-                'original_text': ensure_utf8(cv_text),
-                'job_title': ensure_utf8(job_title),
-                'job_description': ensure_utf8(job_description)
-            }
-
+            # Store CV data in the database
+            new_cv_upload = CVUpload(
+                user_id=current_user.id,
+                session_id=session_id,
+                filename=ensure_utf8(filename),
+                original_text=ensure_utf8(cv_text),
+                job_title=ensure_utf8(job_title),
+                job_description=ensure_utf8(job_description),
+                created_at=datetime.utcnow()
+            )
+            db.session.add(new_cv_upload)
+            db.session.commit()
 
             # Clean up uploaded file
             os.remove(file_path)
@@ -274,19 +277,20 @@ def optimize_cv_route():
         data = request.get_json()
         session_id = data.get('session_id')
 
-        cv_data = session.get(session_id)
+        cv_upload = CVUpload.query.filter_by(
+            session_id=session_id,
+            user_id=current_user.id
+        ).first()
 
-        if not cv_data:
+        if not cv_upload:
             return jsonify({
-                'success':
-                False,
-                'message':
-                'Sesja wygasła. Proszę przesłać CV ponownie.'
+                'success': False,
+                'message': 'Sesja wygasła. Proszę przesłać CV ponownie.'
             })
 
-        cv_text = cv_data['original_text']
-        job_title = cv_data['job_title']
-        job_description = cv_data['job_description']
+        cv_text = cv_upload.original_text
+        job_title = cv_upload.job_title
+        job_description = cv_upload.job_description
 
         # Check if user has premium access
         is_premium = current_user.is_premium_active()
@@ -306,10 +310,10 @@ def optimize_cv_route():
                 'Nie udało się zoptymalizować CV. Spróbuj ponownie.'
             })
 
-        # Store optimized CV in session
-        cv_data['optimized_cv'] = optimized_cv
-        cv_data['optimized_at'] = datetime.utcnow()
-        session[session_id] = cv_data # Update session data
+        # Store optimized CV in the database
+        cv_upload.optimized_cv = optimized_cv
+        cv_upload.optimized_at = datetime.utcnow()
+        db.session.commit()
 
         return jsonify({
             'success': True,
@@ -334,19 +338,20 @@ def analyze_cv_route():
         data = request.get_json()
         session_id = data.get('session_id')
 
-        cv_data = session.get(session_id)
+        cv_upload = CVUpload.query.filter_by(
+            session_id=session_id,
+            user_id=current_user.id
+        ).first()
 
-        if not cv_data:
+        if not cv_upload:
             return jsonify({
-                'success':
-                False,
-                'message':
-                'Sesja wygasła. Proszę przesłać CV ponownie.'
+                'success': False,
+                'message': 'Sesja wygasła. Proszę przesłać CV ponownie.'
             })
 
-        cv_text = cv_data['original_text']
-        job_title = cv_data['job_title']
-        job_description = cv_data['job_description']
+        cv_text = cv_upload.original_text
+        job_title = cv_upload.job_title
+        job_description = cv_upload.job_description
 
         # Check if user has premium access
         is_premium = current_user.is_premium_active()
@@ -366,10 +371,10 @@ def analyze_cv_route():
                 'Nie udało się przeanalizować CV. Spróbuj ponownie.'
             })
 
-        # Store analysis in session
-        cv_data['cv_analysis'] = cv_analysis
-        cv_data['analyzed_at'] = datetime.utcnow()
-        session[session_id] = cv_data # Update session data
+        # Store analysis in the database
+        cv_upload.cv_analysis = cv_analysis
+        cv_upload.analyzed_at = datetime.utcnow()
+        db.session.commit()
 
         return jsonify({
             'success': True,
@@ -388,33 +393,17 @@ def analyze_cv_route():
 @app.route('/result/<session_id>')
 @login_required
 def result(session_id):
-    cv_data = session.get(session_id)
+    cv_upload = CVUpload.query.filter_by(
+        session_id=session_id,
+        user_id=current_user.id
+    ).first()
 
-    if not cv_data:
+    if not cv_upload:
         flash('Sesja wygasła. Proszę przesłać CV ponownie.', 'error')
         return redirect(url_for('index'))
 
-    # For the result page, we might still want to show the original filename and other metadata
-    # We can either retrieve it from the DB if it was saved, or pass it along in the session as well.
-    # For now, let's assume the filename is available in cv_data.
-    # If not, you'd need to adjust the upload_cv to also save filename to session.
-    
-    # Mocking cv_upload object for rendering template if we are not using DB
-    class MockCVUpload:
-        def __init__(self, data):
-            self.filename = data.get('filename', 'N/A')
-            self.job_title = data.get('job_title', 'N/A')
-            self.optimized_cv = data.get('optimized_cv')
-            self.cv_analysis = data.get('cv_analysis')
-            self.created_at = data.get('created_at', datetime.utcnow()) # Mock creation time
-            self.optimized_at = data.get('optimized_at')
-            self.analyzed_at = data.get('analyzed_at')
-
-    mock_cv_upload = MockCVUpload(cv_data)
-
-
     return render_template('result.html',
-                           cv_upload=mock_cv_upload,
+                           cv_upload=cv_upload,
                            session_id=session_id)
 
 
@@ -508,7 +497,7 @@ def register():
             return render_template('auth/register.html')
 
         if len(password) < 6:
-            flash('Hasło musi mieć co najmniej 6 znaków.', 'error')
+            flash('Hasło musi mieć co najnajmniej 6 znaków.', 'error')
             return render_template('auth/register.html')
 
         # Check if user exists
