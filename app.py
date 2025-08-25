@@ -20,12 +20,12 @@ os.environ['LANG'] = 'C.UTF-8'
 
 # Skip reconfigure on systems where it's not available
 try:
-    if hasattr(sys.stdout, 'reconfigure'):
+    if hasattr(sys.stdout, 'reconfigure') and callable(getattr(sys.stdout, 'reconfigure', None)):
         if sys.stdout.encoding != 'utf-8':
-            sys.stdout.reconfigure(encoding='utf-8')
-    if hasattr(sys.stderr, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8')  # type: ignore
+    if hasattr(sys.stderr, 'reconfigure') and callable(getattr(sys.stderr, 'reconfigure', None)):
         if sys.stderr.encoding != 'utf-8':
-            sys.stderr.reconfigure(encoding='utf-8')
+            sys.stderr.reconfigure(encoding='utf-8')  # type: ignore
 except (AttributeError, OSError):
     pass
 
