@@ -47,12 +47,9 @@ app.secret_key = os.environ.get("SESSION_SECRET",
                                 "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database with fallback to SQLite
-database_url = os.environ.get("DATABASE_URL")
-if not database_url:
-    # Fallback to SQLite for development
-    database_url = "sqlite:///cv_optimizer.db"
-    logger.warning("No DATABASE_URL found, using SQLite fallback")
+# Configure the database - using SQLite for local development
+database_url = "sqlite:///cv_optimizer.db"
+logger.info("Using SQLite database for local development")
 else:
     # Test PostgreSQL connection and fallback to SQLite if it fails
     try:
