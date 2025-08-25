@@ -221,6 +221,36 @@
     margin-bottom: 0.5rem;
 }
 
+/* Enhanced text visibility in content boxes */
+.bg-light {
+    color: #212529 !important;
+}
+
+.bg-light * {
+    color: #212529 !important;
+}
+
+.card-body .bg-light {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+.card-body .bg-light * {
+    color: #212529 !important;
+}
+
+/* Specific styling for CV content areas */
+#optimized-cv,
+#cv-analysis {
+    color: #212529 !important;
+    background-color: #f8f9fa !important;
+}
+
+#optimized-cv *,
+#cv-analysis * {
+    color: #212529 !important;
+}
+
 /* Original CV display */
 .original-cv-content pre {
     max-height: 400px;
