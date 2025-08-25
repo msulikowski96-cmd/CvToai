@@ -4,7 +4,7 @@
     --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
     --glassmorphism-bg: rgba(255, 255, 255, 0.05);
-    --glassmorphism-border: rgba(255, 255, 255, 0.1);
+    --glassmorphism-border: rgb(199, 199, 199, 0.1);
     --glassmorphism-shadow: rgba(0, 0, 0, 0.3);
 }
 
