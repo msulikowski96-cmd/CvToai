@@ -1,65 +1,171 @@
-
 {% extends "base.html" %}
 
 {% block title %}Rejestracja - CV Optimizer Pro{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white text-center">
-                    <h3 class="card-title mb-0">
-                        <i class="bi bi-person-plus me-2"></i>Rejestracja
-                    </h3>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="first_name" class="form-label">Imię</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="last_name" class="form-label">Nazwisko</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="username" class="form-label">Nick</label>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="password" class="form-label">Hasło</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                <div class="form-text">Hasło musi mieć co najmniej 6 znaków.</div>
-                            </div>
-                            <div class="col-12">
-                                <label for="password2" class="form-label">Potwierdź hasło</label>
-                                <input type="password" class="form-control" id="password2" name="password2" required>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary w-100 mb-3">
-                                    <i class="bi bi-person-plus me-2"></i>Zarejestruj się
-                                </button>
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="row w-100 justify-content-center">
+        <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+            <div class="card shadow-lg border-0" style="border-radius: 20px; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body p-5">
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person-plus text-white" style="font-size: 2.5rem;"></i>
                             </div>
                         </div>
+                        <h2 class="fw-bold text-dark mb-2">Dołącz do nas!</h2>
+                        <p class="text-muted">Stwórz konto i zacznij optymalizować swoje CV</p>
+                    </div>
+
+                    <!-- Registration Form -->
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <!-- Name Field -->
+                        <div class="mb-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                    <i class="bi bi-person text-primary"></i>
+                                </span>
+                                {{ form.name(class="form-control border-start-0 ps-0", 
+                                   style="border-radius: 0 12px 12px 0; border-left: none !important;", 
+                                   placeholder="Twoje imię i nazwisko") }}
+                            </div>
+                            {% if form.name.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.name.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="mb-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                    <i class="bi bi-envelope text-primary"></i>
+                                </span>
+                                {{ form.email(class="form-control border-start-0 ps-0", 
+                                   style="border-radius: 0 12px 12px 0; border-left: none !important;", 
+                                   placeholder="twój@email.com") }}
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.email.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                    <i class="bi bi-lock text-primary"></i>
+                                </span>
+                                {{ form.password(class="form-control border-start-0 ps-0", 
+                                   style="border-radius: 0 12px 12px 0; border-left: none !important;", 
+                                   placeholder="Hasło (min. 6 znaków)") }}
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.password.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div class="mb-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                    <i class="bi bi-shield-check text-primary"></i>
+                                </span>
+                                {{ form.confirm_password(class="form-control border-start-0 ps-0", 
+                                   style="border-radius: 0 12px 12px 0; border-left: none !important;", 
+                                   placeholder="Powtórz hasło") }}
+                            </div>
+                            {% if form.confirm_password.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.confirm_password.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Terms Checkbox -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label small text-muted" for="terms">
+                                    Akceptuję <a href="#" class="text-primary">regulamin</a> i <a href="#" class="text-primary">politykę prywatności</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mb-4">
+                            {{ form.submit(class="btn btn-primary btn-lg fw-bold", 
+                               style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px;") }}
+                        </div>
                     </form>
-                    
-                    <hr>
-                    
+
+                    <!-- Login Link -->
                     <div class="text-center">
-                        <p class="mb-0">Masz już konto?</p>
-                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
-                        </a>
+                        <div class="border-top pt-3">
+                            <span class="text-muted small">Masz już konto?</span>
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-link text-primary fw-semibold text-decoration-none p-0 ms-1">
+                                <i class="bi bi-box-arrow-in-right"></i> Zaloguj się
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .form-control:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+    }
+
+    .input-group-text {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+        transition: all 0.3s ease;
+    }
+
+    .card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .card-body {
+            padding: 2rem 1.5rem !important;
+        }
+    }
+</style>
 {% endblock %}

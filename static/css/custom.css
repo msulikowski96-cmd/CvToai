@@ -1,4 +1,8 @@
 :root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
     --glassmorphism-bg: rgba(255, 255, 255, 0.05);
     --glassmorphism-border: rgba(255, 255, 255, 0.1);
     --glassmorphism-shadow: rgba(0, 0, 0, 0.3);
@@ -237,33 +241,33 @@
         min-height: auto;
         padding: 2rem 0;
     }
-    
+
     .display-4 {
         font-size: 2rem;
         text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
     }
-    
+
     .display-5 {
         font-size: 1.75rem;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
-    
+
     .feature-item {
         flex-direction: column;
         text-align: center;
         gap: 0.5rem;
     }
-    
+
     .upload-card {
         margin-top: 2rem;
     }
-    
+
     /* Mobile text enhancements */
     .form-label {
         font-size: 1rem;
         font-weight: 700;
     }
-    
+
     .card-body p {
         font-size: 0.95rem;
         line-height: 1.5;
@@ -305,14 +309,14 @@
     .toast-container {
         display: none !important;
     }
-    
+
     .formatted-cv {
         font-family: Arial, sans-serif;
         font-size: 12pt;
         line-height: 1.4;
         color: black;
     }
-    
+
     .card {
         border: none;
         box-shadow: none;
@@ -714,4 +718,53 @@ h1, h2, h3, h4, h5, h6 {
 .file-upload-area.success {
     border-color: var(--bs-success);
     background: rgba(25, 135, 84, 0.05);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 1rem !important;
+    }
+
+    .card {
+        margin: 1rem 0 !important;
+        border-radius: 15px !important;
+    }
+
+    .card-body {
+        padding: 2rem 1.5rem !important;
+    }
+
+    .btn-lg {
+        padding: 10px 20px !important;
+        font-size: 1rem !important;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .input-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-control {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 16px !important; /* Prevents zoom on iOS */
+    }
+}
+
+@media (max-width: 480px) {
+    .card-body {
+        padding: 1.5rem 1rem !important;
+    }
+
+    .bg-primary {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .bg-primary i {
+        font-size: 2rem !important;
+    }
 }
