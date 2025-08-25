@@ -384,6 +384,23 @@ app.register_blueprint(auth)
 # Create database tables
 with app.app_context():
     db.create_all()
+    
+    # Create developer account if it doesn't exist
+    developer = User.query.filter_by(username='developer').first()
+    if not developer:
+        developer = User()
+        developer.username = 'developer'
+        developer.email = 'developer@cvoptimizer.pro'
+        developer.first_name = 'Developer'
+        developer.last_name = 'Account'
+        developer.password_hash = generate_password_hash('developer123')
+        developer.active = True
+        developer.created_at = datetime.utcnow()
+        
+        db.session.add(developer)
+        db.session.commit()
+        
+        logger.info("Created developer account - username: developer, password: developer123")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
