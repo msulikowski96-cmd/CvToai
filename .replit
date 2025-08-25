@@ -37,15 +37,6 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload --timeout 600 --worker-connections 10 main:app"
-
-[[workflows.workflow]]
-name = "Start Application"
-author = 46875409
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
 args = "python main.py"
 
 [[ports]]
