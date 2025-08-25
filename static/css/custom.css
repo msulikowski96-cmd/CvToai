@@ -6,6 +6,19 @@
     --glassmorphism-bg: rgba(255, 255, 255, 0.05);
     --glassmorphism-border: rgba(255, 255, 255, 0.1);
     --glassmorphism-shadow: rgba(0, 0, 0, 0.3);
+
+    /* Nowe kolory dla spójnego motywu */
+    --app-primary: #667eea;
+    --app-secondary: #764ba2;
+    --app-success: #28a745;
+    --app-warning: #ffc107;
+    --app-danger: #dc3545;
+    --app-info: #17a2b8;
+    --app-light: #f8f9fa;
+    --app-dark: #343a40;
+    --card-bg: #ffffff;
+    --card-text: #212529;
+    --card-border: #e9ecef;
 }
 
 /* Glassmorphism effects */
@@ -221,34 +234,197 @@
     margin-bottom: 0.5rem;
 }
 
-/* Enhanced text visibility in content boxes */
+/* ======================================= */
+/* SPÓJNY MOTYW DLA KART WYNIKÓW I APLIKACJI */
+/* ======================================= */
+
+/* Główne karty na stronie wyników */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Nagłówki kart */
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid var(--card-border);
+    border-radius: 12px 12px 0 0 !important;
+    padding: 1.25rem;
+}
+
+.card-header h3,
+.card-header .card-title {
+    color: var(--app-dark) !important;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: none;
+}
+
+/* Treść kart */
+.card-body {
+    background-color: var(--card-bg);
+    color: var(--card-text) !important;
+    padding: 1.5rem;
+}
+
+.card-body p,
+.card-body strong,
+.card-body div,
+.card-body span {
+    color: var(--card-text) !important;
+    text-shadow: none;
+}
+
+/* Specjalne stylowanie dla różnych typów kart */
+.card-header .text-success {
+    color: var(--app-success) !important;
+}
+
+.card-header .text-primary {
+    color: var(--app-primary) !important;
+}
+
+.card-header .text-secondary {
+    color: var(--app-dark) !important;
+}
+
+/* Stylowanie obszarów z wynikami CV */
 .bg-light {
-    color: #212529 !important;
+    background-color: #f8f9fa !important;
+    color: var(--card-text) !important;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
 }
 
 .bg-light * {
-    color: #212529 !important;
+    color: var(--card-text) !important;
 }
 
-.card-body .bg-light {
-    background-color: #f8f9fa !important;
-    color: #212529 !important;
-}
-
-.card-body .bg-light * {
-    color: #212529 !important;
-}
-
-/* Specific styling for CV content areas */
+/* Specjalne stylowanie dla zoptymalizowanego CV i analizy */
 #optimized-cv,
 #cv-analysis {
-    color: #212529 !important;
     background-color: #ffffff !important;
+    color: #212529 !important;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.7;
+    font-size: 14px;
 }
 
 #optimized-cv *,
 #cv-analysis * {
     color: #212529 !important;
+}
+
+/* Stylowanie dla oryginalnnego CV */
+#original-cv-content .bg-light {
+    background-color: #f1f3f4 !important;
+    color: #495057 !important;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+/* Przycisk kopiowania */
+.btn-outline-success,
+.btn-outline-primary,
+.btn-outline-secondary {
+    border-width: 2px;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-success:hover {
+    background-color: var(--app-success);
+    border-color: var(--app-success);
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--app-primary);
+    border-color: var(--app-primary);
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--app-dark);
+    border-color: var(--app-dark);
+    transform: translateY(-1px);
+}
+
+/* Przycisk główny */
+.btn-primary {
+    background-color: var(--app-primary);
+    border-color: var(--app-primary);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+}
+
+.btn-primary:hover {
+    background-color: #5a6fd8;
+    border-color: #5a6fd8;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background-color: var(--app-success);
+    border-color: var(--app-success);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #218838;
+    transform: translateY(-1px);
+}
+
+/* Informacje o sesji */
+.row p {
+    color: var(--card-text) !important;
+    margin-bottom: 0.5rem;
+}
+
+.row strong {
+    color: var(--app-primary) !important;
+    font-weight: 600;
+}
+
+/* Opis stanowiska */
+.mt-3 h6 {
+    color: var(--app-dark) !important;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .card {
+        margin: 1rem 0;
+        border-radius: 10px;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    #optimized-cv,
+    #cv-analysis {
+        padding: 1.5rem;
+        font-size: 13px;
+    }
 }
 
 /* Original CV display */
@@ -263,191 +439,6 @@
 /* Toast enhancements */
 .toast {
     backdrop-filter: blur(10px);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .hero-section {
-        min-height: auto;
-        padding: 2rem 0;
-    }
-
-    .display-4 {
-        font-size: 2rem;
-        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-    }
-
-    .display-5 {
-        font-size: 1.75rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    }
-
-    .feature-item {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-
-    .upload-card {
-        margin-top: 2rem;
-    }
-
-    /* Mobile text enhancements */
-    .form-label {
-        font-size: 1rem;
-        font-weight: 700;
-    }
-
-    .card-body p {
-        font-size: 0.95rem;
-        line-height: 1.5;
-    }
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bs-dark);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--bs-primary);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--bs-info);
-}
-
-/* Accessibility improvements */
-.btn:focus,
-.form-control:focus,
-.form-select:focus {
-    outline: 2px solid var(--bs-primary);
-    outline-offset: 2px;
-}
-
-/* Print styles */
-@media print {
-    .navbar,
-    .btn,
-    footer,
-    .toast-container {
-        display: none !important;
-    }
-
-    .formatted-cv {
-        font-family: Arial, sans-serif;
-        font-size: 12pt;
-        line-height: 1.4;
-        color: black;
-    }
-
-    .card {
-        border: none;
-        box-shadow: none;
-    }
-}
-
-/* Animation for smooth transitions */
-* {
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
-/* Progress indicator */
-.progress-indicator {
-    position: relative;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    overflow: hidden;
-    margin: 1rem 0;
-}
-
-.progress-indicator::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--bs-primary), var(--bs-info));
-    border-radius: 2px;
-    animation: progress 3s ease-in-out infinite;
-}
-
-@keyframes progress {
-    0% {
-        width: 0%;
-    }
-    50% {
-        width: 70%;
-    }
-    100% {
-        width: 100%;
-    }
-}
-
-/* Enhanced card hover effects */
-.card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* Dostosowanie kolorów tła i tekstu dla białych ramek */
-.result-box {
-    background-color: #949494; /* Biały kolor tła */
-    color: #333333; /* Ciemny kolor tekstu */
-    border: 1px solid #cccccc; /* Cienka granica */
-    padding: 20px; /* Wewnętrzne odstępy */
-    margin-bottom: 20px; /* Zewnętrzne odstępy na dole */
-    border-radius: 8px; /* Zaokrąglone rogi */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Cień dla efektu 3D */
-}
-
-/* Dodatkowe stylowanie dla nagłówków w ramkach */
-.result-box h2 {
-    color: #444444; /* Ciemniejszy kolor nagłówków */
-    margin-bottom: 10px; /* Odstęp pod nagłówkami */
-}
-
-/* Stylowanie dla listy punktowej */
-.result-box ul {
-    list-style-type: disc; /* Typ listy */
-    padding-left: 20px; /* Wewnętrzne odstępy po lewej stronie */
-}
-
-/* Stylowanie dla elementów listy */
-.result-box li {
-    margin-bottom: 5px; /* Odstęp między elementami listy */
-}
-
-/* Dodatkowe stylowanie dla akapitów */
-.result-box p {
-    margin-bottom: 10px; /* Odstęp między akapitami */
-}
-
-/* Stylowanie dla przycisków */
-.result-box .btn {
-    background-color: #007bff; /* Niebieski kolor tła przycisku */
-    color: #ffffff; /* Biały kolor tekstu przycisku */
-    border: none; /* Bez granicy */
-    padding: 10px 20px; /* Wewnętrzne odstępy */
-    border-radius: 5px; /* Zaokrąglone rogi */
-    cursor: pointer; /* Wskaźnik myszy w postaci rączki */
-    transition: background-color 0.3s ease; /* Efekt przejścia */
-}
-
-.result-box .btn:hover {
-    background-color: #0056b3; /* Ciemniejszy kolor tła po najechaniu */
 }
 
 /* User Avatar Styles */
@@ -590,212 +581,58 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Pricing Cards */
-.pricing-card {
-    border: 2px solid transparent;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-    background: var(--glassmorphism-bg);
-    backdrop-filter: blur(10px);
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
 }
 
-.pricing-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-}
-
-.pricing-card.border-primary {
-    border-color: var(--bs-primary);
-}
-
-.price {
-    font-size: 2rem;
-}
-
-.price-amount {
-    font-weight: 700;
-    color: var(--bs-primary);
-}
-
-.price-period {
-    font-size: 1rem;
-    color: var(--bs-muted);
-}
-
-/* Testimonials */
-.testimonial-card {
-    background: var(--glassmorphism-bg);
-    border-radius: 16px;
-    padding: 2rem;
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glassmorphism-border);
-    height: 100%;
-    transition: transform 0.3s ease;
-}
-
-.testimonial-card:hover {
-    transform: translateY(-3px);
-}
-
-.stars {
-    font-size: 18px;
-}
-
-.avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--bs-success), var(--bs-info));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 18px;
-}
-
-/* Stats Items */
-.stat-item {
-    padding: 1rem;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
-}
-
-/* Enhanced animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.fade-in-up {
-    animation: fadeInUp 0.6s ease forwards;
-}
-
-/* Dashboard specific styles */
-.activity-item {
-    padding: 12px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    margin-bottom: 8px;
-    transition: background-color 0.3s ease;
-}
-
-.activity-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.activity-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-}
-
-/* Progress enhancement */
-.progress {
-    background-color: rgb(196, 232, 255, 0.1);
-    border-radius: 10px;
-}
-
-.progress-bar {
-    border-radius: 10px;
-}
-
-/* Modal enhancements */
-.modal-content {
+::-webkit-scrollbar-track {
     background: var(--bs-dark);
-    border: 1px solid var(--glassmorphism-border);
-    backdrop-filter: blur(10px);
+    border-radius: 4px;
 }
 
-.modal-header {
-    border-bottom: 1px solid var(--glassmorphism-border);
+::-webkit-scrollbar-thumb {
+    background: var(--bs-primary);
+    border-radius: 4px;
 }
 
-.modal-footer {
-    border-top: 1px solid var(--glassmorphism-border);
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-info);
 }
 
-/* Success/error states */
-.success-state {
-    border-left: 4px solid var(--bs-success);
-    padding-left: 1rem;
+/* Accessibility improvements */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
 }
 
-.error-state {
-    border-left: 4px solid var(--bs-danger);
-    padding-left: 1rem;
+/* Print styles */
+@media print {
+    .navbar,
+    .btn,
+    footer,
+    .toast-container {
+        display: none !important;
+    }
+
+    .formatted-cv {
+        font-family: Arial, sans-serif;
+        font-size: 12pt;
+        line-height: 1.4;
+        color: black;
+    }
+
+    .card {
+        border: none;
+        box-shadow: none;
+    }
 }
 
-/* Enhanced typography */
-.lead {
-    font-weight: 300;
-    letter-spacing: 0.5px;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-}
-
-/* Interactive elements */
-.interactive:hover {
-    cursor: pointer;
-    opacity: 0.8;
-}
-
-/* Loading overlay */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.loading-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Enhanced file upload area */
-.file-upload-area {
-    border: 2px dashed var(--bs-border-color);
-    border-radius: 10px;
-    padding: 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.file-upload-area:hover,
-.file-upload-area.dragover {
-    border-color: var(--bs-primary);
-    background: rgba(99, 102, 241, 0.05);
-}
-
-.file-upload-area.success {
-    border-color: var(--bs-success);
-    background: rgba(25, 135, 84, 0.05);
+/* Animation for smooth transitions */
+* {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* Mobile optimizations */
@@ -828,7 +665,7 @@ h1, h2, h3, h4, h5, h6 {
 
     .form-control {
         padding: 0.75rem 0.5rem !important;
-        font-size: 16px !important; /* Prevents zoom on iOS */
+        font-size: 16px !important;
     }
 }
 
