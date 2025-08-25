@@ -47,28 +47,14 @@ app.secret_key = os.environ.get("SESSION_SECRET",
                                 "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database - using SQLite for local development
-database_url = "sqlite:///cv_optimizer.db"
-logger.info("Using SQLite database for local development")
+# Configure the database - using Neon Database (PostgreSQL)
+database_url = os.environ.get("DATABASE_URL")
+if not database_url:
+    # Fallback to SQLite for development if no Neon database URL
+    database_url = "sqlite:///cv_optimizer.db"
+    logger.warning("No DATABASE_URL found, using SQLite fallback")
 else:
-    # Test PostgreSQL connection and fallback to SQLite if it fails
-    try:
-        import psycopg2
-        # Parse the database URL to get connection parameters
-        from urllib.parse import urlparse
-        parsed = urlparse(database_url)
-        psycopg2.connect(
-            host=parsed.hostname,
-            port=parsed.port,
-            database=parsed.path[1:],
-            user=parsed.username,
-            password=parsed.password
-        ).close()
-        logger.info("PostgreSQL connection test successful")
-    except Exception as e:
-        logger.error(f"PostgreSQL connection failed: {str(e)}")
-        logger.warning("Falling back to SQLite for development")
-        database_url = "sqlite:///cv_optimizer.db"
+    logger.info("Using Neon Database (PostgreSQL)")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 logger.info(f"Using database: {'PostgreSQL' if 'postgresql' in database_url else 'SQLite'}")
