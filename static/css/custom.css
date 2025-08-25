@@ -243,7 +243,7 @@
 #optimized-cv,
 #cv-analysis {
     color: #212529 !important;
-    background-color: #dbcadb !important;
+    background-color: #ffffff !important;
 }
 
 #optimized-cv *,
@@ -404,7 +404,7 @@
 
 /* Dostosowanie kolorów tła i tekstu dla białych ramek */
 .result-box {
-    background-color: #ffffff; /* Biały kolor tła */
+    background-color: #949494; /* Biały kolor tła */
     color: #333333; /* Ciemny kolor tekstu */
     border: 1px solid #cccccc; /* Cienka granica */
     padding: 20px; /* Wewnętrzne odstępy */
