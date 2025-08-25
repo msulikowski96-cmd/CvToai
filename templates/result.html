@@ -47,34 +47,62 @@
 
                 <!-- Optimized CV -->
                 {% if cv_upload.optimized_cv %}
-                    <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h3 class="card-title mb-0 text-success">
-                                <i class="bi bi-magic me-2"></i>Zoptymalizowane CV
+                    <div class="card mb-4 result-box">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0 pb-0">
+                            <h3 class="card-title mb-0 text-success d-flex align-items-center">
+                                <div class="feature-icon-medium bg-success bg-gradient me-3">
+                                    <i class="bi bi-magic"></i>
+                                </div>
+                                <div>
+                                    <div class="fs-4 fw-bold">Zoptymalizowane CV</div>
+                                    <div class="text-success fs-6 opacity-75">Gotowe do użycia</div>
+                                </div>
                             </h3>
-                            <button class="btn btn-outline-success" onclick="copyToClipboard('optimized-cv')">
-                                <i class="bi bi-clipboard me-1"></i>Kopiuj
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-success ripple" onclick="copyToClipboard('optimized-cv')">
+                                    <i class="bi bi-clipboard me-1"></i>Kopiuj
+                                </button>
+                                <button class="btn btn-success" onclick="downloadText(document.getElementById('optimized-cv').textContent, 'optimized-cv.txt')">
+                                    <i class="bi bi-download me-1"></i>Pobierz
+                                </button>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div id="optimized-cv" class="bg-light p-4 rounded" style="white-space: pre-wrap; max-height: 600px; overflow-y: auto; font-family: 'Courier New', monospace; line-height: 1.6;">{{ cv_upload.optimized_cv }}</div>
+                        <div class="card-body pt-3">
+                            <div class="progress mb-3" style="height: 4px;">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                            <div id="optimized-cv" class="bg-light p-4 rounded-3" style="white-space: pre-wrap; max-height: 600px; overflow-y: auto; font-family: 'Courier New', monospace; line-height: 1.6; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">{{ cv_upload.optimized_cv }}</div>
                         </div>
                     </div>
                 {% endif %}
 
                 <!-- CV Analysis -->
                 {% if cv_upload.cv_analysis %}
-                    <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h3 class="card-title mb-0 text-primary">
-                                <i class="bi bi-graph-up me-2"></i>Analiza CV
+                    <div class="card mb-4 result-box">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0 pb-0">
+                            <h3 class="card-title mb-0 text-primary d-flex align-items-center">
+                                <div class="feature-icon-medium bg-primary bg-gradient me-3">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div>
+                                    <div class="fs-4 fw-bold">Analiza CV</div>
+                                    <div class="text-primary fs-6 opacity-75">Szczegółowa ocena</div>
+                                </div>
                             </h3>
-                            <button class="btn btn-outline-primary" onclick="copyToClipboard('cv-analysis')">
-                                <i class="bi bi-clipboard me-1"></i>Kopiuj
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary ripple" onclick="copyToClipboard('cv-analysis')">
+                                    <i class="bi bi-clipboard me-1"></i>Kopiuj
+                                </button>
+                                <button class="btn btn-primary" onclick="downloadText(document.getElementById('cv-analysis').textContent, 'cv-analysis.txt')">
+                                    <i class="bi bi-download me-1"></i>Pobierz
+                                </button>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div id="cv-analysis" class="bg-light p-4 rounded" style="white-space: pre-wrap; max-height: 600px; overflow-y: auto;">{{ cv_upload.cv_analysis }}</div>
+                        <div class="card-body pt-3">
+                            <div class="progress mb-3" style="height: 4px;">
+                                <div class="progress-bar bg-primary" style="width: 100%"></div>
+                            </div>
+                            <div id="cv-analysis" class="bg-light p-4 rounded-3" style="white-space: pre-wrap; max-height: 600px; overflow-y: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">{{ cv_upload.cv_analysis }}</div>
                         </div>
                     </div>
                 {% endif %}
@@ -95,29 +123,71 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title mb-0">
-                            <i class="bi bi-tools me-2"></i>Akcje
+                <div class="card result-box">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h3 class="card-title mb-0 d-flex align-items-center">
+                            <div class="feature-icon-medium bg-warning bg-gradient me-3">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <div>
+                                <div class="fs-4 fw-bold">Dostępne Akcje</div>
+                                <div class="text-warning fs-6 opacity-75">Wybierz operację</div>
+                            </div>
                         </h3>
                     </div>
-                    <div class="card-body">
-                        <div class="d-flex gap-2 flex-wrap">
+                    <div class="card-body pt-3">
+                        <div class="row g-3">
                             {% if not cv_upload.optimized_cv %}
-                                <button id="optimize-btn" class="btn btn-primary" onclick="optimizeCV('{{ session_id }}')">
-                                    <i class="bi bi-magic me-1"></i>Optymalizuj CV
-                                </button>
+                                <div class="col-md-6">
+                                    <button id="optimize-btn" class="btn btn-primary w-100 py-3 ripple" onclick="optimizeCV('{{ session_id }}')">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-magic me-2 fs-5"></i>
+                                            <div>
+                                                <div class="fw-bold">Optymalizuj CV</div>
+                                                <div class="small opacity-75">AI usprawni Twoje CV</div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
                             {% endif %}
 
                             {% if not cv_upload.cv_analysis %}
-                                <button id="analyze-btn" class="btn btn-success" onclick="analyzeCV('{{ session_id }}')">
-                                    <i class="bi bi-graph-up me-1"></i>Analizuj CV
-                                </button>
+                                <div class="col-md-6">
+                                    <button id="analyze-btn" class="btn btn-success w-100 py-3 ripple" onclick="analyzeCV('{{ session_id }}')">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-graph-up me-2 fs-5"></i>
+                                            <div>
+                                                <div class="fw-bold">Analizuj CV</div>
+                                                <div class="small opacity-75">Otrzymaj szczegółową ocenę</div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
                             {% endif %}
 
-                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-1"></i>Nowe CV
-                            </a>
+                            <div class="col-md-6">
+                                <a href="{{ url_for('index') }}" class="btn btn-outline-light w-100 py-3 ripple">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-plus-circle me-2 fs-5"></i>
+                                        <div>
+                                            <div class="fw-bold">Nowe CV</div>
+                                            <div class="small opacity-75">Rozpocznij od nowa</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-info w-100 py-3 ripple" onclick="window.print()">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-printer me-2 fs-5"></i>
+                                        <div>
+                                            <div class="fw-bold">Drukuj</div>
+                                            <div class="small opacity-75">Wersja do druku</div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -161,7 +231,16 @@ function toggleOriginal() {
 function optimizeCV(sessionId) {
     const btn = document.getElementById('optimize-btn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Optymalizowanie...';
+    btn.classList.add('shimmer');
+    btn.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <div>
+                <div class="fw-bold">Optymalizowanie...</div>
+                <div class="small opacity-75">AI pracuje nad Twoim CV</div>
+            </div>
+        </div>
+    `;
 
     fetch('/optimize-cv', {
         method: 'POST',
@@ -173,24 +252,60 @@ function optimizeCV(sessionId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            location.reload();
+            btn.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-check-circle me-2 fs-5"></i>
+                    <div>
+                        <div class="fw-bold">Gotowe!</div>
+                        <div class="small opacity-75">Przeładowywanie...</div>
+                    </div>
+                </div>
+            `;
+            setTimeout(() => location.reload(), 1000);
         } else {
-            alert('Błąd: ' + data.message);
+            CVOptimizer.showToast('error', 'Błąd: ' + data.message);
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-magic me-1"></i>Optymalizuj CV';
+            btn.classList.remove('shimmer');
+            btn.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-magic me-2 fs-5"></i>
+                    <div>
+                        <div class="fw-bold">Optymalizuj CV</div>
+                        <div class="small opacity-75">AI usprawni Twoje CV</div>
+                    </div>
+                </div>
+            `;
         }
     })
     .catch(error => {
-        alert('Wystąpił błąd: ' + error.message);
+        CVOptimizer.showToast('error', 'Wystąpił błąd: ' + error.message);
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-magic me-1"></i>Optymalizuj CV';
+        btn.classList.remove('shimmer');
+        btn.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center">
+                <i class="bi bi-magic me-2 fs-5"></i>
+                <div>
+                    <div class="fw-bold">Optymalizuj CV</div>
+                    <div class="small opacity-75">AI usprawni Twoje CV</div>
+                </div>
+            </div>
+        `;
     });
 }
 
 function analyzeCV(sessionId) {
     const btn = document.getElementById('analyze-btn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analizowanie...';
+    btn.classList.add('shimmer');
+    btn.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <div>
+                <div class="fw-bold">Analizowanie...</div>
+                <div class="small opacity-75">AI ocenia Twoje CV</div>
+            </div>
+        </div>
+    `;
 
     fetch('/analyze-cv', {
         method: 'POST',
@@ -202,17 +317,44 @@ function analyzeCV(sessionId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            location.reload();
+            btn.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-check-circle me-2 fs-5"></i>
+                    <div>
+                        <div class="fw-bold">Gotowe!</div>
+                        <div class="small opacity-75">Przeładowywanie...</div>
+                    </div>
+                </div>
+            `;
+            setTimeout(() => location.reload(), 1000);
         } else {
-            alert('Błąd: ' + data.message);
+            CVOptimizer.showToast('error', 'Błąd: ' + data.message);
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-graph-up me-1"></i>Analizuj CV';
+            btn.classList.remove('shimmer');
+            btn.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-graph-up me-2 fs-5"></i>
+                    <div>
+                        <div class="fw-bold">Analizuj CV</div>
+                        <div class="small opacity-75">Otrzymaj szczegółową ocenę</div>
+                    </div>
+                </div>
+            `;
         }
     })
     .catch(error => {
-        alert('Wystąpił błąd: ' + error.message);
+        CVOptimizer.showToast('error', 'Wystąpił błąd: ' + error.message);
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-graph-up me-1"></i>Analizuj CV';
+        btn.classList.remove('shimmer');
+        btn.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center">
+                <i class="bi bi-graph-up me-2 fs-5"></i>
+                <div>
+                    <div class="fw-bold">Analizuj CV</div>
+                    <div class="small opacity-75">Otrzymaj szczegółową ocenę</div>
+                </div>
+            </div>
+        `;
     });
 }
 </script>
