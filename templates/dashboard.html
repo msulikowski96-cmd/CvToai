@@ -7,9 +7,18 @@
 <div class="container my-5">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-4">
-                <i class="bi bi-speedometer2 me-3"></i>Dashboard
-            </h1>
+            <div class="d-flex align-items-center justify-content-between mb-5">
+                <div>
+                    <h1 class="mb-2 glow-text">
+                        <i class="bi bi-speedometer2 me-3 icon-pulse"></i>Dashboard
+                    </h1>
+                    <p class="text-muted fs-5 mb-0">Witaj z powrotem! Zoptymalizuj swoje CV z pomocą AI</p>
+                </div>
+                <div class="d-none d-md-block">
+                    <div class="stat-counter text-primary" data-target="98">98%</div>
+                    <p class="small text-muted mb-0">Skuteczność</p>
+                </div>
+            </div>
             
             {% if current_user.is_premium_active() %}
                 <div class="alert alert-success d-flex align-items-center mb-4">
@@ -23,38 +32,62 @@
     <!-- Upload Section -->
     <div class="row">
         <div class="col-12">
-            <div class="card bg-primary text-white mb-4">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">
-                        <i class="bi bi-cloud-upload me-2"></i>Prześlij CV do optymalizacji
-                    </h3>
+            <div class="card upload-card modern-card text-white mb-5">
+                <div class="card-header border-0 bg-transparent pb-0">
+                    <div class="d-flex align-items-center">
+                        <div class="feature-icon-medium bg-primary bg-gradient me-3">
+                            <i class="bi bi-cloud-upload"></i>
+                        </div>
+                        <div>
+                            <h3 class="card-title mb-1 fw-bold">Prześlij CV do optymalizacji</h3>
+                            <p class="mb-0 text-white-75">Zacznij od przesłania swojego CV w formacie PDF</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-4">
                     <form id="cv-upload-form" enctype="multipart/form-data">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="job_title" class="form-label">Nazwa stanowiska *</label>
-                                <input type="text" class="form-control" id="job_title" name="job_title" required>
-                                <div class="form-text text-white-75">
-                                    np. "Developer Python", "Specjalista ds. marketingu"
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="job_title" name="job_title" placeholder="Nazwa stanowiska" required>
+                                    <label for="job_title"><i class="bi bi-briefcase me-2"></i>Nazwa stanowiska *</label>
+                                </div>
+                                <div class="form-text text-white-75 mt-2">
+                                    <i class="bi bi-lightbulb me-1"></i> np. "Developer Python", "Specjalista ds. marketingu"
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="cv_file" class="form-label">Plik CV (PDF) *</label>
-                                <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf" required>
-                                <div class="form-text text-white-75">
-                                    Maksymalny rozmiar: 16MB
+                            <div class="col-lg-6">
+                                <label for="cv_file" class="form-label d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-pdf me-2"></i>Plik CV (PDF) *
+                                </label>
+                                <div class="upload-zone position-relative">
+                                    <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf" required style="height: 60px; padding-top: 20px;">
+                                    <div class="upload-hint position-absolute top-50 start-50 translate-middle pointer-events-none text-white-75">
+                                        <i class="bi bi-cloud-upload fs-4 d-block mb-1"></i>
+                                        <small>Przeciągnij plik lub kliknij</small>
+                                    </div>
+                                </div>
+                                <div class="form-text text-white-75 mt-2">
+                                    <i class="bi bi-info-circle me-1"></i> Maksymalny rozmiar: 16MB
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label for="job_description" class="form-label">Opis stanowiska / Ogłoszenie</label>
-                                <textarea class="form-control" id="job_description" name="job_description" rows="4" 
-                                          placeholder="Wklej tutaj opis stanowiska z ogłoszenia o pracę (opcjonalne, ale zalecane dla lepszej optymalizacji)"></textarea>
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="job_description" name="job_description" style="height: 120px" 
+                                              placeholder="Opis stanowiska"></textarea>
+                                    <label for="job_description"><i class="bi bi-file-text me-2"></i>Opis stanowiska / Ogłoszenie (opcjonalne)</label>
+                                </div>
+                                <div class="form-text text-white-75 mt-2">
+                                    <i class="bi bi-stars me-1"></i> Wklej opis stanowiska dla lepszej optymalizacji
+                                </div>
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn btn-light btn-lg">
-                                    <i class="bi bi-magic me-2"></i>Zoptymalizuj CV
-                                </button>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-light btn-lg py-3 fw-bold btn-advanced ripple">
+                                        <i class="bi bi-magic me-2 icon-bounce"></i>Zoptymalizuj CV z AI
+                                        <div class="small opacity-75 mt-1">Rozpocznij inteligentną analizę</div>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -66,16 +99,25 @@
     <!-- Loading Section -->
     <div id="loading-section" class="row d-none">
         <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Ładowanie...</span>
+            <div class="card modern-card text-center">
+                <div class="card-body py-5">
+                    <div class="mb-4">
+                        <div class="position-relative d-inline-block">
+                            <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+                                <span class="visually-hidden">Ładowanie...</span>
+                            </div>
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <i class="bi bi-cpu text-primary fs-4"></i>
+                            </div>
+                        </div>
                     </div>
-                    <h4>Przetwarzanie CV...</h4>
-                    <p class="text-muted">To może potrwać kilka minut. Nie zamykaj tej strony.</p>
-                    <div class="progress mt-3" style="height: 10px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                             role="progressbar" style="width: 0%"></div>
+                    <h4 class="fw-bold mb-2">AI analizuje Twoje CV...</h4>
+                    <p class="text-muted mb-4">Sztuczna inteligencja dostosowuje treść do wymagań stanowiska</p>
+                    <div class="progress-enhanced mt-4" style="height: 8px; max-width: 400px; margin: 0 auto;">
+                        <div class="progress-bar-enhanced" role="progressbar" style="width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">Nie zamykaj tej strony - proces może potrwać kilka minut</small>
                     </div>
                 </div>
             </div>
@@ -85,26 +127,38 @@
     <!-- Results Section -->
     <div id="results-section" class="row d-none">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>CV zostało przesłane
-                    </h3>
-                    <div>
-                        <button id="optimize-btn" class="btn btn-primary me-2">
-                            <i class="bi bi-magic me-1"></i>Optymalizuj
-                        </button>
-                        <button id="analyze-btn" class="btn btn-success">
-                            <i class="bi bi-graph-up me-1"></i>Analizuj
-                        </button>
+            <div class="card modern-card result-box">
+                <div class="card-header border-0 bg-transparent pb-0">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <div class="feature-icon-medium bg-success bg-gradient me-3">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title mb-1 fw-bold">CV zostało przesłane pomyślnie!</h3>
+                                <p class="mb-0 text-success opacity-75">Gotowe do optymalizacji i analizy</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button id="optimize-btn" class="btn btn-primary btn-advanced ripple">
+                                <i class="bi bi-magic me-1"></i>Optymalizuj
+                            </button>
+                            <button id="analyze-btn" class="btn btn-success btn-advanced ripple">
+                                <i class="bi bi-graph-up me-1"></i>Analizuj
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <p class="text-success">
-                        <i class="bi bi-check-circle me-2"></i>
-                        CV zostało pomyślnie przesłane. Możesz teraz je zoptymalizować lub przeanalizować.
-                    </p>
-                    <div id="session-info" class="mt-3"></div>
+                <div class="card-body pt-3">
+                    <div class="alert alert-success border-0" style="background: rgba(25, 135, 84, 0.1); backdrop-filter: blur(10px);">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle me-3 fs-4"></i>
+                            <div>
+                                <strong>Doskonale!</strong> Twoje CV zostało bezpiecznie przesłane i jest gotowe do przetworzenia przez AI.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="session-info" class="mt-4"></div>
                 </div>
             </div>
         </div>
