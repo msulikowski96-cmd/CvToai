@@ -206,11 +206,13 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadForm.style.display = 'none';
         
         let progress = 0;
-        const progressBar = loadingSection.querySelector('.progress-bar');
+        const progressBar = loadingSection.querySelector('.progress-bar-enhanced');
         const progressInterval = setInterval(() => {
             progress += Math.random() * 15;
             if (progress > 90) progress = 90;
-            progressBar.style.width = progress + '%';
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+            }
         }, 500);
         
         fetch('/upload-cv', {
@@ -220,7 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             clearInterval(progressInterval);
-            progressBar.style.width = '100%';
+            if (progressBar) {
+                progressBar.style.width = '100%';
+            }
             
             setTimeout(() => {
                 loadingSection.classList.add('d-none');

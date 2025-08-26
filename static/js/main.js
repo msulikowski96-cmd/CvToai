@@ -233,20 +233,22 @@ function showFilePreview(file, input) {
     const previewContainer = input.parentNode.querySelector('.file-preview') ||
         createFilePreviewContainer(input);
 
-    previewContainer.innerHTML = ' \
-        <div class="file-info d-flex align-items-center"> \
-            <i class="bi bi-file-pdf text-danger fs-3 me-3"></i> \
-            <div> \
-                <div class="fw-bold">' + file.name + '</div> \
-                <div class="text-muted small">' + formatFileSize(file.size) + '</div> \
+    if (previewContainer) {
+        previewContainer.innerHTML = ' \
+            <div class="file-info d-flex align-items-center"> \
+                <i class="bi bi-file-pdf text-danger fs-3 me-3"></i> \
+                <div> \
+                    <div class="fw-bold">' + file.name + '</div> \
+                    <div class="text-muted small">' + formatFileSize(file.size) + '</div> \
+                </div> \
+                <button type="button" class="btn btn-sm btn-outline-danger ms-auto" onclick="clearFile(this)"> \
+                    <i class="bi bi-x"></i> \
+                </button> \
             </div> \
-            <button type="button" class="btn btn-sm btn-outline-danger ms-auto" onclick="clearFile(this)"> \
-                <i class="bi bi-x"></i> \
-            </button> \
-        </div> \
-    ';
+        ';
 
-    previewContainer.style.display = 'block';
+        previewContainer.style.display = 'block';
+    }
 }
 
 /**
@@ -266,10 +268,14 @@ function createFilePreviewContainer(input) {
  */
 function clearFile(button) {
     const previewContainer = button.closest('.file-preview');
-    const input = previewContainer.parentNode.querySelector('input[type="file"]');
+    const input = previewContainer ? previewContainer.parentNode.querySelector('input[type="file"]') : null;
 
-    input.value = '';
-    previewContainer.style.display = 'none';
+    if (input) {
+        input.value = '';
+    }
+    if (previewContainer) {
+        previewContainer.style.display = 'none';
+    }
 }
 
 /**
@@ -599,7 +605,7 @@ window.addEventListener('error', function(e) {
     // Hide loading states on error
     const loadingElements = document.querySelectorAll('.spinner-border, [id$="loadingState"]');
     loadingElements.forEach(el => {
-        if (el) el.style.display = 'none';
+        if (el && el.style) el.style.display = 'none';
     });
 });
 
@@ -718,7 +724,9 @@ function initParallax() {
         const rate = scrolled * -0.5;
 
         parallaxElements.forEach(element => {
-            element.style.transform = `translateY(${rate}px)`;
+            if (element && element.style) {
+                element.style.transform = `translateY(${rate}px)`;
+            }
         });
     });
 }
