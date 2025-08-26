@@ -617,3 +617,199 @@ window.CVOptimizer = {
     validateForm,
     formatFileSize
 };
+
+// --- Enhanced Animations and Interactions ---
+
+// Scroll reveal animations
+function revealOnScroll() {
+    const reveals = document.querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right');
+
+    reveals.forEach(element => {
+        const windowHeight = window.innerHeight;
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+
+        if (elementTop < windowHeight - elementVisible) {
+            element.classList.add('revealed');
+        }
+    });
+}
+
+// Counter animation
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-counter[data-target]');
+
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const increment = target / 100;
+        let current = 0;
+
+        const updateCounter = () => {
+            if (current < target) {
+                current += increment;
+                counter.textContent = Math.floor(current) + (counter.textContent.includes('%') ? '%' : '+');
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target + (counter.textContent.includes('%') ? '%' : '+');
+            }
+        };
+
+        // Start animation when element is visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCounter();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+
+        observer.observe(counter);
+    });
+}
+
+// Smooth scroll to top
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+// Typewriter effect
+function typeWriter(element, text, speed = 100) {
+    let i = 0;
+    element.innerHTML = '';
+
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
+
+    type();
+}
+
+// Enhanced button interactions
+function initButtonEnhancements() {
+    const buttons = document.querySelectorAll('.btn-advanced');
+
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', function(e) {
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple-effect');
+            this.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+}
+
+// Parallax effect
+function initParallax() {
+    const parallaxElements = document.querySelectorAll('.parallax-element');
+
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * -0.5;
+
+        parallaxElements.forEach(element => {
+            element.style.transform = `translateY(${rate}px)`;
+        });
+    });
+}
+
+// Loading skeleton animation
+function showLoadingSkeleton(container) {
+    const skeleton = `
+        <div class="skeleton-loader skeleton-title"></div>
+        <div class="skeleton-loader skeleton-text"></div>
+        <div class="skeleton-loader skeleton-text"></div>
+        <div class="skeleton-loader skeleton-text" style="width: 60%;"></div>
+    `;
+
+    container.innerHTML = skeleton;
+}
+
+// Enhanced toast notifications
+function showEnhancedToast(type, message, duration = 5000) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} toast-enter`;
+    toast.innerHTML = `
+        <div class="toast-header">
+            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+            <strong class="me-auto">${type === 'success' ? 'Sukces' : type === 'error' ? 'Błąd' : 'Informacja'}</strong>
+            <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+        <div class="toast-body">${message}</div>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.add('toast-enter-active');
+        toast.classList.remove('toast-enter');
+    }, 10);
+
+    // Auto remove
+    setTimeout(() => {
+        toast.classList.add('toast-exit');
+        toast.classList.add('toast-exit-active');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// Initialize all enhancements
+document.addEventListener('DOMContentLoaded', function() {
+    // Existing initialization code...
+
+    // Add new enhancements
+    revealOnScroll();
+    animateCounters();
+    initButtonEnhancements();
+    initParallax();
+
+    // Scroll event listener
+    window.addEventListener('scroll', revealOnScroll);
+
+    // Initialize typewriter effect for hero title
+    const heroTitle = document.querySelector('.typewriter');
+    if (heroTitle) {
+        const originalText = heroTitle.textContent;
+        typeWriter(heroTitle, originalText, 50);
+    }
+});
+
+// Enhanced file upload with visual feedback
+function enhanceFileUpload() {
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const container = this.closest('.file-upload-area');
+                if (container) {
+                    container.classList.add('success');
+                    container.innerHTML = `
+                        <i class="bi bi-check-circle fs-1 text-success mb-3"></i>
+                        <h5>Plik załadowany pomyślnie</h5>
+                        <p class="text-muted">${file.name}</p>
+                    `;
+                }
+            }
+        });
+    });
+}
+
+// Call enhance file upload
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', enhanceFileUpload);
+} else {
+    enhanceFileUpload();
+}

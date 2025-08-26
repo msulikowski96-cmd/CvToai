@@ -3,23 +3,35 @@
 {% block title %}CV Optimizer Pro - Strona Główna{% endblock %}
 
 {% block content %}
-<div class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 70vh;">
-    <div class="container">
+<div class="hero-section text-center py-5 mb-5 parallax-container" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 70vh;">
+    <div class="parallax-element"></div>
+    <div class="particles-container">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    <div class="container hero-content">
         <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
             <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-4 text-white">
+                <h1 class="display-4 fw-bold mb-4 text-white glow-text scroll-reveal typewriter">
                     Zoptymalizuj swoje CV z AI
                 </h1>
-                <p class="lead mb-4 text-white-75">
+                <p class="lead mb-4 text-white-75 scroll-reveal" style="animation-delay: 0.5s;">
                     Wykorzystaj moc sztucznej inteligencji do stworzenia CV, które wyróżni Cię na tle konkurencji
                 </p>
                 {% if not current_user.is_authenticated %}
-                    <div class="d-flex gap-3 justify-content-center flex-wrap">
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-5 py-3">
-                            <i class="bi bi-person-plus me-2"></i>Rozpocznij za darmo
+                    <div class="d-flex gap-3 justify-content-center flex-wrap scroll-reveal" style="animation-delay: 1s;">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-5 py-3 btn-advanced btn-morph ripple">
+                            <i class="bi bi-person-plus me-2 icon-bounce"></i>Rozpocznij za darmo
                         </a>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-5 py-3">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-5 py-3 btn-advanced ripple">
+                            <i class="bi bi-box-arrow-in-right me-2 icon-pulse"></i>Zaloguj się
                         </a>
                     </div>
                 {% endif %}
@@ -30,46 +42,79 @@
 
 <!-- Features Section -->
 <div class="container my-5">
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card h-100 bg-primary text-white">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-file-earmark-arrow-up fs-1"></i>
+    <div class="row g-4 card-stack">
+        <div class="col-md-4 scroll-reveal-left">
+            <div class="card h-100 bg-primary text-white card-flip">
+                <div class="card-flip-inner">
+                    <div class="card-flip-front">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-file-earmark-arrow-up fs-1 icon-bounce"></i>
+                            </div>
+                            <div class="badge bg-light text-primary mb-3">01</div>
+                            <h4 class="mb-3">Prześlij CV</h4>
+                            <p class="text-white-75">
+                                Wgraj swoje aktualne CV w formacie PDF oraz podaj informacje o stanowisku, o które się ubiegasz.
+                            </p>
+                        </div>
                     </div>
-                    <div class="badge bg-light text-primary mb-3">01</div>
-                    <h4 class="mb-3">Prześlij CV</h4>
-                    <p class="text-white-75">
-                        Wgraj swoje aktualne CV w formacie PDF oraz podaj informacje o stanowisku, o które się ubiegasz.
-                    </p>
+                    <div class="card-flip-back">
+                        <div class="text-center p-4">
+                            <i class="bi bi-magic fs-1 mb-3"></i>
+                            <h5>Szybko i bezpiecznie</h5>
+                            <p class="small">Twoje dane są chronione najwyższymi standardami bezpieczeństwa</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100 bg-success text-white">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-cpu fs-1"></i>
+        <div class="col-md-4 scroll-reveal">
+            <div class="card h-100 bg-success text-white card-flip">
+                <div class="card-flip-inner">
+                    <div class="card-flip-front">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-cpu fs-1 icon-rotate"></i>
+                            </div>
+                            <div class="badge bg-light text-success mb-3">02</div>
+                            <h4 class="mb-3">AI analizuje</h4>
+                            <p class="text-white-75">
+                                Zaawansowana sztuczna inteligencja analizuje Twoje CV i dostosowuje je do wymagań stanowiska w czasie rzeczywistym.
+                            </p>
+                        </div>
                     </div>
-                    <div class="badge bg-light text-success mb-3">02</div>
-                    <h4 class="mb-3">AI analizuje</h4>
-                    <p class="text-white-75">
-                        Zaawansowana sztuczna inteligencja analizuje Twoje CV i dostosowuje je do wymagań stanowiska w czasie rzeczywistym.
-                    </p>
+                    <div class="card-flip-back">
+                        <div class="text-center p-4">
+                            <i class="bi bi-brain fs-1 mb-3"></i>
+                            <h5>Inteligentna analiza</h5>
+                            <p class="small">AI dostosowuje treść do najnowszych trendów rekrutacyjnych</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100 bg-warning text-white">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-download fs-1"></i>
+        <div class="col-md-4 scroll-reveal-right">
+            <div class="card h-100 bg-warning text-white card-flip">
+                <div class="card-flip-inner">
+                    <div class="card-flip-front">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-download fs-1 icon-pulse"></i>
+                            </div>
+                            <div class="badge bg-light text-warning mb-3">03</div>
+                            <h4 class="mb-3">Pobierz wyniki</h4>
+                            <p class="text-white-75">
+                                Otrzymaj zoptymalizowane CV oraz szczegółową analizę z rekomendacjami do dalszych poprawek.
+                            </p>
+                        </div>
                     </div>
-                    <div class="badge bg-light text-warning mb-3">03</div>
-                    <h4 class="mb-3">Pobierz wyniki</h4>
-                    <p class="text-white-75">
-                        Otrzymaj zoptymalizowane CV oraz szczegółową analizę z rekomendacjami do dalszych poprawek.
-                    </p>
+                    <div class="card-flip-back">
+                        <div class="text-center p-4">
+                            <i class="bi bi-trophy fs-1 mb-3"></i>
+                            <h5>Gotowe do sukcesu</h5>
+                            <p class="small">CV zoptymalizowane pod kątem systemów ATS i rekruterów</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -80,17 +125,26 @@
 <div class="bg-secondary py-5 my-5">
     <div class="container">
         <div class="row text-center">
-            <div class="col-md-4 mb-4 mb-md-0">
-                <h2 class="display-4 fw-bold text-primary">98%</h2>
+            <div class="col-md-4 mb-4 mb-md-0 scroll-reveal-left">
+                <h2 class="stat-counter text-primary" data-target="98">0%</h2>
                 <p class="text-muted">Zadowolonych użytkowników</p>
+                <div class="progress-enhanced mt-2">
+                    <div class="progress-bar-enhanced" style="width: 98%"></div>
+                </div>
             </div>
-            <div class="col-md-4 mb-4 mb-md-0">
-                <h2 class="display-4 fw-bold text-success">1500+</h2>
+            <div class="col-md-4 mb-4 mb-md-0 scroll-reveal">
+                <h2 class="stat-counter text-success" data-target="1500">0+</h2>
                 <p class="text-muted">Zoptymalizowanych CV</p>
+                <div class="progress-enhanced mt-2">
+                    <div class="progress-bar-enhanced" style="width: 75%"></div>
+                </div>
             </div>
-            <div class="col-md-4">
-                <h2 class="display-4 fw-bold text-warning">24/7</h2>
+            <div class="col-md-4 scroll-reveal-right">
+                <h2 class="stat-counter text-warning">24/7</h2>
                 <p class="text-muted">Dostępność systemu</p>
+                <div class="progress-enhanced mt-2">
+                    <div class="progress-bar-enhanced" style="width: 100%"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -100,16 +154,21 @@
 {% if not current_user.is_authenticated %}
 <div class="container text-center my-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <h2 class="mb-4">Gotowy na zwiększenie swoich szans?</h2>
+        <div class="col-lg-8 scroll-reveal">
+            <h2 class="mb-4 glow-text">Gotowy na zwiększenie swoich szans?</h2>
             <p class="lead mb-4 text-muted">
                 Dołącz do tysięcy użytkowników, którzy już poprawili swoje CV dzięki naszemu AI
             </p>
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-5 py-3">
-                <i class="bi bi-rocket-takeoff me-2"></i>Zacznij teraz
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-5 py-3 btn-advanced btn-morph">
+                <i class="bi bi-rocket-takeoff me-2 icon-bounce"></i>Zacznij teraz
             </a>
         </div>
     </div>
 </div>
+
+<!-- Floating Action Button -->
+<button class="floating-action-btn" onclick="scrollToTop()" title="Wróć na górę">
+    <i class="bi bi-arrow-up"></i>
+</button>
 {% endif %}
 {% endblock %}
