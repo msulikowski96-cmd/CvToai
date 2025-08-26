@@ -238,8 +238,7 @@ def upload_cv():
                 filename=ensure_utf8(filename),
                 original_text=ensure_utf8(cv_text),
                 job_title=ensure_utf8(job_title),
-                job_description=ensure_utf8(job_description),
-                created_at=datetime.utcnow()
+                job_description=ensure_utf8(job_description)
             )
             db.session.add(new_cv_upload)
             db.session.commit()
