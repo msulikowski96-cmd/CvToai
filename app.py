@@ -107,6 +107,11 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
     active = db.Column(db.Boolean, default=True)
+    
+    # Nowe pola dla systemu płatności
+    single_uses = db.Column(db.Integer, default=0)  # Jednorazowe użycia
+    premium_generations_left = db.Column(db.Integer, default=0)  # Pozostałe generowania premium
+    subscription_type = db.Column(db.String(20), default='free')  # free, monthly, yearly
 
     def is_premium_active(self):
         if self.is_developer():
@@ -115,6 +120,39 @@ class User(UserMixin, db.Model):
 
     def is_developer(self):
         return self.username == 'developer'
+    
+    def can_generate_cv(self):
+        """Sprawdza czy użytkownik może wygenerować CV"""
+        if self.is_developer():
+            return True
+        
+        # Premium aktywny z pozostałymi generowaniami
+        if self.is_premium_active():
+            if self.premium_generations_left == -1:  # Nielimitowane (roczny)
+                return True
+            return self.premium_generations_left > 0
+        
+        # Jednorazowe użycia
+        return self.single_uses > 0
+    
+    def use_generation(self):
+        """Wykorzystuje jedno generowanie"""
+        if self.is_developer():
+            return True
+        
+        if self.is_premium_active() and self.premium_generations_left > 0:
+            self.premium_generations_left -= 1
+            db.session.commit()
+            return True
+        elif self.is_premium_active() and self.premium_generations_left == -1:
+            # Nielimitowane (roczny)
+            return True
+        elif self.single_uses > 0:
+            self.single_uses -= 1
+            db.session.commit()
+            return True
+        
+        return False
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -274,6 +312,14 @@ def upload_cv():
 @login_required
 def optimize_cv_route():
     try:
+        # Sprawdź czy użytkownik może wygenerować CV
+        if not current_user.can_generate_cv():
+            return jsonify({
+                'success': False,
+                'message': 'Brak dostępnych generowań. Wykup płatny dostęp.',
+                'need_payment': True
+            })
+
         data = request.get_json()
         session_id = data.get('session_id')
 
@@ -310,6 +356,13 @@ def optimize_cv_route():
                 'Nie udało się zoptymalizować CV. Spróbuj ponownie.'
             })
 
+        # Wykorzystaj jedno generowanie
+        if not current_user.use_generation():
+            return jsonify({
+                'success': False,
+                'message': 'Błąd wykorzystania generowania.'
+            })
+
         # Store optimized CV in the database
         cv_upload.optimized_cv = optimized_cv
         cv_upload.optimized_at = datetime.utcnow()
@@ -318,7 +371,8 @@ def optimize_cv_route():
         return jsonify({
             'success': True,
             'optimized_cv': optimized_cv,
-            'message': 'CV zostało pomyślnie zoptymalizowane'
+            'message': 'CV zostało pomyślnie zoptymalizowane',
+            'generations_left': current_user.premium_generations_left if current_user.is_premium_active() else current_user.single_uses
         })
 
     except Exception as e:
@@ -406,6 +460,10 @@ def result(session_id):
                            cv_upload=cv_upload,
                            session_id=session_id)
 
+
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
 
 @app.route('/health')
 def health():
@@ -527,8 +585,12 @@ def register():
     return render_template('auth/register.html')
 
 
-# Register blueprint
+# Register blueprints
 app.register_blueprint(auth)
+
+# Import i rejestracja blueprint płatności
+from payment_routes import payment
+app.register_blueprint(payment)
 
 # Create database tables with error handling
 try:
