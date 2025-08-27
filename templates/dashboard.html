@@ -1,163 +1,173 @@
 {% extends "base.html" %} {% block title %}Dashboard - CV Optimizer Pro{%
-endblock %} {% block content %}
-<div class="container my-5">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex align-items-center justify-content-between mb-5">
-                <div>
-                    <h1 class="mb-2 glow-text">
-                        <i class="bi bi-speedometer2 me-3 icon-pulse"></i
-                        >Dashboard
-                    </h1>
-                    <p class="text-muted fs-5 mb-0">
-                        Witaj z powrotem! Zoptymalizuj swoje CV z pomocą AI
-                    </p>
-                </div>
-                <div class="d-none d-md-block">
-                    <div class="stat-counter text-primary" data-target="98">
-                        98%
-                    </div>
-                    <p class="small text-muted mb-0">Skuteczność</p>
-                </div>
-            </div>
+endblock %} 
 
-            {% if current_user.is_premium_active() %}
-            <div class="alert alert-success d-flex align-items-center mb-4">
-                <i class="bi bi-star-fill me-2"></i>
-                <strong>Konto Premium aktywne!</strong> Masz dostęp do
-                wszystkich funkcji.
+{% block content %}
+<div class="container-fluid min-vh-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding-top: 100px; padding-bottom: 40px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                <!-- Header Card -->
+                <div class="card shadow-lg border-0 mb-4" style="border-radius: 20px; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95);">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-speedometer2 text-white" style="font-size: 1.8rem;"></i>
+                                </div>
+                                <div>
+                                    <h1 class="mb-1 fw-bold text-dark">
+                                        Dashboard
+                                    </h1>
+                                    <p class="text-muted mb-0">
+                                        Witaj z powrotem, {{ current_user.first_name }}! Zoptymalizuj swoje CV z pomocą AI
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="d-none d-md-block text-center">
+                                <div class="fw-bold text-primary" style="font-size: 2rem;">98%</div>
+                                <p class="small text-muted mb-0">Skuteczność</p>
+                            </div>
+                        </div>
+
+                        {% if current_user.is_premium_active() %}
+                        <div class="alert alert-success d-flex align-items-center mt-3 mb-0" style="border-radius: 12px; background: rgba(25, 135, 84, 0.1); border: 1px solid rgba(25, 135, 84, 0.2);">
+                            <i class="bi bi-star-fill me-2"></i>
+                            <strong>Konto Premium aktywne!</strong> Masz dostęp do wszystkich funkcji.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            {% endif %}
         </div>
     </div>
 
-    <!-- Upload Section -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card upload-card modern-card glass-ultra card-3d hover-lift text-white mb-5">
-                <div class="card-header border-0 bg-transparent pb-0">
-                    <div class="d-flex align-items-center">
-                        <div
-                            class="feature-icon-medium bg-primary bg-gradient me-3"
-                        >
-                            <i class="bi bi-cloud-upload"></i>
-                        </div>
-                        <div>
-                            <h3 class="card-title mb-1 fw-bold">
-                                Prześlij CV do optymalizacji
-                            </h3>
-                            <p class="mb-0 text-white-75">
-                                Zacznij od przesłania swojego CV w formacie PDF
-                            </p>
+        <!-- Upload Section -->
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                <div class="card shadow-lg border-0 mb-5" style="border-radius: 20px; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95);">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center p-4 pb-2">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-cloud-upload text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title mb-1 fw-bold text-dark">
+                                    Prześlij CV do optymalizacji
+                                </h3>
+                                <p class="mb-0 text-muted">
+                                    Zacznij od przesłania swojego CV w formacie PDF
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-body pt-4">
-                    <form id="cv-upload-form" enctype="multipart/form-data">
-                        <div class="row g-4">
-                            <div class="col-lg-6">
-                                <div class="form-floating">
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="job_title"
-                                        name="job_title"
-                                        placeholder="*"
-                                        required
-                                    />
-                                    <label for="job_title"
-                                        ><i class="bi bi-briefcase me-2"></i
-                                        >Nazwa stanowiska
-                                    </label>
-                                </div>
-                                <div class="form-text text-white-75 mt-2">
-                                    <i class="bi bi-lightbulb me-1"></i> np.
-                                    "Developer Python", "Specjalista ds.
-                                    marketingu"
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <label
-                                    for="cv_file"
-                                    class="form-label d-flex align-items-center"
-                                >
-                                    <i class="bi bi-file-earmark-pdf me-2"></i
-                                    >Plik CV (PDF) *
-                                </label>
-                                <div class="upload-zone position-relative">
-                                    <input
-                                        type="file"
-                                        class="form-control"
-                                        id="cv_file"
-                                        name="cv_file"
-                                        accept=".pdf"
-                                        required
-                                        style="height: 60px; padding-top: 20px"
-                                    />
-                                    <div
-                                        class="upload-hint position-absolute top-50 start-50 translate-middle pointer-events-none text-white-75"
-                                    >
-                                        <i
-                                            class="bi bi-cloud-upload fs-4 d-block mb-1"
-                                        ></i>
-                                        <small
-                                            >Przeciągnij plik lub kliknij</small
-                                        >
+                    <div class="card-body p-4 pt-2">
+                        <form id="cv-upload-form" enctype="multipart/form-data">
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="job_title"
+                                            name="job_title"
+                                            placeholder="*"
+                                            required
+                                            style="border-radius: 12px;"
+                                        />
+                                        <label for="job_title"
+                                            ><i class="bi bi-briefcase me-2"></i
+                                            >Nazwa stanowiska
+                                        </label>
+                                    </div>
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="bi bi-lightbulb me-1"></i> np.
+                                        "Developer Python", "Specjalista ds.
+                                        marketingu"
                                     </div>
                                 </div>
-                                <div class="form-text text-white-75 mt-2">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Maksymalny rozmiar: 16MB
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-floating">
-                                    <textarea
-                                        class="form-control"
-                                        id="job_description"
-                                        name="job_description"
-                                        style="height: 120px"
-                                        placeholder=""
-                                    ></textarea>
-                                    <label for="job_description"
-                                        ><i class="bi bi-file-text me-2"></i
-                                        >Opis stanowiska / Ogłoszenie
-                                        (opcjonalne)</label
+                                <div class="col-lg-6">
+                                    <label
+                                        for="cv_file"
+                                        class="form-label d-flex align-items-center text-dark"
                                     >
-                                </div>
-                                <div class="form-text text-white-75 mt-2">
-                                    <i class="bi bi-stars me-1"></i> Wklej opis
-                                    stanowiska dla lepszej optymalizacji
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="d-grid">
-                                    <button
-                                        type="submit"
-                                        class="btn btn-light btn-lg py-3 fw-bold btn-advanced ripple"
-                                    >
-                                        <i
-                                            class="bi bi-magic me-2 icon-bounce"
-                                        ></i
-                                        >Zoptymalizuj CV z AI
-                                        <div class="small opacity-75 mt-1">
-                                            Rozpocznij inteligentną analizę
+                                        <i class="bi bi-file-earmark-pdf me-2"></i
+                                        >Plik CV (PDF) *
+                                    </label>
+                                    <div class="upload-zone position-relative">
+                                        <input
+                                            type="file"
+                                            class="form-control"
+                                            id="cv_file"
+                                            name="cv_file"
+                                            accept=".pdf"
+                                            required
+                                            style="height: 60px; padding-top: 20px; border-radius: 12px;"
+                                        />
+                                        <div
+                                            class="upload-hint position-absolute top-50 start-50 translate-middle pointer-events-none text-muted"
+                                        >
+                                            <i
+                                                class="bi bi-cloud-upload fs-4 d-block mb-1"
+                                            ></i>
+                                            <small
+                                                >Przeciągnij plik lub kliknij</small
+                                            >
                                         </div>
-                                    </button>
+                                    </div>
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Maksymalny rozmiar: 16MB
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <textarea
+                                            class="form-control"
+                                            id="job_description"
+                                            name="job_description"
+                                            style="height: 120px; border-radius: 12px;"
+                                            placeholder=""
+                                        ></textarea>
+                                        <label for="job_description"
+                                            ><i class="bi bi-file-text me-2"></i
+                                            >Opis stanowiska / Ogłoszenie
+                                            (opcjonalne)</label
+                                        >
+                                    </div>
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="bi bi-stars me-1"></i> Wklej opis
+                                        stanowiska dla lepszej optymalizacji
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-grid">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary btn-lg py-3 fw-bold"
+                                            style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;"
+                                        >
+                                            <i
+                                                class="bi bi-magic me-2"
+                                            ></i
+                                            >Zoptymalizuj CV z AI
+                                            <div class="small opacity-75 mt-1">
+                                                Rozpocznij inteligentną analizę
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
                         </div>
                     </form>
                 </div>
             </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Loading Section -->
-    <div id="loading-section" class="row d-none">
-        <div class="col-12">
-            <div class="card modern-card text-center">
-                <div class="card-body py-5">
+        <!-- Loading Section -->
+        <div id="loading-section" class="row justify-content-center d-none">
+            <div class="col-12 col-lg-10">
+                <div class="card shadow-lg border-0 text-center" style="border-radius: 20px; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95);">
+                    <div class="card-body py-5">
                     <div class="mb-4">
                         <div class="position-relative d-inline-block">
                             <div
@@ -197,22 +207,20 @@ endblock %} {% block content %}
         </div>
     </div>
 
-    <!-- Results Section -->
-    <div id="results-section" class="row d-none">
-        <div class="col-12">
-            <div class="card modern-card result-box">
+        <!-- Results Section -->
+        <div id="results-section" class="row justify-content-center d-none">
+            <div class="col-12 col-lg-10">
+                <div class="card shadow-lg border-0" style="border-radius: 20px; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95);">
                 <div class="card-header border-0 bg-transparent pb-0">
                     <div
                         class="d-flex align-items-center justify-content-between flex-wrap gap-3"
                     >
                         <div class="d-flex align-items-center">
-                            <div
-                                class="feature-icon-medium bg-success bg-gradient me-3"
-                            >
-                                <i class="bi bi-check-circle-fill"></i>
+                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-check-circle-fill text-white"></i>
                             </div>
                             <div>
-                                <h3 class="card-title mb-1 fw-bold">
+                                <h3 class="card-title mb-1 fw-bold text-dark">
                                     CV zostało przesłane pomyślnie!
                                 </h3>
                                 <p class="mb-0 text-success opacity-75">
@@ -223,13 +231,15 @@ endblock %} {% block content %}
                         <div class="d-flex gap-2">
                             <button
                                 id="optimize-btn"
-                                class="btn btn-primary btn-advanced ripple"
+                                class="btn btn-primary"
+                                style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;"
                             >
                                 <i class="bi bi-magic me-1"></i>Optymalizuj
                             </button>
                             <button
                                 id="analyze-btn"
-                                class="btn btn-success btn-advanced ripple"
+                                class="btn btn-success"
+                                style="border-radius: 12px;"
                             >
                                 <i class="bi bi-graph-up me-1"></i>Analizuj
                             </button>
