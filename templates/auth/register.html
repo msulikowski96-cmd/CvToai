@@ -1,22 +1,37 @@
-{% extends "base.html" %}
-
-{% block title %}Rejestracja - CV Optimizer Pro{% endblock %}
-
-{% block content %}
-<div class="container-fluid vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+{% extends "base.html" %} {% block title %}Rejestracja - CV Optimizer Pro{%
+endblock %} {% block content %}
+<div
+    class="container-fluid vh-100 d-flex align-items-center justify-content-center"
+    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+>
     <div class="row w-100 justify-content-center">
         <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
-            <div class="card shadow-lg border-0" style="border-radius: 20px; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95);">
+            <div
+                class="card shadow-lg border-0"
+                style="
+                    border-radius: 20px;
+                    backdrop-filter: blur(10px);
+                    background: rgba(255, 255, 255, 0.95);
+                "
+            >
                 <div class="card-body p-5">
                     <!-- Header -->
                     <div class="text-center mb-4">
                         <div class="mb-3">
-                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                <i class="bi bi-person-plus text-white" style="font-size: 2.5rem;"></i>
+                            <div
+                                class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center"
+                                style="width: 80px; height: 80px"
+                            >
+                                <i
+                                    class="bi bi-person-plus text-dark"
+                                    style="font-size: 2.5rem"
+                                ></i>
                             </div>
                         </div>
                         <h2 class="fw-bold text-dark mb-2">Dołącz do nas!</h2>
-                        <p class="text-muted">Stwórz konto i zacznij optymalizować swoje CV</p>
+                        <p class="text-muted">
+                            Stwórz konto i zacznij optymalizować swoje CV
+                        </p>
                     </div>
 
                     <!-- Registration Form -->
@@ -26,90 +41,190 @@
                         <!-- Username Field -->
                         <div class="mb-4">
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                <span
+                                    class="input-group-text bg-light border-end-0"
+                                    style="border-radius: 12px 0 0 12px"
+                                >
                                     <i class="bi bi-person text-primary"></i>
                                 </span>
-                                <input type="text" name="username" class="form-control border-start-0 ps-0" required
-                                   style="border-radius: 0 12px 12px 0; border-left: none !important;" 
-                                   placeholder="Nazwa użytkownika">
+                                <input
+                                    type="text"
+                                    name="username"
+                                    class="form-control border-start-0 ps-0"
+                                    required
+                                    style="
+                                        border-radius: 0 12px 12px 0;
+                                        border-left: none !important;
+                                    "
+                                    placeholder="Nazwa użytkownika"
+                                />
                             </div>
                         </div>
 
                         <!-- Email Field -->
                         <div class="mb-4">
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                <span
+                                    class="input-group-text bg-light border-end-0"
+                                    style="border-radius: 12px 0 0 12px"
+                                >
                                     <i class="bi bi-envelope text-primary"></i>
                                 </span>
-                                <input type="email" name="email" class="form-control border-start-0 ps-0" required
-                                   style="border-radius: 0 12px 12px 0; border-left: none !important;" 
-                                   placeholder="twój@email.com">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    class="form-control border-start-0 ps-0"
+                                    required
+                                    style="
+                                        border-radius: 0 12px 12px 0;
+                                        border-left: none !important;
+                                    "
+                                    placeholder="twój@email.com"
+                                />
                             </div>
                         </div>
 
                         <!-- First Name Field -->
                         <div class="mb-4">
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
-                                    <i class="bi bi-person-badge text-primary"></i>
+                                <span
+                                    class="input-group-text bg-light border-end-0"
+                                    style="border-radius: 12px 0 0 12px"
+                                >
+                                    <i
+                                        class="bi bi-person-badge text-primary"
+                                    ></i>
                                 </span>
-                                <input type="text" name="first_name" class="form-control border-start-0 ps-0" required
-                                   style="border-radius: 0 12px 12px 0; border-left: none !important;" 
-                                   placeholder="Imię">
+                                <input
+                                    type="text"
+                                    name="first_name"
+                                    class="form-control border-start-0 ps-0"
+                                    required
+                                    style="
+                                        border-radius: 0 12px 12px 0;
+                                        border-left: none !important;
+                                    "
+                                    placeholder="Imię"
+                                />
                             </div>
                         </div>
 
                         <!-- Last Name Field -->
                         <div class="mb-4">
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
-                                    <i class="bi bi-person-badge-fill text-primary"></i>
+                                <span
+                                    class="input-group-text bg-light border-end-0"
+                                    style="border-radius: 12px 0 0 12px"
+                                >
+                                    <i
+                                        class="bi bi-person-badge-fill text-primary"
+                                    ></i>
                                 </span>
-                                <input type="text" name="last_name" class="form-control border-start-0 ps-0" required
-                                   style="border-radius: 0 12px 12px 0; border-left: none !important;" 
-                                   placeholder="Nazwisko">
+                                <input
+                                    type="text"
+                                    name="last_name"
+                                    class="form-control border-start-0 ps-0"
+                                    required
+                                    style="
+                                        border-radius: 0 12px 12px 0;
+                                        border-left: none !important;
+                                    "
+                                    placeholder="Nazwisko"
+                                />
                             </div>
                         </div>
 
                         <!-- Password Field -->
                         <div class="mb-4">
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
+                                <span
+                                    class="input-group-text bg-light border-end-0"
+                                    style="border-radius: 12px 0 0 12px"
+                                >
                                     <i class="bi bi-lock text-primary"></i>
                                 </span>
-                                <input type="password" name="password" class="form-control border-start-0 ps-0" required
-                                   style="border-radius: 0 12px 12px 0; border-left: none !important;" 
-                                   placeholder="Hasło (min. 6 znaków)">
+                                <input
+                                    type="password"
+                                    name="password"
+                                    class="form-control border-start-0 ps-0"
+                                    required
+                                    style="
+                                        border-radius: 0 12px 12px 0;
+                                        border-left: none !important;
+                                    "
+                                    placeholder="Hasło (min. 6 znaków)"
+                                />
                             </div>
                         </div>
 
                         <!-- Confirm Password Field -->
                         <div class="mb-4">
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px;">
-                                    <i class="bi bi-shield-check text-primary"></i>
+                                <span
+                                    class="input-group-text bg-light border-end-0"
+                                    style="border-radius: 12px 0 0 12px"
+                                >
+                                    <i
+                                        class="bi bi-shield-check text-primary"
+                                    ></i>
                                 </span>
-                                <input type="password" name="password2" class="form-control border-start-0 ps-0" required
-                                   style="border-radius: 0 12px 12px 0; border-left: none !important;" 
-                                   placeholder="Powtórz hasło">
+                                <input
+                                    type="password"
+                                    name="password2"
+                                    class="form-control border-start-0 ps-0"
+                                    required
+                                    style="
+                                        border-radius: 0 12px 12px 0;
+                                        border-left: none !important;
+                                    "
+                                    placeholder="Powtórz hasło"
+                                />
                             </div>
                         </div>
 
                         <!-- Terms Checkbox -->
                         <div class="mb-4">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="terms" required>
-                                <label class="form-check-label small text-muted" for="terms">
-                                    Akceptuję <a href="#" class="text-primary">regulamin</a> i <a href="#" class="text-primary">politykę prywatności</a>
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="terms"
+                                    required
+                                />
+                                <label
+                                    class="form-check-label small text-muted"
+                                    for="terms"
+                                >
+                                    Akceptuję
+                                    <a href="#" class="text-primary"
+                                        >regulamin</a
+                                    >
+                                    i
+                                    <a href="#" class="text-primary"
+                                        >politykę prywatności</a
+                                    >
                                 </label>
                             </div>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="d-grid mb-4">
-                            <button type="submit" class="btn btn-primary btn-lg fw-bold"
-                               style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px;">
-                                <i class="bi bi-person-plus"></i> Zarejestruj się
+                            <button
+                                type="submit"
+                                class="btn btn-primary btn-lg fw-bold"
+                                style="
+                                    border-radius: 12px;
+                                    background: linear-gradient(
+                                        135deg,
+                                        #667eea 0%,
+                                        #764ba2 100%
+                                    );
+                                    border: none;
+                                    padding: 12px;
+                                "
+                            >
+                                <i class="bi bi-person-plus"></i> Zarejestruj
+                                się
                             </button>
                         </div>
                     </form>
@@ -117,9 +232,15 @@
                     <!-- Login Link -->
                     <div class="text-center">
                         <div class="border-top pt-3">
-                            <span class="text-muted small">Masz już konto?</span>
-                            <a href="{{ url_for('auth.login') }}" class="btn btn-link text-primary fw-semibold text-decoration-none p-0 ms-1">
-                                <i class="bi bi-box-arrow-in-right"></i> Zaloguj się
+                            <span class="text-muted small"
+                                >Masz już konto?</span
+                            >
+                            <a
+                                href="{{ url_for('auth.login') }}"
+                                class="btn btn-link text-primary fw-semibold text-decoration-none p-0 ms-1"
+                            >
+                                <i class="bi bi-box-arrow-in-right"></i> Zaloguj
+                                się
                             </a>
                         </div>
                     </div>
@@ -136,7 +257,11 @@
     }
 
     .input-group-text {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+        background: linear-gradient(
+            135deg,
+            #f8f9fa 0%,
+            #e9ecef 100%
+        ) !important;
     }
 
     .btn-primary:hover {

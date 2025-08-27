@@ -234,18 +234,18 @@ function showFilePreview(file, input) {
         createFilePreviewContainer(input);
 
     if (previewContainer) {
-        previewContainer.innerHTML = ' \
-            <div class="file-info d-flex align-items-center"> \
-                <i class="bi bi-file-pdf text-danger fs-3 me-3"></i> \
-                <div> \
-                    <div class="fw-bold">' + file.name + '</div> \
-                    <div class="text-muted small">' + formatFileSize(file.size) + '</div> \
-                </div> \
-                <button type="button" class="btn btn-sm btn-outline-danger ms-auto" onclick="clearFile(this)"> \
-                    <i class="bi bi-x"></i> \
-                </button> \
-            </div> \
-        ';
+        previewContainer.innerHTML = `
+            <div class="file-info d-flex align-items-center">
+                <i class="bi bi-file-pdf text-danger fs-3 me-3"></i>
+                <div>
+                    <div class="fw-bold">${file.name}</div>
+                    <div class="text-muted small">${formatFileSize(file.size)}</div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger ms-auto" onclick="clearFile(this)">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        `;
 
         previewContainer.style.display = 'block';
     }
@@ -858,7 +858,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetPercent = progress.dataset.progress || 75;
         setTimeout(() => animateProgress(progress, targetPercent), 1000);
     });
-});oading skeleton animation
+});
+
+// Loading skeleton animation
 function showLoadingSkeleton(container) {
     const skeleton = `
         <div class="skeleton-loader skeleton-title"></div>
