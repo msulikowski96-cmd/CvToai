@@ -463,10 +463,10 @@ def generate_cover_letter_route():
     except Exception as e:
         logger.error(f"Error in generate_cover_letter_route: {str(e)}")
         error_message = "Wystąpił błąd podczas generowania listu motywacyjnego"
-        if "timeout" in str(e).lower():
-            error_message = "Timeout - spróbuj ponownie za chwilę"
+        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+            error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć opis stanowiska."
         elif "connection" in str(e).lower():
-            error_message = "Błąd połączenia z API - spróbuj ponownie"
+            error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
         return jsonify({
             'success': False,
             'message': error_message
@@ -527,10 +527,10 @@ def optimize_cv_route():
     except Exception as e:
         logger.error(f"Error in optimize_cv_route: {str(e)}")
         error_message = "Wystąpił błąd podczas optymalizacji CV"
-        if "timeout" in str(e).lower():
-            error_message = "Timeout - spróbuj ponownie za chwilę"
+        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+            error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć tekst CV."
         elif "connection" in str(e).lower():
-            error_message = "Błąd połączenia z API - spróbuj ponownie"
+            error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
         return jsonify({
             'success': False,
             'message': error_message
@@ -591,10 +591,10 @@ def analyze_cv_route():
     except Exception as e:
         logger.error(f"Error in analyze_cv_route: {str(e)}")
         error_message = "Wystąpił błąd podczas analizy CV"
-        if "timeout" in str(e).lower():
-            error_message = "Timeout - spróbuj ponownie za chwilę"
+        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+            error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć tekst CV."
         elif "connection" in str(e).lower():
-            error_message = "Błąd połączenia z API - spróbuj ponownie"
+            error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
         return jsonify({
             'success': False,
             'message': error_message

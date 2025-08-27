@@ -91,13 +91,13 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2)
     for attempt in range(max_retries + 1):
         try:
             logger.info(f"Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries + 1}) with model: {model}")
-            
-            # Zwiększony timeout i connection timeout
+
+            # Zoptymalizowany timeout dla stabilności
             response = requests.post(
                 OPENROUTER_BASE_URL,
                 headers=headers,
                 json=data,
-                timeout=(10, 120),  # (connection timeout, read timeout)
+                timeout=(5, 60),  # (connection timeout, read timeout)
                 stream=False
             )
             response.raise_for_status()
