@@ -6,6 +6,13 @@ import urllib.parse
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
+# Create persistent session for connection reuse
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'CV-Optimizer-Pro/1.0',
+    'Connection': 'keep-alive'
+})
+
 # Load environment variables from .env file with override
 load_dotenv(override=True)
 
@@ -82,7 +89,7 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2)
             "content": prompt
         }],
         "temperature": 0.3,
-        "max_tokens": 3000,  # Zmniejszone dla szybszej odpowiedzi
+        "max_tokens": 1500,  # Jeszcze bardziej zmniejszone
         "top_p": 0.9,
         "frequency_penalty": 0.1,
         "presence_penalty": 0.1
@@ -92,12 +99,12 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2)
         try:
             logger.info(f"Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries + 1}) with model: {model}")
 
-            # Zoptymalizowany timeout dla stabilności
-            response = requests.post(
+            # Jeszcze krótszy timeout dla stabilności
+            response = session.post(
                 OPENROUTER_BASE_URL,
                 headers=headers,
                 json=data,
-                timeout=(5, 60),  # (connection timeout, read timeout)
+                timeout=(3, 30),  # (connection timeout, read timeout)
                 stream=False
             )
             response.raise_for_status()
