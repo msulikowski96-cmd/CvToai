@@ -158,8 +158,14 @@ def allowed_file(filename):
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return render_template('dashboard.html')
+        return redirect(url_for('dashboard'))
     return render_template('index.html')
+
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
 
 
 @app.route('/logout')
