@@ -2,7 +2,7 @@
 endblock %} {% block content %}
 <div
     class="container-fluid vh-100 d-flex align-items-center justify-content-center"
-    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    style="background: var(--hero-gradient)"
 >
     <div class="row w-100 justify-content-center">
         <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
@@ -36,7 +36,6 @@ endblock %} {% block content %}
 
                     <!-- Registration Form -->
                     <form method="POST" class="needs-validation" novalidate>
-                        {{ form.hidden_tag() }}
 
                         <!-- Username Field -->
                         <div class="mb-4">
@@ -214,11 +213,7 @@ endblock %} {% block content %}
                                 class="btn btn-primary btn-lg fw-bold"
                                 style="
                                     border-radius: 12px;
-                                    background: linear-gradient(
-                                        135deg,
-                                        #667eea 0%,
-                                        #764ba2 100%
-                                    );
+                                    background: var(--primary-gradient);
                                     border: none;
                                     padding: 12px;
                                 "

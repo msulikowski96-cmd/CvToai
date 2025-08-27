@@ -2,7 +2,7 @@
 {% block title %}Profil użytkownika - CV Optimizer Pro{% endblock %}
 
 {% block content %}
-<div class="container-fluid min-vh-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding-top: 100px; padding-bottom: 40px;">
+<div class="container-fluid min-vh-100" style="background: var(--hero-gradient); padding-top: 100px; padding-bottom: 40px;">
     <div class="container">
         <!-- Header Profile Card -->
         <div class="row justify-content-center mb-4">
@@ -13,7 +13,7 @@
                             <div class="d-flex align-items-center mb-3 mb-md-0">
                                 <div class="position-relative me-4">
                                     <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center shadow-lg" 
-                                         style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                         style="width: 80px; height: 80px; background: var(--primary-gradient);">
                                         <i class="bi bi-person-circle text-white" style="font-size: 2.5rem;"></i>
                                     </div>
                                     {% if stats.is_premium %}
@@ -131,7 +131,7 @@
                 <div class="card h-100 border-0 glassmorphism text-center" style="border-radius: 15px;">
                     <div class="card-body p-3">
                         <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
-                             style="width: 50px; height: 50px; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);">
+                             style="width: 50px; height: 50px; background: var(--primary-gradient);">
                             <i class="bi bi-box-arrow-in-right text-white"></i>
                         </div>
                         <h3 class="fw-bold mb-1" style="color: #8b5cf6;">{{ stats.total_logins }}</h3>
@@ -144,7 +144,7 @@
                 <div class="card h-100 border-0 glassmorphism text-center" style="border-radius: 15px;">
                     <div class="card-body p-3">
                         <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
-                             style="width: 50px; height: 50px; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                             style="width: 50px; height: 50px; background: var(--success-gradient);">
                             <i class="bi bi-clock text-white"></i>
                         </div>
                         <h3 class="fw-bold mb-1" style="color: #06b6d4;">{{ stats.total_time_spent }}</h3>
@@ -157,7 +157,7 @@
                 <div class="card h-100 border-0 glassmorphism text-center" style="border-radius: 15px;">
                     <div class="card-body p-3">
                         <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
-                             style="width: 50px; height: 50px; background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);">
+                             style="width: 50px; height: 50px; background: var(--warning-gradient);">
                             <i class="bi bi-heart text-white"></i>
                         </div>
                         <h3 class="fw-bold mb-1" style="color: #f43f5e;">
@@ -172,7 +172,7 @@
                 <div class="card h-100 border-0 glassmorphism text-center" style="border-radius: 15px;">
                     <div class="card-body p-3">
                         <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
-                             style="width: 50px; height: 50px; background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">
+                             style="width: 50px; height: 50px; background: var(--success-gradient);">
                             <i class="bi bi-trophy text-white"></i>
                         </div>
                         <h3 class="fw-bold mb-1" style="color: #14b8a6;">
@@ -192,7 +192,7 @@
                     <div class="card-header border-0 bg-transparent pb-0">
                         <div class="d-flex align-items-center p-3 pb-2">
                             <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                 style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                 style="width: 50px; height: 50px; background: var(--primary-gradient);">
                                 <i class="bi bi-bar-chart text-white"></i>
                             </div>
                             <div>
@@ -254,7 +254,7 @@
                     <div class="card-header border-0 bg-transparent pb-0">
                         <div class="d-flex align-items-center p-3 pb-2">
                             <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                 style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                 style="width: 50px; height: 50px; background: var(--primary-gradient);">
                                 <i class="bi bi-clock-history text-white"></i>
                             </div>
                             <div>
