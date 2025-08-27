@@ -56,8 +56,8 @@ FREE_MODEL = "qwen/qwen-2.5-72b-instruct:free"
 DEEP_REASONING_PROMPT = """Jesteś światowej klasy ekspertem w rekrutacji i optymalizacji CV z 15-letnim doświadczeniem w branży HR. Posiadasz głęboką wiedzę o polskim rynku pracy, trendach rekrutacyjnych i najlepszych praktykach w tworzeniu CV."""
 
 
-def make_openrouter_request(prompt, model=None, is_premium=False):
-    """Make a request to OpenRouter API"""
+def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2):
+    """Make a request to OpenRouter API with retry mechanism"""
     if not API_KEY_VALID:
         logger.error("API key is not valid")
         return None
@@ -73,8 +73,7 @@ def make_openrouter_request(prompt, model=None, is_premium=False):
     }
 
     data = {
-        "model":
-        model,
+        "model": model,
         "messages": [{
             "role": "system",
             "content": DEEP_REASONING_PROMPT
@@ -82,44 +81,64 @@ def make_openrouter_request(prompt, model=None, is_premium=False):
             "role": "user",
             "content": prompt
         }],
-        "temperature":
-        0.3,
-        "max_tokens":
-        4000,
-        "top_p":
-        0.9,
-        "frequency_penalty":
-        0.1,
-        "presence_penalty":
-        0.1
+        "temperature": 0.3,
+        "max_tokens": 3000,  # Zmniejszone dla szybszej odpowiedzi
+        "top_p": 0.9,
+        "frequency_penalty": 0.1,
+        "presence_penalty": 0.1
     }
 
-    try:
-        logger.info(f"Sending request to OpenRouter API with model: {model}")
-        response = requests.post(OPENROUTER_BASE_URL,
-                                 headers=headers,
-                                 json=data,
-                                 timeout=60)
-        response.raise_for_status()
+    for attempt in range(max_retries + 1):
+        try:
+            logger.info(f"Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries + 1}) with model: {model}")
+            
+            # Zwiększony timeout i connection timeout
+            response = requests.post(
+                OPENROUTER_BASE_URL,
+                headers=headers,
+                json=data,
+                timeout=(10, 120),  # (connection timeout, read timeout)
+                stream=False
+            )
+            response.raise_for_status()
 
-        result = response.json()
-        logger.debug(f"Raw API response: {result}")
+            result = response.json()
+            logger.debug(f"Raw API response: {result}")
 
-        if 'choices' in result and len(result['choices']) > 0:
-            content = result['choices'][0]['message']['content']
-            logger.info(f"✅ OpenRouter API zwróciło odpowiedź (długość: {len(content)} znaków)")
-            return content
-        else:
-            logger.error(f"❌ Nieoczekiwany format odpowiedzi API: {result}")
-            raise ValueError("Nieoczekiwany format odpowiedzi API")
+            if 'choices' in result and len(result['choices']) > 0:
+                content = result['choices'][0]['message']['content']
+                logger.info(f"✅ OpenRouter API zwróciło odpowiedź (długość: {len(content)} znaków)")
+                return content
+            else:
+                logger.error(f"❌ Nieoczekiwany format odpowiedzi API: {result}")
+                if attempt == max_retries:
+                    raise ValueError("Nieoczekiwany format odpowiedzi API")
 
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Błąd zapytania API: {str(e)}")
-        return None
+        except requests.exceptions.Timeout as e:
+            logger.warning(f"Timeout na próbie {attempt + 1}: {str(e)}")
+            if attempt == max_retries:
+                logger.error("Przekroczono maksymalną liczbę prób - timeout")
+                return None
+        except requests.exceptions.ConnectionError as e:
+            logger.warning(f"Błąd połączenia na próbie {attempt + 1}: {str(e)}")
+            if attempt == max_retries:
+                logger.error("Przekroczono maksymalną liczbę prób - błąd połączenia")
+                return None
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Błąd zapytania API: {str(e)}")
+            if attempt == max_retries:
+                return None
+        except (KeyError, IndexError, json.JSONDecodeError) as e:
+            logger.error(f"Błąd parsowania odpowiedzi API: {str(e)}")
+            if attempt == max_retries:
+                return None
 
-    except (KeyError, IndexError, json.JSONDecodeError) as e:
-        logger.error(f"Błąd parsowania odpowiedzi API: {str(e)}")
-        return None
+        # Krótkie opóźnienie przed ponowną próbą
+        if attempt < max_retries:
+            import time
+            time.sleep(1)
+
+    return None
 
 
 def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
