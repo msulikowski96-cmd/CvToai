@@ -12,7 +12,6 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from sqlalchemy import or_
 
-
 # Force UTF-8 encoding
 os.environ['PYTHONIOENCODING'] = 'utf-8'
 os.environ['LC_ALL'] = 'C.UTF-8'
@@ -20,15 +19,16 @@ os.environ['LANG'] = 'C.UTF-8'
 
 # Skip reconfigure on systems where it's not available
 try:
-    if hasattr(sys.stdout, 'reconfigure') and callable(getattr(sys.stdout, 'reconfigure', None)):
+    if hasattr(sys.stdout, 'reconfigure') and callable(
+            getattr(sys.stdout, 'reconfigure', None)):
         if sys.stdout.encoding != 'utf-8':
             sys.stdout.reconfigure(encoding='utf-8')  # type: ignore
-    if hasattr(sys.stderr, 'reconfigure') and callable(getattr(sys.stderr, 'reconfigure', None)):
+    if hasattr(sys.stderr, 'reconfigure') and callable(
+            getattr(sys.stderr, 'reconfigure', None)):
         if sys.stderr.encoding != 'utf-8':
             sys.stderr.reconfigure(encoding='utf-8')  # type: ignore
 except (AttributeError, OSError):
     pass
-
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -57,7 +57,9 @@ else:
     logger.info("Using Neon Database (PostgreSQL)")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-logger.info(f"Using database: {'PostgreSQL' if 'postgresql' in database_url else 'SQLite'}")
+logger.info(
+    f"Using database: {'PostgreSQL' if 'postgresql' in database_url else 'SQLite'}"
+)
 
 # Configure database engine options based on database type
 if database_url and database_url.startswith("sqlite"):
@@ -107,7 +109,7 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
     active = db.Column(db.Boolean, default=True)
-    
+
     # Relacje dla statystyk
     cv_uploads = db.relationship('CVUpload', backref='user', lazy=True)
 
@@ -122,15 +124,17 @@ class User(UserMixin, db.Model):
     def get_cv_count(self):
         """Zwraca liczbę przesłanych CV"""
         return len(self.cv_uploads)
-    
+
     def get_optimized_cv_count(self):
         """Zwraca liczbę zoptymalizowanych CV"""
-        return CVUpload.query.filter_by(user_id=self.id).filter(CVUpload.optimized_cv.isnot(None)).count()
-    
+        return CVUpload.query.filter_by(user_id=self.id).filter(
+            CVUpload.optimized_cv.isnot(None)).count()
+
     def get_analyzed_cv_count(self):
         """Zwraca liczbę przeanalizowanych CV"""
-        return CVUpload.query.filter_by(user_id=self.id).filter(CVUpload.cv_analysis.isnot(None)).count()
-    
+        return CVUpload.query.filter_by(user_id=self.id).filter(
+            CVUpload.cv_analysis.isnot(None)).count()
+
     def get_success_rate(self):
         """Oblicza wskaźnik sukcesu optymalizacji"""
         total = self.get_cv_count()
@@ -138,20 +142,19 @@ class User(UserMixin, db.Model):
             return 0
         optimized = self.get_optimized_cv_count()
         return round((optimized / total) * 100, 1)
-    
+
     def get_account_age_days(self):
         """Zwraca wiek konta w dniach"""
         return (datetime.utcnow() - self.created_at).days
-    
+
     def get_recent_activity(self, days=30):
         """Zwraca aktywność z ostatnich dni"""
         from sqlalchemy import func
         cutoff_date = datetime.utcnow() - timedelta(days=days)
-        return CVUpload.query.filter(
-            CVUpload.user_id == self.id,
-            CVUpload.created_at >= cutoff_date
-        ).count()
-    
+        return CVUpload.query.filter(CVUpload.user_id == self.id,
+                                     CVUpload.created_at
+                                     >= cutoff_date).count()
+
     def get_statistics(self):
         """Zwraca statystyki użytkownika"""
         stats = UserStatistics.query.filter_by(user_id=self.id).first()
@@ -191,10 +194,30 @@ class UserStatistics(db.Model):
     preferred_job_categories = db.Column(db.Text)  # JSON string
     avg_optimization_time = db.Column(db.Float, default=0.0)  # w minutach
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime,
+                           default=datetime.utcnow,
+                           onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'<UserStatistics User:{self.user_id}>'
+
+
+class CoverLetter(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    cv_upload_id = db.Column(db.Integer,
+                             db.ForeignKey('cv_upload.id'),
+                             nullable=False)
+    session_id = db.Column(db.String(100), unique=True, nullable=False)
+    job_title = db.Column(db.String(200), nullable=False)
+    job_description = db.Column(db.Text, nullable=True)
+    company_name = db.Column(db.String(200), nullable=True)
+    cover_letter_content = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    generated_at = db.Column(db.DateTime, nullable=True)
+
+    def __repr__(self):
+        return f'<CoverLetter {self.job_title}>'
 
 
 @login_manager.user_loader
@@ -232,7 +255,7 @@ def dashboard():
 def profile():
     """Strona profilu użytkownika z dodatkowymi statystykami"""
     user_stats = current_user.get_statistics()
-    
+
     # Dodatkowe statystyki
     stats_data = {
         'cv_count': current_user.get_cv_count(),
@@ -247,11 +270,14 @@ def profile():
         'total_time_spent': user_stats.total_time_spent,
         'user_statistics': user_stats
     }
-    
+
     # Ostatnie CV
-    recent_cvs = CVUpload.query.filter_by(user_id=current_user.id).order_by(CVUpload.created_at.desc()).limit(5).all()
-    
-    return render_template('auth/profile.html', stats=stats_data, recent_cvs=recent_cvs)
+    recent_cvs = CVUpload.query.filter_by(user_id=current_user.id).order_by(
+        CVUpload.created_at.desc()).limit(5).all()
+
+    return render_template('auth/profile.html',
+                           stats=stats_data,
+                           recent_cvs=recent_cvs)
 
 
 @app.route('/logout')
@@ -330,8 +356,7 @@ def upload_cv():
                 filename=ensure_utf8(filename),
                 original_text=ensure_utf8(cv_text),
                 job_title=ensure_utf8(job_title),
-                job_description=ensure_utf8(job_description)
-            )
+                job_description=ensure_utf8(job_description))
             db.session.add(new_cv_upload)
             db.session.commit()
 
@@ -361,6 +386,90 @@ def upload_cv():
         })
 
 
+@app.route('/generate-cover-letter', methods=['POST'])
+@login_required
+def generate_cover_letter_route():
+    """Generuje list motywacyjny na podstawie przesłanego CV"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        job_title = data.get('job_title', '').strip()
+        job_description = data.get('job_description', '').strip()
+        company_name = data.get('company_name', '').strip()
+
+        if not session_id:
+            return jsonify({'success': False, 'message': 'Brak ID sesji'})
+
+        if not job_title:
+            return jsonify({
+                'success': False,
+                'message': 'Nazwa stanowiska jest wymagana'
+            })
+
+        # Pobierz CV z bazy danych
+        cv_upload = CVUpload.query.filter_by(session_id=session_id,
+                                             user_id=current_user.id).first()
+        if not cv_upload:
+            return jsonify({
+                'success': False,
+                'message': 'Nie znaleziono przesłanego CV'
+            })
+
+        # Sprawdź czy użytkownik ma dostęp premium
+        is_premium = current_user.is_premium_active()
+
+        # Generuj list motywacyjny
+        from utils.openrouter_api import generate_cover_letter
+        result = generate_cover_letter(cv_text=cv_upload.original_text,
+                                       job_title=job_title,
+                                       job_description=job_description,
+                                       company_name=company_name,
+                                       is_premium=is_premium)
+
+        if not result or not result.get('success'):
+            return jsonify({
+                'success':
+                False,
+                'message':
+                'Nie udało się wygenerować listu motywacyjnego'
+            })
+
+        # Zapisz list motywacyjny w bazie danych
+        cover_letter_session_id = str(uuid.uuid4())
+        new_cover_letter = CoverLetter(
+            user_id=current_user.id,
+            cv_upload_id=cv_upload.id,
+            session_id=cover_letter_session_id,
+            job_title=job_title,
+            job_description=job_description,
+            company_name=company_name,
+            cover_letter_content=result['cover_letter'],
+            generated_at=datetime.utcnow())
+
+        db.session.add(new_cover_letter)
+        db.session.commit()
+
+        return jsonify({
+            'success':
+            True,
+            'cover_letter':
+            result['cover_letter'],
+            'cover_letter_session_id':
+            cover_letter_session_id,
+            'message':
+            'List motywacyjny został wygenerowany pomyślnie'
+        })
+
+    except Exception as e:
+        logger.error(f"Error in generate_cover_letter_route: {str(e)}")
+        return jsonify({
+            'success':
+            False,
+            'message':
+            f'Wystąpił błąd podczas generowania listu: {str(e)}'
+        })
+
+
 @app.route('/optimize-cv', methods=['POST'])
 @login_required
 def optimize_cv_route():
@@ -368,15 +477,15 @@ def optimize_cv_route():
         data = request.get_json()
         session_id = data.get('session_id')
 
-        cv_upload = CVUpload.query.filter_by(
-            session_id=session_id,
-            user_id=current_user.id
-        ).first()
+        cv_upload = CVUpload.query.filter_by(session_id=session_id,
+                                             user_id=current_user.id).first()
 
         if not cv_upload:
             return jsonify({
-                'success': False,
-                'message': 'Sesja wygasła. Proszę przesłać CV ponownie.'
+                'success':
+                False,
+                'message':
+                'Sesja wygasła. Proszę przesłać CV ponownie.'
             })
 
         cv_text = cv_upload.original_text
@@ -429,15 +538,15 @@ def analyze_cv_route():
         data = request.get_json()
         session_id = data.get('session_id')
 
-        cv_upload = CVUpload.query.filter_by(
-            session_id=session_id,
-            user_id=current_user.id
-        ).first()
+        cv_upload = CVUpload.query.filter_by(session_id=session_id,
+                                             user_id=current_user.id).first()
 
         if not cv_upload:
             return jsonify({
-                'success': False,
-                'message': 'Sesja wygasła. Proszę przesłać CV ponownie.'
+                'success':
+                False,
+                'message':
+                'Sesja wygasła. Proszę przesłać CV ponownie.'
             })
 
         cv_text = cv_upload.original_text
@@ -484,18 +593,33 @@ def analyze_cv_route():
 @app.route('/result/<session_id>')
 @login_required
 def result(session_id):
-    cv_upload = CVUpload.query.filter_by(
-        session_id=session_id,
-        user_id=current_user.id
-    ).first()
+    cv_upload = CVUpload.query.filter_by(session_id=session_id,
+                                         user_id=current_user.id).first()
 
     if not cv_upload:
         flash('Sesja wygasła. Proszę przesłać CV ponownie.', 'error')
         return redirect(url_for('index'))
 
+    # Pobierz powiązane listy motywacyjne
+    cover_letters = CoverLetter.query.filter_by(
+        cv_upload_id=cv_upload.id).all()
+
     return render_template('result.html',
                            cv_upload=cv_upload,
-                           session_id=session_id)
+                           session_id=session_id,
+                           cover_letters=cover_letters)
+
+
+@app.route('/cover-letter/<session_id>')
+@login_required
+def view_cover_letter(session_id):
+    """Wyświetl wygenerowany list motywacyjny"""
+    cover_letter = CoverLetter.query.filter_by(
+        session_id=session_id, user_id=current_user.id).first_or_404()
+    cv_upload = CVUpload.query.get(cover_letter.cv_upload_id)
+    return render_template('cover_letter.html',
+                           cover_letter=cover_letter,
+                           cv_upload=cv_upload)
 
 
 @app.route('/health')
@@ -550,12 +674,12 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             user.last_login = datetime.utcnow()
-            
+
             # Aktualizuj statystyki logowania
             user_stats = user.get_statistics()
             user_stats.total_logins += 1
             user_stats.updated_at = datetime.utcnow()
-            
+
             db.session.commit()
 
             flash(f'Witaj, {user.first_name}! Zalogowano pomyślnie.',

@@ -12,22 +12,28 @@ logger = logging.getLogger(__name__)
 # Load and validate OpenRouter API key
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "").strip()
 
+
 # Validate API key format and content
 def validate_api_key():
     if not OPENROUTER_API_KEY:
         logger.error("❌ OPENROUTER_API_KEY nie jest ustawiony w .env")
         return False
-        
+
     if OPENROUTER_API_KEY.startswith('TWÓJ_') or len(OPENROUTER_API_KEY) < 20:
-        logger.error("❌ OPENROUTER_API_KEY zawiera przykładową wartość - ustaw prawdziwy klucz!")
+        logger.error(
+            "❌ OPENROUTER_API_KEY zawiera przykładową wartość - ustaw prawdziwy klucz!"
+        )
         return False
-        
+
     if not OPENROUTER_API_KEY.startswith('sk-or-v1-'):
         logger.error("❌ OPENROUTER_API_KEY nie ma poprawnego formatu")
         return False
-        
-    logger.info(f"✅ OpenRouter API key załadowany poprawnie (długość: {len(OPENROUTER_API_KEY)})")
+
+    logger.info(
+        f"✅ OpenRouter API key załadowany poprawnie (długość: {len(OPENROUTER_API_KEY)})"
+    )
     return True
+
 
 # Validate on module import
 API_KEY_VALID = validate_api_key()
@@ -81,7 +87,12 @@ headers = {
     "HTTP-Referer": "https://cv-optimizer-pro.repl.co/"
 }
 
-def send_api_request(prompt, max_tokens=2000, language='pl', user_tier='free', task_type='default'):
+
+def send_api_request(prompt,
+                     max_tokens=2000,
+                     language='pl',
+                     user_tier='free',
+                     task_type='default'):
     """
     Send a request to the OpenRouter API with enhanced configuration
     """
@@ -92,25 +103,41 @@ def send_api_request(prompt, max_tokens=2000, language='pl', user_tier='free', t
 
     # Enhanced system prompt based on task type
     system_prompts = {
-        'cv_optimization': ADVANCED_SYSTEM_PROMPT,
-        'cv_analysis': ADVANCED_SYSTEM_PROMPT + "\n\nSkupisz się na szczegółowej analizie i ocenie CV pod kątem jakości i dopasowania do wymagań rynku pracy.",
-        'keyword_analysis': ADVANCED_SYSTEM_PROMPT + "\n\nSpecjalizujesz się w analizie słów kluczowych i dopasowaniu CV do ofert pracy.",
-        'grammar_check': ADVANCED_SYSTEM_PROMPT + "\n\nJesteś ekspertem językowym - sprawdzasz gramatykę, styl i poprawność językową CV."
+        'cv_optimization':
+        ADVANCED_SYSTEM_PROMPT,
+        'cv_analysis':
+        ADVANCED_SYSTEM_PROMPT +
+        "\n\nSkupisz się na szczegółowej analizie i ocenie CV pod kątem jakości i dopasowania do wymagań rynku pracy.",
+        'keyword_analysis':
+        ADVANCED_SYSTEM_PROMPT +
+        "\n\nSpecjalizujesz się w analizie słów kluczowych i dopasowaniu CV do ofert pracy.",
+        'grammar_check':
+        ADVANCED_SYSTEM_PROMPT +
+        "\n\nJesteś ekspertem językowym - sprawdzasz gramatykę, styl i poprawność językową CV."
     }
 
     system_prompt = system_prompts.get(task_type, ADVANCED_SYSTEM_PROMPT)
 
     payload = {
-        "model": DEFAULT_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
-        ],
-        "max_tokens": max_tokens,
-        "temperature": 0.3,
-        "top_p": 0.85,
-        "frequency_penalty": 0.1,
-        "presence_penalty": 0.1,
+        "model":
+        DEFAULT_MODEL,
+        "messages": [{
+            "role": "system",
+            "content": system_prompt
+        }, {
+            "role": "user",
+            "content": prompt
+        }],
+        "max_tokens":
+        max_tokens,
+        "temperature":
+        0.3,
+        "top_p":
+        0.85,
+        "frequency_penalty":
+        0.1,
+        "presence_penalty":
+        0.1,
         "metadata": {
             "user_tier": user_tier,
             "task_type": task_type,
@@ -122,7 +149,10 @@ def send_api_request(prompt, max_tokens=2000, language='pl', user_tier='free', t
 
     try:
         logger.debug(f"Sending request to OpenRouter API")
-        response = requests.post(OPENROUTER_BASE_URL, headers=headers, json=payload, timeout=90)
+        response = requests.post(OPENROUTER_BASE_URL,
+                                 headers=headers,
+                                 json=payload,
+                                 timeout=90)
         response.raise_for_status()
 
         result = response.json()
@@ -140,6 +170,7 @@ def send_api_request(prompt, max_tokens=2000, language='pl', user_tier='free', t
     except (KeyError, IndexError, json.JSONDecodeError) as e:
         logger.error(f"Error parsing API response: {str(e)}")
         raise Exception(f"Failed to parse OpenRouter API response: {str(e)}")
+
 
 def analyze_cv_score(cv_text, job_description="", language='pl'):
     """
@@ -185,13 +216,12 @@ def analyze_cv_score(cv_text, job_description="", language='pl'):
         "summary": "Krótkie podsumowanie oceny CV"
     }}
     """
-    return send_api_request(
-        prompt, 
-        max_tokens=2500, 
-        language=language,
-        user_tier='free',
-        task_type='cv_analysis'
-    )
+    return send_api_request(prompt,
+                            max_tokens=2500,
+                            language=language,
+                            user_tier='free',
+                            task_type='cv_analysis')
+
 
 def analyze_keywords_match(cv_text, job_description, language='pl'):
     """
@@ -223,13 +253,12 @@ def analyze_keywords_match(cv_text, job_description, language='pl'):
         "summary": "Krótkie podsumowanie analizy dopasowania"
     }}
     """
-    return send_api_request(
-        prompt, 
-        max_tokens=2000, 
-        language=language,
-        user_tier='free',
-        task_type='keyword_analysis'
-    )
+    return send_api_request(prompt,
+                            max_tokens=2000,
+                            language=language,
+                            user_tier='free',
+                            task_type='keyword_analysis')
+
 
 def check_grammar_and_style(cv_text, language='pl'):
     """
@@ -266,15 +295,17 @@ def check_grammar_and_style(cv_text, language='pl'):
         "summary": "Podsumowanie analizy językowej"
     }}
     """
-    return send_api_request(
-        prompt, 
-        max_tokens=1500,
-        language=language,
-        user_tier='free',
-        task_type='grammar_check'
-    )
+    return send_api_request(prompt,
+                            max_tokens=1500,
+                            language=language,
+                            user_tier='free',
+                            task_type='grammar_check')
 
-def optimize_for_position(cv_text, job_title, job_description="", language='pl'):
+
+def optimize_for_position(cv_text,
+                          job_title,
+                          job_description="",
+                          language='pl'):
     """
     Optymalizuje CV pod konkretne stanowisko z zaawansowaną analizą
     """
@@ -312,13 +343,12 @@ def optimize_for_position(cv_text, job_title, job_description="", language='pl')
 
     ⚠️ PAMIĘTAJ: NIE DODAWAJ żadnych informacji, których nie ma w oryginalnym CV!
     """
-    return send_api_request(
-        prompt, 
-        max_tokens=3000,
-        language=language,
-        user_tier='free',
-        task_type='cv_optimization'
-    )
+    return send_api_request(prompt,
+                            max_tokens=3000,
+                            language=language,
+                            user_tier='free',
+                            task_type='cv_optimization')
+
 
 def generate_interview_tips(cv_text, job_description="", language='pl'):
     """
@@ -358,13 +388,12 @@ def generate_interview_tips(cv_text, job_description="", language='pl'):
         "summary": "Strategia na rozmowę kwalifikacyjną"
     }}
     """
-    return send_api_request(
-        prompt, 
-        max_tokens=2000,
-        language=language,
-        user_tier='free',
-        task_type='cv_analysis'
-    )
+    return send_api_request(prompt,
+                            max_tokens=2000,
+                            language=language,
+                            user_tier='free',
+                            task_type='cv_analysis')
+
 
 # Funkcja kompatybilności z istniejącym kodem
 def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
@@ -373,14 +402,15 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
     """
     try:
         # Pierwsze podejście - zaawansowana optymalizacja
-        result = optimize_for_position(cv_text, job_title, job_description, 'pl')
+        result = optimize_for_position(cv_text, job_title, job_description,
+                                       'pl')
         if result:
             return result
-        
+
         # Fallback do podstawowej optymalizacji
         user_tier = 'premium' if is_premium else 'paid'
         max_tokens = 4000 if is_premium else 2500
-        
+
         prompt = f"""
         Stwórz całkowicie nowe, zoptymalizowane CV na podstawie poniższych informacji.
 
@@ -421,14 +451,12 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
         ⚠️ KRYTYCZNE: NIE DODAWAJ żadnych informacji, których nie ma w oryginalnym CV!
         """
 
-        optimized_cv = send_api_request(
-            prompt, 
-            max_tokens=max_tokens, 
-            user_tier=user_tier,
-            task_type='cv_optimization'
-        )
+        optimized_cv = send_api_request(prompt,
+                                        max_tokens=max_tokens,
+                                        user_tier=user_tier,
+                                        task_type='cv_optimization')
         return optimized_cv
-        
+
     except Exception as e:
         logger.error(f"Błąd optymalizacji CV: {str(e)}")
         return None

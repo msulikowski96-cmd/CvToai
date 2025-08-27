@@ -1,9 +1,9 @@
-
 import logging
 import PyPDF2
 from io import BytesIO
 
 logger = logging.getLogger(__name__)
+
 
 def extract_text_from_pdf(file_path):
     """
@@ -17,49 +17,55 @@ def extract_text_from_pdf(file_path):
     """
     try:
         text = ""
-        
+
         with open(file_path, 'rb') as file:
             pdf_reader = PyPDF2.PdfReader(file)
-            
+
             # Check if PDF is encrypted
             if pdf_reader.is_encrypted:
-                logger.warning("PDF jest zaszyfrowany - próba otworzenia bez hasła")
+                logger.warning(
+                    "PDF jest zaszyfrowany - próba otworzenia bez hasła")
                 try:
                     pdf_reader.decrypt('')
                 except:
                     logger.error("Nie udało się otworzyć zaszyfrowanego PDF")
                     return None
-            
+
             # Extract text from all pages
             for page_num in range(len(pdf_reader.pages)):
                 try:
                     page = pdf_reader.pages[page_num]
                     page_text = page.extract_text()
-                    
+
                     if page_text:
                         text += page_text + "\n"
-                        logger.debug(f"Wyodrębniono tekst ze strony {page_num + 1}")
-                
+                        logger.debug(
+                            f"Wyodrębniono tekst ze strony {page_num + 1}")
+
                 except Exception as e:
-                    logger.warning(f"Błąd odczytywania strony {page_num + 1}: {str(e)}")
+                    logger.warning(
+                        f"Błąd odczytywania strony {page_num + 1}: {str(e)}")
                     continue
-        
+
         # Clean up the text
         text = text.strip()
-        
+
         if not text:
             logger.error("Nie udało się wyodrębnić tekstu z PDF")
             return None
-        
+
         # Basic text cleanup
         text = clean_extracted_text(text)
-        
-        logger.info(f"Pomyślnie wyodrębniono tekst z PDF (długość: {len(text)} znaków)")
+
+        logger.info(
+            f"Pomyślnie wyodrębniono tekst z PDF (długość: {len(text)} znaków)"
+        )
         return text
-    
+
     except Exception as e:
         logger.error(f"Błąd podczas ekstrakcji tekstu z PDF: {str(e)}")
         return None
+
 
 def clean_extracted_text(text):
     """
@@ -73,32 +79,34 @@ def clean_extracted_text(text):
     """
     if not text:
         return ""
-    
+
     # Ensure proper UTF-8 encoding
     if isinstance(text, bytes):
         text = text.decode('utf-8', errors='replace')
-    
+
     # Remove excessive whitespace and normalize line breaks
     lines = []
     for line in text.split('\n'):
         line = line.strip()
         if line:  # Skip empty lines
             lines.append(line)
-    
+
     # Join lines with single line breaks
     cleaned_text = '\n'.join(lines)
-    
+
     # Remove excessive spaces
     import re
     cleaned_text = re.sub(r' +', ' ', cleaned_text)
-    
+
     # Ensure proper encoding for database storage
     try:
         cleaned_text.encode('utf-8')
     except UnicodeEncodeError:
-        cleaned_text = cleaned_text.encode('utf-8', errors='replace').decode('utf-8')
-    
+        cleaned_text = cleaned_text.encode('utf-8',
+                                           errors='replace').decode('utf-8')
+
     return cleaned_text
+
 
 def validate_pdf_file(file_path):
     """
@@ -117,17 +125,17 @@ def validate_pdf_file(file_path):
             if header != b'%PDF':
                 logger.error("Plik nie ma poprawnego nagłówka PDF")
                 return False
-            
+
             # Try to read with PyPDF2
             file.seek(0)
             pdf_reader = PyPDF2.PdfReader(file)
-            
+
             # Check if we can get number of pages
             page_count = len(pdf_reader.pages)
             logger.debug(f"Plik PDF zawiera {page_count} stron")
-            
+
             return page_count > 0
-    
+
     except Exception as e:
         logger.error(f"Błąd walidacji pliku PDF: {str(e)}")
         return False

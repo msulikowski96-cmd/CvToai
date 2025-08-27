@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}List motywacyjny - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<div class="container-fluid min-vh-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding-top: 100px; padding-bottom: 40px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <!-- Header Card -->
+                <div class="card shadow-lg border-0 glassmorphism mb-4" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-envelope-fill text-white" style="font-size: 1.8rem;"></i>
+                                </div>
+                                <div>
+                                    <h1 class="mb-1 fw-bold text-dark">List motywacyjny</h1>
+                                    <p class="text-muted mb-0">Wygenerowany przez AI dla stanowiska: <strong>{{ cover_letter.job_title }}</strong></p>
+                                    {% if cover_letter.company_name %}
+                                    <p class="text-muted mb-0">Firma: <strong>{{ cover_letter.company_name }}</strong></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button onclick="window.print()" class="btn btn-outline-light">
+                                    <i class="bi bi-printer me-1"></i>Drukuj
+                                </button>
+                                <button onclick="copyToClipboard()" class="btn btn-primary" style="border-radius: 12px;">
+                                    <i class="bi bi-clipboard me-1"></i>Kopiuj
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cover Letter Content -->
+                <div class="card shadow-lg border-0 glassmorphism" style="border-radius: 20px;">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center p-3 pb-2">
+                            <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <i class="bi bi-file-text text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title mb-1 fw-bold text-dark">Treść listu motywacyjnego</h3>
+                                <p class="mb-0 text-muted">Gotowy do wysłania lub dalszej edycji</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 pt-2">
+                        <div id="cover-letter-content" class="formatted-cover-letter">
+                            {{ cover_letter.cover_letter_content|safe }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info and Actions -->
+                <div class="row mt-4 g-4">
+                    <!-- Generation Info -->
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 glassmorphism" style="border-radius: 20px;">
+                            <div class="card-header border-0 bg-transparent pb-0">
+                                <div class="d-flex align-items-center p-3 pb-2">
+                                    <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-info-circle text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="card-title mb-1 fw-bold text-dark">Informacje o generowaniu</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-4 pt-2">
+                                <div class="mb-3">
+                                    <strong class="text-dark">Data utworzenia:</strong><br>
+                                    <span class="text-muted">{{ cover_letter.generated_at.strftime('%d.%m.%Y %H:%M') if cover_letter.generated_at else cover_letter.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong class="text-dark">CV źródłowe:</strong><br>
+                                    <span class="text-muted">{{ cv_upload.filename }}</span>
+                                </div>
+                                {% if cover_letter.job_description %}
+                                <div class="mb-3">
+                                    <strong class="text-dark">Bazowano na opisie stanowiska:</strong><br>
+                                    <span class="text-muted">Tak</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 glassmorphism" style="border-radius: 20px;">
+                            <div class="card-header border-0 bg-transparent pb-0">
+                                <div class="d-flex align-items-center p-3 pb-2">
+                                    <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-gear text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="card-title mb-1 fw-bold text-dark">Akcje</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-4 pt-2">
+                                <div class="d-grid gap-3">
+                                    <button onclick="copyToClipboard()" class="btn btn-primary" style="border-radius: 12px;">
+                                        <i class="bi bi-clipboard me-2"></i>Kopiuj tekst
+                                    </button>
+                                    <button onclick="downloadAsDocx()" class="btn btn-success" style="border-radius: 12px;">
+                                        <i class="bi bi-download me-2"></i>Pobierz jako Word
+                                    </button>
+                                    <a href="{{ url_for('result', session_id=cv_upload.session_id) }}" class="btn btn-outline-light" style="border-radius: 12px;">
+                                        <i class="bi bi-arrow-left me-2"></i>Powrót do rezultatów
+                                    </a>
+                                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light" style="border-radius: 12px;">
+                                        <i class="bi bi-house me-2"></i>Powrót do Dashboard
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast for copy notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="copyToast" class="toast" role="alert">
+        <div class="toast-header">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <strong class="me-auto">Sukces!</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            List motywacyjny został skopiowany do schowka.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard() {
+    const content = document.getElementById('cover-letter-content').innerText;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(content).then(() => {
+            showToast();
+        }).catch(err => {
+            console.error('Błąd podczas kopiowania: ', err);
+            fallbackCopyTextToClipboard(content);
+        });
+    } else {
+        fallbackCopyTextToClipboard(content);
+    }
+}
+
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showToast();
+        } else {
+            alert('Nie udało się skopiować tekstu');
+        }
+    } catch (err) {
+        console.error('Fallback: Nie udało się skopiować', err);
+        alert('Nie udało się skopiować tekstu');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function showToast() {
+    const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+    toast.show();
+}
+
+function downloadAsDocx() {
+    // Prosta implementacja - można rozszerzyć o prawdziwy eksport do Word
+    const content = document.getElementById('cover-letter-content').innerText;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'list_motywacyjny_{{ cover_letter.job_title|replace(" ", "_") }}.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
+
+// Formatting for print
+window.addEventListener('beforeprint', function() {
+    document.body.classList.add('printing');
+});
+
+window.addEventListener('afterprint', function() {
+    document.body.classList.remove('printing');
+});
+</script>
+
+<style>
+.formatted-cover-letter {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #2d3748;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 12px;
+    white-space: pre-wrap;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media print {
+    .navbar, .btn, .toast-container, .card:not(.formatted-cover-letter *) {
+        display: none !important;
+    }
+    
+    .formatted-cover-letter {
+        font-family: 'Times New Roman', serif;
+        font-size: 12pt;
+        line-height: 1.5;
+        color: black;
+        background: white;
+        border: none;
+        box-shadow: none;
+        margin: 0;
+        padding: 1cm;
+    }
+    
+    body.printing {
+        background: white !important;
+    }
+    
+    .container-fluid {
+        background: none !important;
+    }
+}
+</style>
+{% endblock %}

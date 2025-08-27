@@ -256,6 +256,64 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Cover Letters Section -->
+                {% if cover_letters %}
+                <div class="card modern-card glass-ultra card-3d hover-lift mb-5">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center">
+                            <div class="feature-icon-medium bg-warning bg-gradient me-3">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title mb-1 fw-bold">Listy motywacyjne</h3>
+                                <p class="mb-0 text-muted">Wygenerowane dla tego CV</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+                        <div class="row g-3">
+                            {% for cover_letter in cover_letters %}
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm hover-lift" style="border-radius: 15px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-start mb-3">
+                                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-envelope-fill text-white"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h5 class="card-title mb-1 fw-bold">{{ cover_letter.job_title }}</h5>
+                                                {% if cover_letter.company_name %}
+                                                <p class="text-muted mb-0 small">{{ cover_letter.company_name }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <small class="text-muted">Utworzony: {{ cover_letter.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                                        </div>
+                                        
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ url_for('view_cover_letter', session_id=cover_letter.session_id) }}" 
+                                               class="btn btn-primary" style="border-radius: 8px;">
+                                                <i class="bi bi-eye me-1"></i>Zobacz list
+                                            </a>
+                                            <button onclick="copyToClipboard('cover-letter-{{ loop.index0 }}')" 
+                                                    class="btn btn-outline-success" style="border-radius: 8px;">
+                                                <i class="bi bi-clipboard me-1"></i>Kopiuj
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Hidden content for copying -->
+                                        <div id="cover-letter-{{ loop.index0 }}" class="d-none">{{ cover_letter.cover_letter_content }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             {% else %}
                 <div class="alert alert-warning">
                     <h4>Brak danych</h4>

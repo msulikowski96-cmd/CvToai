@@ -228,7 +228,7 @@ endblock %}
                                 </p>
                             </div>
                         </div>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 flex-wrap">
                             <button
                                 id="optimize-btn"
                                 class="btn btn-primary"
@@ -242,6 +242,13 @@ endblock %}
                                 style="border-radius: 12px;"
                             >
                                 <i class="bi bi-graph-up me-1"></i>Analizuj
+                            </button>
+                            <button
+                                id="cover-letter-btn"
+                                class="btn btn-warning"
+                                style="border-radius: 12px;"
+                            >
+                                <i class="bi bi-envelope me-1"></i>List motywacyjny
                             </button>
                         </div>
                     </div>
@@ -297,6 +304,81 @@ endblock %}
         </div>
     </div>
 </div>
+
+<!-- Modal for Cover Letter Generator -->
+<div class="modal fade" id="coverLetterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-envelope me-2"></i>Generuj list motywacyjny
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cover-letter-form">
+                    <div class="mb-3">
+                        <label for="cover_job_title" class="form-label">
+                            <i class="bi bi-briefcase me-1"></i>Nazwa stanowiska *
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="cover_job_title"
+                            name="cover_job_title"
+                            placeholder="np. Senior Developer, Specjalista ds. marketingu"
+                            required
+                            style="border-radius: 8px;"
+                        />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cover_company_name" class="form-label">
+                            <i class="bi bi-building me-1"></i>Nazwa firmy (opcjonalne)
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="cover_company_name"
+                            name="cover_company_name"
+                            placeholder="np. Google, Microsoft, Allegro"
+                            style="border-radius: 8px;"
+                        />
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="cover_job_description" class="form-label">
+                            <i class="bi bi-file-text me-1"></i>Opis stanowiska (opcjonalne)
+                        </label>
+                        <textarea
+                            class="form-control"
+                            id="cover_job_description"
+                            name="cover_job_description"
+                            rows="4"
+                            placeholder="Wklej opis stanowiska z ogłoszenia - pomoże to AI stworzyć lepszy list motywacyjny..."
+                            style="border-radius: 8px;"
+                        ></textarea>
+                        <div class="form-text">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            Im więcej informacji podasz, tym lepiej dopasowany będzie list
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button
+                            type="submit"
+                            id="generate-cover-letter-btn"
+                            class="btn btn-warning btn-lg"
+                            style="border-radius: 12px;"
+                        >
+                            <i class="bi bi-envelope me-2"></i>Wygeneruj list motywacyjny
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %} {% block scripts %}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -305,6 +387,7 @@ endblock %}
         const resultsSection = document.getElementById("results-section");
         const optimizeBtn = document.getElementById("optimize-btn");
         const analyzeBtn = document.getElementById("analyze-btn");
+        const coverLetterBtn = document.getElementById("cover-letter-btn");
         const resultsModal = new bootstrap.Modal(
             document.getElementById("resultsModal"),
         );
@@ -459,6 +542,73 @@ endblock %}
                         '<i class="bi bi-graph-up me-1"></i>Analizuj';
                     alert("Wystąpił błąd: " + error.message);
                 });
+        });
+
+        coverLetterBtn.addEventListener("click", function () {
+            if (!currentSessionId) return;
+
+            // Pokaż modal do wprowadzenia dodatkowych danych
+            const coverLetterModal = new bootstrap.Modal(document.getElementById("coverLetterModal"));
+            coverLetterModal.show();
+        });
+
+        // Obsługa formularza listu motywacyjnego
+        document.getElementById("cover-letter-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            if (!currentSessionId) return;
+            
+            const formData = new FormData(this);
+            const coverLetterBtn = document.getElementById("generate-cover-letter-btn");
+            
+            coverLetterBtn.disabled = true;
+            coverLetterBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Generowanie...';
+            
+            fetch("/generate-cover-letter", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    session_id: currentSessionId,
+                    job_title: formData.get('cover_job_title'),
+                    job_description: formData.get('cover_job_description'),
+                    company_name: formData.get('cover_company_name')
+                }),
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                coverLetterBtn.disabled = false;
+                coverLetterBtn.innerHTML = '<i class="bi bi-envelope me-1"></i>Wygeneruj list';
+                
+                if (data.success) {
+                    document.getElementById("modal-content").innerHTML = `
+                        <h4>List motywacyjny został wygenerowany!</h4>
+                        <div class="bg-light p-3 rounded mt-3" style="white-space: pre-wrap; max-height: 500px; overflow-y: auto;">${data.cover_letter}</div>
+                        <div class="mt-3">
+                            <a href="/cover-letter/${data.cover_letter_session_id}" class="btn btn-primary" target="_blank">
+                                <i class="bi bi-eye me-1"></i>Zobacz pełny list
+                            </a>
+                        </div>
+                    `;
+                    
+                    // Ukryj modal formularza i pokaż wyniki
+                    bootstrap.Modal.getInstance(document.getElementById("coverLetterModal")).hide();
+                    resultsModal.show();
+                    
+                    // Przekieruj do strony wyników po chwili
+                    setTimeout(() => {
+                        window.location.href = "/result/" + currentSessionId;
+                    }, 3000);
+                } else {
+                    alert("Błąd: " + data.message);
+                }
+            })
+            .catch((error) => {
+                coverLetterBtn.disabled = false;
+                coverLetterBtn.innerHTML = '<i class="bi bi-envelope me-1"></i>Wygeneruj list';
+                alert("Wystąpił błąd: " + error.message);
+            });
         });
     });
 </script>
