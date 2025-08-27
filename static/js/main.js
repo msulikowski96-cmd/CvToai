@@ -619,6 +619,34 @@ window.addEventListener('unhandledrejection', function(e) {
     showToast('error', 'Wystąpił błąd podczas przetwarzania. Proszę spróbować ponownie.');
 });
 
+/**
+ * Download text as file with proper encoding
+ */
+function downloadText(text, filename = 'download.txt') {
+    try {
+        const blob = new Blob([text], {
+            type: 'text/plain;charset=utf-8'
+        });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        showToast('success', 'Plik został pobrany!');
+    } catch (error) {
+        console.error('Download error:', error);
+        showToast('error', 'Nie udało się pobrać pliku.');
+    }
+}
+
 // Export functions for global use
 window.CVOptimizer = {
     showToast,
@@ -627,6 +655,9 @@ window.CVOptimizer = {
     validateForm,
     formatFileSize
 };
+
+// Make downloadText available globally
+window.downloadText = downloadText;
 
 // --- Enhanced Animations and Interactions ---
 
