@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -107,6 +107,9 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
     active = db.Column(db.Boolean, default=True)
+    
+    # Relacje dla statystyk
+    cv_uploads = db.relationship('CVUpload', backref='user', lazy=True)
 
     def is_premium_active(self):
         if self.is_developer():
@@ -115,6 +118,48 @@ class User(UserMixin, db.Model):
 
     def is_developer(self):
         return self.username == 'developer'
+
+    def get_cv_count(self):
+        """Zwraca liczbę przesłanych CV"""
+        return len(self.cv_uploads)
+    
+    def get_optimized_cv_count(self):
+        """Zwraca liczbę zoptymalizowanych CV"""
+        return CVUpload.query.filter_by(user_id=self.id).filter(CVUpload.optimized_cv.isnot(None)).count()
+    
+    def get_analyzed_cv_count(self):
+        """Zwraca liczbę przeanalizowanych CV"""
+        return CVUpload.query.filter_by(user_id=self.id).filter(CVUpload.cv_analysis.isnot(None)).count()
+    
+    def get_success_rate(self):
+        """Oblicza wskaźnik sukcesu optymalizacji"""
+        total = self.get_cv_count()
+        if total == 0:
+            return 0
+        optimized = self.get_optimized_cv_count()
+        return round((optimized / total) * 100, 1)
+    
+    def get_account_age_days(self):
+        """Zwraca wiek konta w dniach"""
+        return (datetime.utcnow() - self.created_at).days
+    
+    def get_recent_activity(self, days=30):
+        """Zwraca aktywność z ostatnich dni"""
+        from sqlalchemy import func
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        return CVUpload.query.filter(
+            CVUpload.user_id == self.id,
+            CVUpload.created_at >= cutoff_date
+        ).count()
+    
+    def get_statistics(self):
+        """Zwraca statystyki użytkownika"""
+        stats = UserStatistics.query.filter_by(user_id=self.id).first()
+        if not stats:
+            stats = UserStatistics(user_id=self.id)
+            db.session.add(stats)
+            db.session.commit()
+        return stats
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -136,6 +181,20 @@ class CVUpload(db.Model):
 
     def __repr__(self):
         return f'<CVUpload {self.filename}>'
+
+
+class UserStatistics(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    total_logins = db.Column(db.Integer, default=0)
+    total_time_spent = db.Column(db.Integer, default=0)  # w minutach
+    preferred_job_categories = db.Column(db.Text)  # JSON string
+    avg_optimization_time = db.Column(db.Float, default=0.0)  # w minutach
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<UserStatistics User:{self.user_id}>'
 
 
 @login_manager.user_loader
@@ -166,6 +225,33 @@ def index():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
+
+
+@app.route('/profile')
+@login_required
+def profile():
+    """Strona profilu użytkownika z dodatkowymi statystykami"""
+    user_stats = current_user.get_statistics()
+    
+    # Dodatkowe statystyki
+    stats_data = {
+        'cv_count': current_user.get_cv_count(),
+        'optimized_count': current_user.get_optimized_cv_count(),
+        'analyzed_count': current_user.get_analyzed_cv_count(),
+        'success_rate': current_user.get_success_rate(),
+        'account_age': current_user.get_account_age_days(),
+        'recent_activity': current_user.get_recent_activity(),
+        'last_login': current_user.last_login,
+        'is_premium': current_user.is_premium_active(),
+        'total_logins': user_stats.total_logins,
+        'total_time_spent': user_stats.total_time_spent,
+        'user_statistics': user_stats
+    }
+    
+    # Ostatnie CV
+    recent_cvs = CVUpload.query.filter_by(user_id=current_user.id).order_by(CVUpload.created_at.desc()).limit(5).all()
+    
+    return render_template('auth/profile.html', stats=stats_data, recent_cvs=recent_cvs)
 
 
 @app.route('/logout')
@@ -464,6 +550,12 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             user.last_login = datetime.utcnow()
+            
+            # Aktualizuj statystyki logowania
+            user_stats = user.get_statistics()
+            user_stats.total_logins += 1
+            user_stats.updated_at = datetime.utcnow()
+            
             db.session.commit()
 
             flash(f'Witaj, {user.first_name}! Zalogowano pomyślnie.',
