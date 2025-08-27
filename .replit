@@ -37,7 +37,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:5000 --timeout 300 --keep-alive 2 --max-requests 100 --max-requests-jitter 10 --workers 1 --preload app:app"
+args = "python main.py"
 
 [agent]
 integrations = ["python_database==1.0.0", "python_openai==1.0.0"]

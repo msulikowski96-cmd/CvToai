@@ -182,7 +182,7 @@
                 </div>
                 <div class="card-body pt-4">
                     <div class="row g-3">
-                        {% for cv in current_user.cv_uploads|reverse|list[:4] %}
+                        {% for cv in current_user.cv_uploads[::-1][:4] %}
                         <div class="col-md-6">
                             <div class="card h-100 border-0 shadow-sm hover-lift" style="border-radius: 15px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
                                 <div class="card-body p-4">
