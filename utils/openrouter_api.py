@@ -103,10 +103,14 @@ def make_openrouter_request(prompt, model=None, is_premium=False):
         response.raise_for_status()
 
         result = response.json()
+        logger.debug(f"Raw API response: {result}")
 
         if 'choices' in result and len(result['choices']) > 0:
-            return result['choices'][0]['message']['content']
+            content = result['choices'][0]['message']['content']
+            logger.info(f"✅ OpenRouter API zwróciło odpowiedź (długość: {len(content)} znaków)")
+            return content
         else:
+            logger.error(f"❌ Nieoczekiwany format odpowiedzi API: {result}")
             raise ValueError("Nieoczekiwany format odpowiedzi API")
 
     except requests.exceptions.RequestException as e:
@@ -232,11 +236,9 @@ Wygeneruj teraz kompletny list motywacyjny:
         logger.info(
             f"📧 Generowanie listu motywacyjnego dla stanowiska: {job_title}")
 
-        response = make_openrouter_request(prompt, is_premium=is_premium)
+        cover_letter = make_openrouter_request(prompt, is_premium=is_premium)
 
-        if response and 'choices' in response and len(response['choices']) > 0:
-            cover_letter = response['choices'][0]['message']['content']
-
+        if cover_letter:
             logger.info(
                 f"✅ List motywacyjny wygenerowany pomyślnie (długość: {len(cover_letter)} znaków)"
             )
