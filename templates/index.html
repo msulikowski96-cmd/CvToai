@@ -3,23 +3,23 @@
 {% block title %}CV Optimizer Pro - Strona Główna{% endblock %}
 
 {% block content %}
-<div class="hero-section text-center py-5 mb-5 parallax-container" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 70vh;">
+<div class="hero-section text-center py-5 mb-5 parallax-container liquid-shape" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 70vh;">
     <div class="parallax-element"></div>
-    <div class="particles-container">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
+    <div class="particle-field">
+        <div class="particle-orb" style="left: 10%; width: 4px; height: 4px; animation-delay: 0s;"></div>
+        <div class="particle-orb" style="left: 20%; width: 6px; height: 6px; animation-delay: 2s;"></div>
+        <div class="particle-orb" style="left: 30%; width: 3px; height: 3px; animation-delay: 4s;"></div>
+        <div class="particle-orb" style="left: 40%; width: 5px; height: 5px; animation-delay: 6s;"></div>
+        <div class="particle-orb" style="left: 50%; width: 4px; height: 4px; animation-delay: 8s;"></div>
+        <div class="particle-orb" style="left: 60%; width: 6px; height: 6px; animation-delay: 10s;"></div>
+        <div class="particle-orb" style="left: 70%; width: 3px; height: 3px; animation-delay: 12s;"></div>
+        <div class="particle-orb" style="left: 80%; width: 5px; height: 5px; animation-delay: 14s;"></div>
+        <div class="particle-orb" style="left: 90%; width: 4px; height: 4px; animation-delay: 16s;"></div>
     </div>
     <div class="container hero-content">
         <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
             <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-4 text-white glow-text scroll-reveal typewriter">
+                <h1 class="display-4 fw-bold mb-4 text-white neon-glow text-shadow-glow title-effect scroll-reveal typewriter">
                     Zoptymalizuj swoje CV z AI
                 </h1>
                 <p class="lead mb-4 text-white-75 scroll-reveal" style="animation-delay: 0.5s;">
@@ -27,10 +27,10 @@
                 </p>
                 {% if not current_user.is_authenticated %}
                     <div class="d-flex gap-3 justify-content-center flex-wrap scroll-reveal" style="animation-delay: 1s;">
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-5 py-3 btn-advanced btn-morph ripple">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-gradient btn-lg px-5 py-3 btn-advanced floating hover-lift ripple">
                             <i class="bi bi-person-plus me-2 icon-bounce"></i>Rozpocznij za darmo
                         </a>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-5 py-3 btn-advanced ripple">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-5 py-3 btn-advanced glass-ultra hover-glow ripple">
                             <i class="bi bi-box-arrow-in-right me-2 icon-pulse"></i>Zaloguj się
                         </a>
                     </div>
@@ -44,7 +44,7 @@
 <div class="container my-5">
     <div class="row g-4 card-stack">
         <div class="col-md-4 scroll-reveal-left">
-            <div class="card h-100 bg-primary text-white card-flip">
+            <div class="card h-100 bg-primary text-white card-flip card-3d gradient-border hover-lift">
                 <div class="card-flip-inner">
                     <div class="card-flip-front">
                         <div class="card-body text-center p-4">
@@ -155,7 +155,7 @@
 <div class="container text-center my-5">
     <div class="row justify-content-center">
         <div class="col-lg-8 scroll-reveal">
-            <h2 class="mb-4 glow-text">Gotowy na zwiększenie swoich szans?</h2>
+            <h2 class="mb-4 text-gradient neon-glow title-effect">Gotowy na zwiększenie swoich szans?</h2>
             <p class="lead mb-4 text-muted">
                 Dołącz do tysięcy użytkowników, którzy już poprawili swoje CV dzięki naszemu AI
             </p>

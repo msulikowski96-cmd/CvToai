@@ -731,7 +731,134 @@ function initParallax() {
     });
 }
 
-// Loading skeleton animation
+// Loading progress enhancement
+function animateProgress(element, targetPercent) {
+    let current = 0;
+    const increment = targetPercent / 100;
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= targetPercent) {
+            current = targetPercent;
+            clearInterval(timer);
+        }
+        element.style.setProperty('--progress', current + '%');
+    }, 20);
+}
+
+// Enhanced particle system
+function createAdvancedParticles(container) {
+    const colors = ['rgba(102, 126, 234, 0.6)', 'rgba(17, 153, 142, 0.6)', 'rgba(118, 75, 162, 0.6)'];
+    
+    for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle-orb';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.width = (Math.random() * 6 + 2) + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]} 0%, transparent 70%)`;
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+        container.appendChild(particle);
+    }
+}
+
+// 3D tilt effect for cards
+function init3DTilt() {
+    const cards = document.querySelectorAll('.card-3d');
+    
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 10;
+            const rotateY = (centerX - x) / 10;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+    });
+}
+
+// Enhanced scroll animations
+function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                
+                // Add stagger effect for multiple elements
+                const delay = Array.from(entry.target.parentNode.children).indexOf(entry.target) * 100;
+                entry.target.style.transitionDelay = delay + 'ms';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    document.querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(50px)';
+        el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        observer.observe(el);
+    });
+}
+
+// Liquid morphing background
+function initLiquidMorph() {
+    const morphElements = document.querySelectorAll('.liquid-shape');
+    
+    morphElements.forEach(element => {
+        let morphing = true;
+        
+        const morph = () => {
+            if (!morphing) return;
+            
+            const radius1 = Math.random() * 30 + 30;
+            const radius2 = Math.random() * 30 + 30;
+            const radius3 = Math.random() * 30 + 30;
+            const radius4 = Math.random() * 30 + 30;
+            
+            element.style.borderRadius = `${radius1}% ${radius2}% ${radius3}% ${radius4}% / ${radius4}% ${radius3}% ${radius2}% ${radius1}%`;
+            
+            setTimeout(morph, 3000 + Math.random() * 2000);
+        };
+        
+        morph();
+    });
+}
+
+// Enhanced initialization
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎨 Enhanced Visual Design Initialized');
+    
+    // Initialize all enhancements
+    init3DTilt();
+    initScrollAnimations();
+    initLiquidMorph();
+    
+    // Create advanced particles
+    const heroSection = document.querySelector('.hero-section .particle-field');
+    if (heroSection) {
+        createAdvancedParticles(heroSection);
+    }
+    
+    // Animate progress bars
+    const progressElements = document.querySelectorAll('.progress-liquid');
+    progressElements.forEach(progress => {
+        const targetPercent = progress.dataset.progress || 75;
+        setTimeout(() => animateProgress(progress, targetPercent), 1000);
+    });
+});oading skeleton animation
 function showLoadingSkeleton(container) {
     const skeleton = `
         <div class="skeleton-loader skeleton-title"></div>
