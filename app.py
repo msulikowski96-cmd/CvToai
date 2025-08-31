@@ -47,6 +47,16 @@ app.secret_key = os.environ.get("SESSION_SECRET",
                                 "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+# --- DODAJ TUTAJ ---
+from flask import send_from_directory
+import os
+
+@app.route('/ads.txt')
+def ads_txt():
+    # Plik ads.txt musi być w katalogu głównym obok tego pliku .py
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'ads.txt')
+
+
 # Configure the database - using Neon Database (PostgreSQL)
 database_url = os.environ.get("DATABASE_URL")
 if not database_url:
