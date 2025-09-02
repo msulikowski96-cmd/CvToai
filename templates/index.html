@@ -1,121 +1,84 @@
-
 {% extends "base.html" %}
 
 {% block title %}CV Optimizer Pro - Profesjonalne optymalizowanie CV przez AI{% endblock %}
 
 {% block content %}
-<!-- Hero Section with Modern Design -->
-<section class="hero-section min-vh-100 d-flex align-items-center position-relative overflow-hidden">
-    <!-- Particle System Background -->
-    <div class="particle-field">
-        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
-        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
-        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
-        <div class="particle" style="left: 40%; animation-delay: 6s;"></div>
-        <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
-        <div class="particle" style="left: 60%; animation-delay: 10s;"></div>
-        <div class="particle" style="left: 70%; animation-delay: 12s;"></div>
-        <div class="particle" style="left: 80%; animation-delay: 14s;"></div>
-        <div class="particle" style="left: 90%; animation-delay: 16s;"></div>
-    </div>
-    
+<!-- Hero Section -->
+<section class="hero-section min-vh-100 d-flex align-items-center">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 hero-content">
-                <div class="hero-badge mb-4 scroll-reveal">
-                    <i class="bi bi-stars badge-icon"></i>
-                    <span class="badge-text">AI-Powered CV Optimization</span>
-                </div>
-                
-                <h1 class="hero-title scroll-reveal text-gradient glow-text">
-                    Twoje CV w <span class="text-warning">AI</span> formie
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <h1 class="hero-title mb-4">
+                    Optymalizuj swoje CV<br>
+                    z pomocą <span class="text-warning">AI</span>
                 </h1>
-                
-                <p class="hero-description mb-4 scroll-reveal">
+
+                <p class="hero-description mb-5">
                     Wykorzystaj moc sztucznej inteligencji do optymalizacji swojego CV. 
-                    Zwiększ swoje szanse na wymarzoną pracę dzięki profesjonalnej analizie 
-                    i personalizowanym poprawkom.
+                    Zwiększ swoje szanse na wymarzoną pracę dzięki profesjonalnej analizie.
                 </p>
-                
-                <div class="hero-actions mb-5 scroll-reveal">
+
+                <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-lg modern-btn-primary ripple">
-                            <div class="btn-shine"></div>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
                             <i class="bi bi-speedometer2 me-2"></i>Przejdź do Dashboard
                         </a>
                     {% else %}
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-lg modern-btn-primary ripple">
-                            <div class="btn-shine"></div>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
                             <i class="bi bi-rocket-takeoff me-2"></i>Rozpocznij za darmo
                         </a>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-lg modern-btn-outline ripple ms-3">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
                             <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
                         </a>
                     {% endif %}
                 </div>
-                
-                <div class="hero-stats scroll-reveal">
-                    <div class="stat-item text-center">
+
+                <div class="hero-stats">
+                    <div class="stat-item">
                         <span class="stat-number" data-target="1200">0+</span>
                         <span class="stat-label">Zoptymalizowanych CV</span>
                     </div>
-                    <div class="stat-item text-center">
+                    <div class="stat-item">
                         <span class="stat-number" data-target="98">0%</span>
                         <span class="stat-label">Zadowolonych użytkowników</span>
                     </div>
-                    <div class="stat-item text-center">
-                        <span class="stat-number" data-target="24">0</span>
-                        <span class="stat-label">Godziny wsparcia</span>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="24">0h</span>
+                        <span class="stat-label">Wsparcia</span>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-lg-6 hero-visual">
-                <div class="floating-card main-card card-3d hover-lift">
-                    <div class="card-header">
-                        <div class="card-dots">
-                            <div class="dot red"></div>
-                            <div class="dot yellow"></div>
-                            <div class="dot green"></div>
+
+            <div class="col-lg-6">
+                <div class="floating-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="d-flex gap-2">
+                            <div style="width: 12px; height: 12px; background: #ef4444; border-radius: 50%;"></div>
+                            <div style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%;"></div>
+                            <div style="width: 12px; height: 12px; background: #10b981; border-radius: 50%;"></div>
                         </div>
-                        <div class="card-title">CV Preview</div>
+                        <span class="ms-3 text-muted">CV Preview</span>
                     </div>
-                    <div class="card-content">
-                        <div class="cv-preview">
-                            <div class="cv-header">
-                                <div class="cv-avatar"></div>
-                                <div class="cv-info">
-                                    <div class="cv-name"></div>
-                                    <div class="cv-role"></div>
-                                </div>
-                            </div>
-                            <div class="cv-section">
-                                <div class="section-title"></div>
-                                <div class="section-line"></div>
-                                <div class="section-line short"></div>
-                                <div class="section-line"></div>
-                            </div>
-                            <div class="cv-section">
-                                <div class="section-title"></div>
-                                <div class="section-line"></div>
-                                <div class="section-line"></div>
+                    <div class="cv-preview">
+                        <div class="cv-header">
+                            <div class="cv-avatar"></div>
+                            <div class="cv-info">
+                                <div class="cv-name"></div>
+                                <div class="cv-role"></div>
                             </div>
                         </div>
+                        <div class="cv-section">
+                            <div class="section-title"></div>
+                            <div class="section-line"></div>
+                            <div class="section-line short"></div>
+                            <div class="section-line"></div>
+                        </div>
+                        <div class="cv-section">
+                            <div class="section-title"></div>
+                            <div class="section-line"></div>
+                            <div class="section-line"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="floating-card ai-card card-hover-effect">
-                    <div class="ai-indicator">
-                        <i class="bi bi-magic"></i>
-                    </div>
-                    <div class="ai-text">AI Analysis</div>
-                </div>
-                
-                <div class="floating-card success-card card-hover-effect">
-                    <div class="success-indicator">
-                        <i class="bi bi-check-circle-fill"></i>
-                    </div>
-                    <div class="success-text">Optimized</div>
                 </div>
             </div>
         </div>
@@ -123,84 +86,82 @@
 </section>
 
 <!-- Features Section -->
-<section class="py-5 bg-dark">
+<section class="py-5">
     <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="display-5 fw-bold text-gradient title-effect scroll-reveal">Dlaczego CV Optimizer Pro?</h2>
-                <p class="lead text-muted scroll-reveal">Poznaj funkcje, które wyróżniają naszą platformę</p>
-            </div>
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Dlaczego CV Optimizer Pro?</h2>
+            <p class="lead text-muted">Poznaj funkcje, które wyróżniają naszą platformę</p>
         </div>
-        
+
         <div class="row g-4">
-            <div class="col-md-6 col-lg-4 scroll-reveal">
-                <div class="card modern-card h-100 card-3d">
+            <div class="col-md-6 col-lg-4">
+                <div class="card modern-card h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon-medium bg-primary bg-gradient rounded-circle mx-auto mb-4">
+                        <div class="feature-icon-medium bg-primary mx-auto mb-4">
                             <i class="bi bi-magic text-white"></i>
                         </div>
                         <h5 class="card-title fw-bold mb-3">Optymalizacja AI</h5>
-                        <p class="card-text">Wykorzystujemy najnowsze modele AI do analizy i optymalizacji Twojego CV, dostosowując je do konkretnej oferty pracy.</p>
+                        <p class="card-text text-muted">Wykorzystujemy najnowsze modele AI do analizy i optymalizacji Twojego CV.</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-6 col-lg-4 scroll-reveal">
-                <div class="card modern-card h-100 card-3d">
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card modern-card h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon-medium bg-success bg-gradient rounded-circle mx-auto mb-4">
+                        <div class="feature-icon-medium bg-success mx-auto mb-4">
                             <i class="bi bi-graph-up text-white"></i>
                         </div>
                         <h5 class="card-title fw-bold mb-3">Szczegółowa analiza</h5>
-                        <p class="card-text">Otrzymaj kompleksową analizę swojego CV z konkretnymi sugestiami poprawek i oceną dopasowania do oferty.</p>
+                        <p class="card-text text-muted">Otrzymaj kompleksową analizę z konkretnymi sugestiami poprawek.</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-6 col-lg-4 scroll-reveal">
-                <div class="card modern-card h-100 card-3d">
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card modern-card h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon-medium bg-info bg-gradient rounded-circle mx-auto mb-4">
+                        <div class="feature-icon-medium bg-info mx-auto mb-4">
                             <i class="bi bi-envelope text-white"></i>
                         </div>
                         <h5 class="card-title fw-bold mb-3">Listy motywacyjne</h5>
-                        <p class="card-text">Generuj spersonalizowane listy motywacyjne dopasowane do Twojego CV i konkretnej oferty pracy.</p>
+                        <p class="card-text text-muted">Generuj spersonalizowane listy motywacyjne dopasowane do oferty.</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-6 col-lg-4 scroll-reveal">
-                <div class="card modern-card h-100 card-3d">
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card modern-card h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon-medium bg-warning bg-gradient rounded-circle mx-auto mb-4">
+                        <div class="feature-icon-medium bg-warning mx-auto mb-4">
                             <i class="bi bi-shield-check text-white"></i>
                         </div>
                         <h5 class="card-title fw-bold mb-3">Bezpieczeństwo</h5>
-                        <p class="card-text">Twoje dane są bezpieczne. Wszystkie pliki są szyfrowane i usuwane automatycznie po przetworzeniu.</p>
+                        <p class="card-text text-muted">Twoje dane są bezpieczne i automatycznie usuwane po przetworzeniu.</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-6 col-lg-4 scroll-reveal">
-                <div class="card modern-card h-100 card-3d">
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card modern-card h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon-medium bg-danger bg-gradient rounded-circle mx-auto mb-4">
+                        <div class="feature-icon-medium bg-danger mx-auto mb-4">
                             <i class="bi bi-lightning text-white"></i>
                         </div>
                         <h5 class="card-title fw-bold mb-3">Szybkość</h5>
-                        <p class="card-text">Otrzymaj zoptymalizowane CV w kilka minut. Nasza AI pracuje błyskawicznie, abyś mógł szybko aplikować.</p>
+                        <p class="card-text text-muted">Otrzymaj zoptymalizowane CV w kilka minut.</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-6 col-lg-4 scroll-reveal">
-                <div class="card modern-card h-100 card-3d">
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card modern-card h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon-medium bg-secondary bg-gradient rounded-circle mx-auto mb-4">
+                        <div class="feature-icon-medium bg-secondary mx-auto mb-4">
                             <i class="bi bi-download text-white"></i>
                         </div>
                         <h5 class="card-title fw-bold mb-3">Różne formaty</h5>
-                        <p class="card-text">Pobieraj swoje CV w różnych formatach - PDF, Word, czy po prostu kopiuj tekst do schowka.</p>
+                        <p class="card-text text-muted">Pobieraj CV w różnych formatach - PDF, Word, tekst.</p>
                     </div>
                 </div>
             </div>
@@ -209,135 +170,76 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-5 position-relative overflow-hidden">
+<section class="py-5 bg-secondary">
     <div class="container text-center">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <h2 class="display-5 fw-bold mb-4 text-gradient scroll-reveal">
+                <h2 class="display-5 fw-bold mb-4">
                     Gotowy na następny krok w karierze?
                 </h2>
-                <p class="lead mb-5 scroll-reveal">
+                <p class="lead mb-5 text-muted">
                     Dołącz do tysięcy użytkowników, którzy już zwiększyli swoje szanse na wymarzoną pracę.
                 </p>
-                
+
                 {% if not current_user.is_authenticated %}
-                <div class="scroll-reveal">
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-lg btn-gradient ripple me-3">
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
                         <i class="bi bi-rocket-takeoff me-2"></i>Rozpocznij za darmo
                     </a>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-outline-light ripple">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Mam już konto
                     </a>
                 </div>
                 {% else %}
-                <div class="scroll-reveal">
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-lg btn-gradient ripple">
-                        <i class="bi bi-speedometer2 me-2"></i>Przejdź do Dashboard
-                    </a>
-                </div>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-speedometer2 me-2"></i>Przejdź do Dashboard
+                </a>
                 {% endif %}
             </div>
         </div>
     </div>
 </section>
-
-<!-- Toast Container for notifications -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize counter animations
+    // Simple counter animation
     const counters = document.querySelectorAll('.stat-number[data-target]');
-    
-    const observerOptions = {
-        threshold: 0.5,
-        rootMargin: '0px 0px -100px 0px'
-    };
-    
-    const counterObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const counter = entry.target;
-                const target = parseInt(counter.getAttribute('data-target'));
-                let current = 0;
-                const increment = target / 50;
-                
-                const updateCounter = () => {
-                    if (current < target) {
-                        current += increment;
-                        if (counter.textContent.includes('%')) {
-                            counter.textContent = Math.floor(current) + '%';
-                        } else if (counter.textContent.includes('+')) {
-                            counter.textContent = Math.floor(current) + '+';
-                        } else {
-                            counter.textContent = Math.floor(current);
-                        }
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        if (counter.textContent.includes('%')) {
-                            counter.textContent = target + '%';
-                        } else if (counter.textContent.includes('+')) {
-                            counter.textContent = target + '+';
-                        } else {
-                            counter.textContent = target;
-                        }
-                    }
-                };
-                
-                updateCounter();
-                counterObserver.unobserve(counter);
-            }
-        });
-    }, observerOptions);
-    
+
     counters.forEach(counter => {
-        counterObserver.observe(counter);
-    });
-    
-    // Initialize scroll reveal animations
-    const scrollElements = document.querySelectorAll('.scroll-reveal');
-    const elementInView = (el, dividend = 1) => {
-        const elementTop = el.getBoundingClientRect().top;
-        return (
-            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
-        );
-    };
-    
-    const displayScrollElement = (element) => {
-        element.classList.add('revealed');
-    };
-    
-    const hideScrollElement = (element) => {
-        element.classList.remove('revealed');
-    };
-    
-    const handleScrollAnimation = () => {
-        scrollElements.forEach((el) => {
-            if (elementInView(el, 1.25)) {
-                displayScrollElement(el);
+        const target = parseInt(counter.getAttribute('data-target'));
+        let current = 0;
+        const increment = target / 50;
+
+        const updateCounter = () => {
+            if (current < target) {
+                current += increment;
+                if (counter.textContent.includes('%')) {
+                    counter.textContent = Math.floor(current) + '%';
+                } else if (counter.textContent.includes('+')) {
+                    counter.textContent = Math.floor(current) + '+';
+                } else if (counter.textContent.includes('h')) {
+                    counter.textContent = Math.floor(current) + 'h';
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+                requestAnimationFrame(updateCounter);
+            } else {
+                if (counter.textContent.includes('%')) {
+                    counter.textContent = target + '%';
+                } else if (counter.textContent.includes('+')) {
+                    counter.textContent = target + '+';
+                } else if (counter.textContent.includes('h')) {
+                    counter.textContent = target + 'h';
+                } else {
+                    counter.textContent = target;
+                }
             }
-        });
-    };
-    
-    window.addEventListener('scroll', handleScrollAnimation);
-    handleScrollAnimation(); // Initial check
-    
-    // Add CSS for scroll reveal animation
-    const style = document.createElement('style');
-    style.textContent = `
-        .scroll-reveal {
-            opacity: 0;
-            transform: translateY(50px);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .scroll-reveal.revealed {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    `;
-    document.head.appendChild(style);
+        };
+
+        setTimeout(updateCounter, 500);
+    });
 });
 </script>
 {% endblock %}
