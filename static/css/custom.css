@@ -41,7 +41,6 @@ body {
 
 .navbar-nav .nav-link {
     color: var(--text-secondary) !important;
-    transition: color 0.3s ease;
 }
 
 .navbar-nav .nav-link:hover {
@@ -75,13 +74,11 @@ body {
     border-radius: 6px;
     font-weight: 500;
     padding: 0.75rem 1.5rem;
-    transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
     background-color: #0056b3;
     border-color: #0056b3;
-    transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -114,7 +111,7 @@ body {
     background-color: var(--card-bg);
     border-color: var(--primary-color);
     color: var(--text-primary);
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: none;
 }
 
 .form-control::placeholder {
@@ -201,7 +198,6 @@ footer {
 
 .dropdown-item {
     color: var(--text-primary);
-    transition: all 0.3s ease;
 }
 
 .dropdown-item:hover {
@@ -241,7 +237,6 @@ footer {
 a {
     color: var(--primary-color);
     text-decoration: none;
-    transition: color 0.3s ease;
 }
 
 a:hover {
@@ -273,20 +268,9 @@ a:hover {
     }
 }
 
-/* Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* Cards - no animations */
 .card {
-    animation: fadeIn 0.5s ease-out;
+    /* No animations */
 }
 
 /* Custom brand logo styles */
@@ -320,7 +304,6 @@ a:hover {
     align-items: center;
     padding: 0.5rem 1rem;
     border-radius: 6px;
-    transition: all 0.3s ease;
 }
 
 .user-dropdown:hover {
@@ -343,6 +326,5 @@ a:hover {
     height: 2px;
     background-color: var(--text-primary);
     margin: 4px 0;
-    transition: 0.3s;
     border-radius: 1px;
 }
