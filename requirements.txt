@@ -88,3 +88,8 @@ gunicorn
 psycopg2-binary
 openai
 gevent
+email_validator
+flask
+flask-sqlalchemy
+gunicorn
+psycopg2-binary

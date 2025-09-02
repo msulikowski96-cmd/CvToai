@@ -133,7 +133,7 @@ class User(UserMixin, db.Model):
 
     def get_cv_count(self):
         """Zwraca liczbę przesłanych CV"""
-        return len(self.cv_uploads)
+        return CVUpload.query.filter_by(user_id=self.id).count()
 
     def get_optimized_cv_count(self):
         """Zwraca liczbę zoptymalizowanych CV"""
@@ -169,7 +169,8 @@ class User(UserMixin, db.Model):
         """Zwraca statystyki użytkownika"""
         stats = UserStatistics.query.filter_by(user_id=self.id).first()
         if not stats:
-            stats = UserStatistics(user_id=self.id)
+            stats = UserStatistics()
+            stats.user_id = self.id
             db.session.add(stats)
             db.session.commit()
         return stats
@@ -360,13 +361,13 @@ def upload_cv():
                                        errors='replace').decode('utf-8')
 
             # Store CV data in the database
-            new_cv_upload = CVUpload(
-                user_id=current_user.id,
-                session_id=session_id,
-                filename=ensure_utf8(filename),
-                original_text=ensure_utf8(cv_text),
-                job_title=ensure_utf8(job_title),
-                job_description=ensure_utf8(job_description))
+            new_cv_upload = CVUpload()
+            new_cv_upload.user_id = current_user.id
+            new_cv_upload.session_id = session_id
+            new_cv_upload.filename = ensure_utf8(filename)
+            new_cv_upload.original_text = ensure_utf8(cv_text)
+            new_cv_upload.job_title = ensure_utf8(job_title)
+            new_cv_upload.job_description = ensure_utf8(job_description)
             db.session.add(new_cv_upload)
             db.session.commit()
 
@@ -446,15 +447,15 @@ def generate_cover_letter_route():
 
         # Zapisz list motywacyjny w bazie danych
         cover_letter_session_id = str(uuid.uuid4())
-        new_cover_letter = CoverLetter(
-            user_id=current_user.id,
-            cv_upload_id=cv_upload.id,
-            session_id=cover_letter_session_id,
-            job_title=job_title,
-            job_description=job_description,
-            company_name=company_name,
-            cover_letter_content=result['cover_letter'],
-            generated_at=datetime.utcnow())
+        new_cover_letter = CoverLetter()
+        new_cover_letter.user_id = current_user.id
+        new_cover_letter.cv_upload_id = cv_upload.id
+        new_cover_letter.session_id = cover_letter_session_id
+        new_cover_letter.job_title = job_title
+        new_cover_letter.job_description = job_description
+        new_cover_letter.company_name = company_name
+        new_cover_letter.cover_letter_content = result['cover_letter']
+        new_cover_letter.generated_at = datetime.utcnow()
 
         db.session.add(new_cover_letter)
         db.session.commit()
