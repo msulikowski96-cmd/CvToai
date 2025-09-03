@@ -284,3 +284,164 @@ Wygeneruj teraz kompletny list motywacyjny:
         logger.error(
             f"❌ Błąd podczas generowania listu motywacyjnego: {str(e)}")
         return None
+
+
+def generate_interview_questions(cv_text, job_title, job_description="", is_premium=False):
+    """
+    Generuje personalizowane pytania na rozmowę kwalifikacyjną na podstawie CV i opisu stanowiska
+    """
+    try:
+        job_desc_info = f"\n\nOpis stanowiska:\n{job_description}" if job_description else ""
+        
+        prompt = f"""
+🎯 ZADANIE: Wygeneruj personalizowane pytania na rozmowę kwalifikacyjną w języku polskim
+
+📋 DANE WEJŚCIOWE:
+• Stanowisko: {job_title}
+• CV kandydata: {cv_text[:3000]}...{job_desc_info}
+
+✅ WYMAGANIA PYTAŃ:
+1. 10-15 pytań dostosowanych do profilu kandydata
+2. Pytania powinny być różnorodne: techniczne, behawioralne, sytuacyjne
+3. Uwzględnij doświadczenie i umiejętności z CV
+4. Dodaj pytania specyficzne dla branży i stanowiska
+5. Uwzględnij poziom doświadczenia kandydata
+
+📝 KATEGORIE PYTAŃ:
+1. **Pytania podstawowe** - o doświadczeniu i motywacji
+2. **Pytania techniczne** - o konkretne umiejętności z CV
+3. **Pytania behawioralne** - o sytuacje i zachowania
+4. **Pytania sytuacyjne** - scenariusze problemowe
+5. **Pytania o firmę** - zainteresowanie pozycją i firmą
+
+🎤 FORMAT ODPOWIEDZI:
+PYTANIA PODSTAWOWE:
+1. [pytanie]
+2. [pytanie]
+
+PYTANIA TECHNICZNE:
+1. [pytanie]
+2. [pytanie]
+
+PYTANIA BEHAWIORALNE:
+1. [pytanie]
+2. [pytanie]
+
+PYTANIA SYTUACYJNE:
+1. [pytanie]
+2. [pytanie]
+
+PYTANIA O FIRMĘ I STANOWISKO:
+1. [pytanie]
+2. [pytanie]
+
+🚀 WSKAZÓWKI:
+• Każde pytanie powinno być konkretne i merytoryczne
+• Uwzględnij słowa kluczowe z opisu stanowiska
+• Dostosuj poziom trudności do doświadczenia kandydata
+• Dodaj pytania sprawdzające soft skills
+
+Wygeneruj teraz personalizowane pytania na rozmowę kwalifikacyjną:
+        """
+
+        logger.info(f"🤔 Generowanie pytań na rozmowę dla stanowiska: {job_title}")
+
+        questions = make_openrouter_request(prompt, is_premium=is_premium)
+
+        if questions:
+            logger.info(f"✅ Pytania na rozmowę wygenerowane pomyślnie (długość: {len(questions)} znaków)")
+            
+            return {
+                'success': True,
+                'questions': questions,
+                'job_title': job_title,
+                'model_used': PREMIUM_MODEL if is_premium else FREE_MODEL
+            }
+        else:
+            logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
+            return None
+
+    except Exception as e:
+        logger.error(f"❌ Błąd podczas generowania pytań na rozmowę: {str(e)}")
+        return None
+
+
+def analyze_skills_gap(cv_text, job_title, job_description="", is_premium=False):
+    """
+    Analizuje luki kompetencyjne między CV a wymaganiami stanowiska
+    """
+    try:
+        job_desc_info = f"\n\nOpis stanowiska:\n{job_description}" if job_description else ""
+        
+        prompt = f"""
+🎯 ZADANIE: Przeprowadź szczegółową analizę luk kompetencyjnych w języku polskim
+
+📋 DANE WEJŚCIOWE:
+• Stanowisko: {job_title}
+• CV kandydata: {cv_text[:3000]}...{job_desc_info}
+
+✅ CELE ANALIZY:
+1. Porównaj umiejętności z CV z wymaganiami stanowiska
+2. Zidentyfikuj mocne strony kandydata
+3. Wykryj luki kompetencyjne i brakujące umiejętności
+4. Zasugeruj sposoby rozwoju i uzupełnienia braków
+5. Oceń ogólne dopasowanie do stanowiska (0-100%)
+
+📊 FORMAT ODPOWIEDZI:
+
+OCENA OGÓLNA: [XX]% dopasowania do stanowiska
+
+MOCNE STRONY KANDYDATA:
+✅ [umiejętność 1] - [krótkie uzasadnienie]
+✅ [umiejętność 2] - [krótkie uzasadnienie]
+✅ [umiejętność 3] - [krótkie uzasadnienie]
+
+LUKI KOMPETENCYJNE:
+❌ [brakująca umiejętność 1] - [dlaczego jest potrzebna]
+❌ [brakująca umiejętność 2] - [dlaczego jest potrzebna]
+❌ [brakująca umiejętność 3] - [dlaczego jest potrzebna]
+
+REKOMENDACJE ROZWOJU:
+🎓 [konkretna rekomendacja 1] - [kurs/certyfikat/doświadczenie]
+🎓 [konkretna rekomendacja 2] - [kurs/certyfikat/doświadczenie]
+🎓 [konkretna rekomendacja 3] - [kurs/certyfikat/doświadczenie]
+
+PRIORYTET ROZWOJU:
+🔥 WYSOKI PRIORYTET: [umiejętności kluczowe dla stanowiska]
+🔸 ŚREDNI PRIORYTET: [umiejętności przydatne]
+🔹 NISKI PRIORYTET: [umiejętności dodatkowe]
+
+PLAN DZIAŁANIA (3-6 miesięcy):
+1. [konkretny krok do podjęcia]
+2. [konkretny krok do podjęcia]
+3. [konkretny krok do podjęcia]
+
+🚀 WSKAZÓWKI:
+• Skup się na umiejętnościach technicznych i soft skills
+• Uwzględnij trendy w branży
+• Zasugeruj konkretne zasoby edukacyjne
+• Oceń realność pozyskania brakujących kompetencji
+
+Przeprowadź teraz szczegółową analizę luk kompetencyjnych:
+        """
+
+        logger.info(f"🔍 Analiza luk kompetencyjnych dla stanowiska: {job_title}")
+
+        analysis = make_openrouter_request(prompt, is_premium=is_premium)
+
+        if analysis:
+            logger.info(f"✅ Analiza luk kompetencyjnych ukończona pomyślnie (długość: {len(analysis)} znaków)")
+            
+            return {
+                'success': True,
+                'analysis': analysis,
+                'job_title': job_title,
+                'model_used': PREMIUM_MODEL if is_premium else FREE_MODEL
+            }
+        else:
+            logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
+            return None
+
+    except Exception as e:
+        logger.error(f"❌ Błąd podczas analizy luk kompetencyjnych: {str(e)}")
+        return None

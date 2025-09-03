@@ -231,6 +231,40 @@ class CoverLetter(db.Model):
         return f'<CoverLetter {self.job_title}>'
 
 
+class InterviewQuestions(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    cv_upload_id = db.Column(db.Integer,
+                             db.ForeignKey('cv_upload.id'),
+                             nullable=False)
+    session_id = db.Column(db.String(100), unique=True, nullable=False)
+    job_title = db.Column(db.String(200), nullable=False)
+    job_description = db.Column(db.Text, nullable=True)
+    questions_content = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    generated_at = db.Column(db.DateTime, nullable=True)
+
+    def __repr__(self):
+        return f'<InterviewQuestions {self.job_title}>'
+
+
+class SkillsGapAnalysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    cv_upload_id = db.Column(db.Integer,
+                             db.ForeignKey('cv_upload.id'),
+                             nullable=False)
+    session_id = db.Column(db.String(100), unique=True, nullable=False)
+    job_title = db.Column(db.String(200), nullable=False)
+    job_description = db.Column(db.Text, nullable=True)
+    analysis_content = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    analyzed_at = db.Column(db.DateTime, nullable=True)
+
+    def __repr__(self):
+        return f'<SkillsGapAnalysis {self.job_title}>'
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
