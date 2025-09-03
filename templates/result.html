@@ -371,6 +371,48 @@
         </div>
     </div>
 </div>
+
+<!-- Modal dla listu motywacyjnego -->
+<div class="modal fade" id="coverLetterModal" tabindex="-1" aria-labelledby="coverLetterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="coverLetterModalLabel">
+                    <i class="bi bi-envelope me-2"></i>Generowanie listu motywacyjnego
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="coverLetterForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="companyName" class="form-label">Nazwa firmy (opcjonalnie)</label>
+                            <input type="text" class="form-control" id="companyName" placeholder="np. Google, Microsoft">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="customJobTitle" class="form-label">Stanowisko (opcjonalnie)</label>
+                            <input type="text" class="form-control" id="customJobTitle" placeholder="Zostaw puste aby użyć: {{ cv_upload.job_title }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customJobDescription" class="form-label">Opis stanowiska (opcjonalnie)</label>
+                        <textarea class="form-control" id="customJobDescription" rows="3" placeholder="Dodatkowe wymagania lub informacje o stanowisku"></textarea>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Wskazówka:</strong> Uzupełnienie nazwy firmy i szczegółów stanowiska pomoże wygenerować bardziej spersonalizowany list motywacyjny.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                <button type="button" class="btn btn-success" onclick="submitCoverLetterForm()">
+                    <i class="bi bi-magic me-1"></i>Generuj list
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
