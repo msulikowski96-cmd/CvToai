@@ -417,14 +417,17 @@
 
 {% block scripts %}
 <script>
-function showAlert(message, type) {
-    type = type || 'info';
+// Główne funkcje aplikacji
+function showAlert(message, type = 'info') {
     const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-' + type + ' alert-dismissible fade show';
-    alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
     document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.container').firstChild);
     
-    setTimeout(function() {
+    setTimeout(() => {
         if (alertDiv.parentNode) {
             alertDiv.remove();
         }
@@ -435,14 +438,14 @@ function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
     const text = element.textContent;
 
-    navigator.clipboard.writeText(text).then(function() {
+    navigator.clipboard.writeText(text).then(() => {
         const btn = event.target.closest('button');
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="bi bi-check me-1"></i>Skopiowane!';
         btn.classList.replace('btn-outline-success', 'btn-success');
         btn.classList.replace('btn-outline-primary', 'btn-success');
 
-        setTimeout(function() {
+        setTimeout(() => {
             btn.innerHTML = originalText;
             btn.classList.replace('btn-success', 'btn-outline-success');
             btn.classList.replace('btn-success', 'btn-outline-primary');
@@ -466,11 +469,20 @@ function downloadText(content, filename) {
     URL.revokeObjectURL(link.href);
 }
 
+// Funkcje CV
 function optimizeCV(sessionId) {
     const btn = document.getElementById('optimize-btn');
     btn.disabled = true;
     btn.classList.add('shimmer');
-    btn.innerHTML = '<div class="d-flex align-items-center justify-content-center"><span class="spinner-border spinner-border-sm me-2"></span><div><div class="fw-bold">Optymalizowanie...</div><div class="small opacity-75">AI pracuje nad Twoim CV</div></div></div>';
+    btn.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <div>
+                <div class="fw-bold">Optymalizowanie...</div>
+                <div class="small opacity-75">AI pracuje nad Twoim CV</div>
+            </div>
+        </div>
+    `;
 
     fetch('/optimize-cv', {
         method: 'POST',
@@ -479,17 +491,25 @@ function optimizeCV(sessionId) {
         },
         body: JSON.stringify({session_id: sessionId})
     })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
-            btn.innerHTML = '<div class="d-flex align-items-center justify-content-center"><i class="bi bi-check-circle me-2 fs-5"></i><div><div class="fw-bold">Gotowe!</div><div class="small opacity-75">Przeładowywanie...</div></div></div>';
-            setTimeout(function() { location.reload(); }, 1000);
+            btn.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-check-circle me-2 fs-5"></i>
+                    <div>
+                        <div class="fw-bold">Gotowe!</div>
+                        <div class="small opacity-75">Przeładowywanie...</div>
+                    </div>
+                </div>
+            `;
+            setTimeout(() => location.reload(), 1000);
         } else {
             showAlert('Błąd: ' + data.message, 'danger');
             resetOptimizeButton(btn);
         }
     })
-    .catch(function(error) {
+    .catch(error => {
         showAlert('Wystąpił błąd: ' + error.message, 'danger');
         resetOptimizeButton(btn);
     });
@@ -498,14 +518,30 @@ function optimizeCV(sessionId) {
 function resetOptimizeButton(btn) {
     btn.disabled = false;
     btn.classList.remove('shimmer');
-    btn.innerHTML = '<div class="d-flex align-items-center justify-content-center"><i class="bi bi-magic me-2 fs-5"></i><div><div class="fw-bold">Optymalizuj CV</div><div class="small opacity-75">AI usprawni Twoje CV</div></div></div>';
+    btn.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center">
+            <i class="bi bi-magic me-2 fs-5"></i>
+            <div>
+                <div class="fw-bold">Optymalizuj CV</div>
+                <div class="small opacity-75">AI usprawni Twoje CV</div>
+            </div>
+        </div>
+    `;
 }
 
 function analyzeCV(sessionId) {
     const btn = document.getElementById('analyze-btn');
     btn.disabled = true;
     btn.classList.add('shimmer');
-    btn.innerHTML = '<div class="d-flex align-items-center justify-content-center"><span class="spinner-border spinner-border-sm me-2"></span><div><div class="fw-bold">Analizowanie...</div><div class="small opacity-75">AI ocenia Twoje CV</div></div></div>';
+    btn.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <div>
+                <div class="fw-bold">Analizowanie...</div>
+                <div class="small opacity-75">AI ocenia Twoje CV</div>
+            </div>
+        </div>
+    `;
 
     fetch('/analyze-cv', {
         method: 'POST',
@@ -514,17 +550,25 @@ function analyzeCV(sessionId) {
         },
         body: JSON.stringify({session_id: sessionId})
     })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
-            btn.innerHTML = '<div class="d-flex align-items-center justify-content-center"><i class="bi bi-check-circle me-2 fs-5"></i><div><div class="fw-bold">Gotowe!</div><div class="small opacity-75">Przeładowywanie...</div></div></div>';
-            setTimeout(function() { location.reload(); }, 1000);
+            btn.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-check-circle me-2 fs-5"></i>
+                    <div>
+                        <div class="fw-bold">Gotowe!</div>
+                        <div class="small opacity-75">Przeładowywanie...</div>
+                    </div>
+                </div>
+            `;
+            setTimeout(() => location.reload(), 1000);
         } else {
             showAlert('Błąd: ' + data.message, 'danger');
             resetAnalyzeButton(btn);
         }
     })
-    .catch(function(error) {
+    .catch(error => {
         showAlert('Wystąpił błąd: ' + error.message, 'danger');
         resetAnalyzeButton(btn);
     });
@@ -533,9 +577,18 @@ function analyzeCV(sessionId) {
 function resetAnalyzeButton(btn) {
     btn.disabled = false;
     btn.classList.remove('shimmer');
-    btn.innerHTML = '<div class="d-flex align-items-center justify-content-center"><i class="bi bi-graph-up me-2 fs-5"></i><div><div class="fw-bold">Analizuj CV</div><div class="small opacity-75">Otrzymaj szczegółową ocenę</div></div></div>';
+    btn.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center">
+            <i class="bi bi-graph-up me-2 fs-5"></i>
+            <div>
+                <div class="fw-bold">Analizuj CV</div>
+                <div class="small opacity-75">Otrzymaj szczegółową ocenę</div>
+            </div>
+        </div>
+    `;
 }
 
+// Funkcje dodatkowe
 function generateCoverLetter() {
     const modal = new bootstrap.Modal(document.getElementById('coverLetterModal'));
     modal.show();
@@ -558,7 +611,7 @@ function submitCoverLetterForm() {
     fetch('/generate-cover-letter', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({
             session_id: sessionId,
@@ -567,23 +620,23 @@ function submitCoverLetterForm() {
             company_name: companyName
         })
     })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
             showAlert('✅ ' + data.message, 'success');
             bootstrap.Modal.getInstance(document.getElementById('coverLetterModal')).hide();
-            setTimeout(function() {
-                window.location.href = '/cover-letter/' + data.cover_letter_session_id;
+            setTimeout(() => {
+                window.location.href = `/cover-letter/${data.cover_letter_session_id}`;
             }, 1500);
         } else {
             showAlert('❌ ' + data.message, 'danger');
         }
     })
-    .catch(function(error) {
+    .catch(error => {
         console.error('Error:', error);
         showAlert('❌ Wystąpił błąd podczas generowania listu motywacyjnego', 'danger');
     })
-    .finally(function() {
+    .finally(() => {
         button.disabled = false;
         button.innerHTML = originalText;
     });
@@ -600,7 +653,7 @@ function generateInterviewQuestions() {
     fetch('/generate-interview-questions', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({
             session_id: sessionId,
@@ -608,22 +661,22 @@ function generateInterviewQuestions() {
             job_description: '{{ cv_upload.job_description or "" }}'
         })
     })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
             showAlert('✅ ' + data.message, 'success');
-            setTimeout(function() {
-                window.location.href = '/interview-questions/' + data.questions_session_id;
+            setTimeout(() => {
+                window.location.href = `/interview-questions/${data.questions_session_id}`;
             }, 1500);
         } else {
             showAlert('❌ ' + data.message, 'danger');
         }
     })
-    .catch(function(error) {
+    .catch(error => {
         console.error('Error:', error);
         showAlert('❌ Wystąpił błąd podczas generowania pytań', 'danger');
     })
-    .finally(function() {
+    .finally(() => {
         button.disabled = false;
         button.innerHTML = originalText;
     });
@@ -640,7 +693,7 @@ function analyzeSkillsGap() {
     fetch('/analyze-skills-gap', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({
             session_id: sessionId,
@@ -648,22 +701,22 @@ function analyzeSkillsGap() {
             job_description: '{{ cv_upload.job_description or "" }}'
         })
     })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
             showAlert('✅ ' + data.message, 'success');
-            setTimeout(function() {
-                window.location.href = '/skills-gap-analysis/' + data.analysis_session_id;
+            setTimeout(() => {
+                window.location.href = `/skills-gap-analysis/${data.analysis_session_id}`;
             }, 1500);
         } else {
             showAlert('❌ ' + data.message, 'danger');
         }
     })
-    .catch(function(error) {
+    .catch(error => {
         console.error('Error:', error);
         showAlert('❌ Wystąpił błąd podczas analizy luk kompetencyjnych', 'danger');
     })
-    .finally(function() {
+    .finally(() => {
         button.disabled = false;
         button.innerHTML = originalText;
     });
