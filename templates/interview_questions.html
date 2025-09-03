@@ -1,0 +1,98 @@
+
+{% extends "base.html" %}
+
+{% block title %}Pytania na rozmowę kwalifikacyjną - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">🎤 Pytania na rozmowę kwalifikacyjną</h1>
+                    <p class="text-muted mb-0">
+                        Stanowisko: <strong>{{ questions.job_title }}</strong>
+                    </p>
+                </div>
+                <a href="{{ url_for('result', session_id=cv_upload.session_id) }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Powrót do wyników
+                </a>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Data wygenerowania</small>
+                            <p class="mb-0 fw-medium">{{ questions.generated_at.strftime('%d.%m.%Y o %H:%M') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Stanowisko</small>
+                            <p class="mb-0 fw-medium">{{ questions.job_title }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Content -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-question-circle"></i> Personalizowane pytania</h5>
+                </div>
+                <div class="card-body">
+                    {% if questions.questions_content %}
+                        <div class="questions-content">
+                            {{ questions.questions_content | safe | replace('\n', '<br>') }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Pytania nie zostały jeszcze wygenerowane.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-4 text-center">
+                <button class="btn btn-primary me-2" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Drukuj
+                </button>
+                <button class="btn btn-outline-primary" onclick="copyToClipboard()">
+                    <i class="bi bi-clipboard"></i> Kopiuj do schowka
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const content = document.querySelector('.questions-content').innerText;
+    navigator.clipboard.writeText(content).then(() => {
+        alert('Pytania zostały skopiowane do schowka!');
+    });
+}
+</script>
+
+<style>
+.questions-content {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+@media print {
+    .btn, .card-header {
+        display: none !important;
+    }
+    .questions-content {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+}
+</style>
+{% endblock %}

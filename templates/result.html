@@ -230,6 +230,54 @@
                                 </div>
                             {% endif %}
 
+                            <!-- Cover Letter Generation -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card action-card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon bg-success mb-3 mx-auto">
+                                    <i class="bi bi-file-text text-white"></i>
+                                </div>
+                                <h5 class="card-title">List motywacyjny</h5>
+                                <p class="card-text text-muted">Wygeneruj profesjonalny list motywacyjny dopasowany do stanowiska</p>
+                                <button class="btn btn-success" onclick="generateCoverLetter()">
+                                    <i class="bi bi-magic"></i> Generuj list
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interview Questions Generation -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card action-card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon bg-info mb-3 mx-auto">
+                                    <i class="bi bi-question-circle text-white"></i>
+                                </div>
+                                <h5 class="card-title">Pytania na rozmowę</h5>
+                                <p class="card-text text-muted">Przygotuj się do rozmowy kwalifikacyjnej z personalizowanymi pytaniami</p>
+                                <button class="btn btn-info" onclick="generateInterviewQuestions()">
+                                    <i class="bi bi-chat-quote"></i> Generuj pytania
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills Gap Analysis -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card action-card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon bg-warning mb-3 mx-auto">
+                                    <i class="bi bi-graph-up text-white"></i>
+                                </div>
+                                <h5 class="card-title">Analiza luk kompetencyjnych</h5>
+                                <p class="card-text text-muted">Sprawdź jakie umiejętności warto rozwijać dla tego stanowiska</p>
+                                <button class="btn btn-warning" onclick="analyzeSkillsGap()">
+                                    <i class="bi bi-search"></i> Analizuj luki
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                             <div class="col-md-6">
                                 <a href="{{ url_for('index') }}" class="btn btn-outline-light w-100 py-3 ripple">
                                     <div class="d-flex align-items-center justify-content-center">
@@ -288,22 +336,22 @@
                                                 {% endif %}
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <small class="text-muted">Utworzony: {{ cover_letter.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
                                         </div>
-                                        
+
                                         <div class="d-grid gap-2">
                                             <a href="{{ url_for('view_cover_letter', session_id=cover_letter.session_id) }}" 
                                                class="btn btn-primary" style="border-radius: 8px;">
-                                                <i class="bi bi-eye me-1"></i>Zobacz list
+                                                <i class="bi bi-eye me-1"></i> Zobacz list
                                             </a>
                                             <button onclick="copyToClipboard('cover-letter-{{ loop.index0 }}')" 
                                                     class="btn btn-outline-success" style="border-radius: 8px;">
                                                 <i class="bi bi-clipboard me-1"></i>Kopiuj
                                             </button>
                                         </div>
-                                        
+
                                         <!-- Hidden content for copying -->
                                         <div id="cover-letter-{{ loop.index0 }}" class="d-none">{{ cover_letter.cover_letter_content }}</div>
                                     </div>
@@ -480,5 +528,151 @@ function analyzeCV(sessionId) {
         `;
     });
 }
+</script>
+<script>
+    function generateCoverLetter() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
+
+        // Show modal for additional details
+        showCoverLetterModal();
+    }
+
+    function showCoverLetterModal() {
+        const modal = new bootstrap.Modal(document.getElementById('coverLetterModal'));
+        modal.show();
+    }
+
+    function submitCoverLetterForm() {
+        const companyName = document.getElementById('companyName').value.trim();
+        const customJobTitle = document.getElementById('customJobTitle').value.trim();
+        const customJobDescription = document.getElementById('customJobDescription').value.trim();
+
+        const data = {
+            session_id: '{{ session_id }}',
+            job_title: customJobTitle || '{{ cv_upload.job_title }}',
+            job_description: customJobDescription || '{{ cv_upload.job_description or "" }}',
+            company_name: companyName
+        };
+
+        fetch('/generate-cover-letter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('coverLetterModal'));
+                modal.hide();
+
+                // Show success message and redirect
+                showAlert('success', data.message);
+                setTimeout(() => {
+                    window.location.href = `/cover-letter/${data.cover_letter_session_id}`;
+                }, 1500);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'Wystąpił błąd połączenia');
+        })
+        .finally(() => {
+            // Reset button
+            const button = document.querySelector('button[onclick="generateCoverLetter()"]');
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-magic"></i> Generuj list';
+        });
+    }
+
+    function generateInterviewQuestions() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
+
+        const data = {
+            session_id: '{{ session_id }}',
+            job_title: '{{ cv_upload.job_title }}',
+            job_description: '{{ cv_upload.job_description or "" }}'
+        };
+
+        fetch('/generate-interview-questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                setTimeout(() => {
+                    window.location.href = `/interview-questions/${data.questions_session_id}`;
+                }, 1500);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'Wystąpił błąd podczas generowania pytań');
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-chat-quote"></i> Generuj pytania';
+        });
+    }
+
+    function analyzeSkillsGap() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Analizowanie...';
+
+        const data = {
+            session_id: '{{ session_id }}',
+            job_title: '{{ cv_upload.job_title }}',
+            job_description: '{{ cv_upload.job_description or "" }}'
+        };
+
+        fetch('/analyze-skills-gap', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                setTimeout(() => {
+                    window.location.href = `/skills-gap-analysis/${data.analysis_session_id}`;
+                }, 1500);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'Wystąpił błąd podczas analizy luk kompetencyjnych');
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-search"></i> Analizuj luki';
+        });
+    }
 </script>
 {% endblock %}

@@ -518,6 +518,166 @@ def generate_cover_letter_route():
         })
 
 
+@app.route('/generate-interview-questions', methods=['POST'])
+@login_required
+def generate_interview_questions_route():
+    """Generuje pytania na rozmowę kwalifikacyjną na podstawie CV"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        job_title = data.get('job_title', '').strip()
+        job_description = data.get('job_description', '').strip()
+
+        if not session_id:
+            return jsonify({'success': False, 'message': 'Brak ID sesji'})
+
+        if not job_title:
+            return jsonify({
+                'success': False,
+                'message': 'Nazwa stanowiska jest wymagana'
+            })
+
+        # Pobierz CV z bazy danych
+        cv_upload = CVUpload.query.filter_by(session_id=session_id,
+                                             user_id=current_user.id).first()
+        if not cv_upload:
+            return jsonify({
+                'success': False,
+                'message': 'Nie znaleziono przesłanego CV'
+            })
+
+        # Sprawdź czy użytkownik ma dostęp premium
+        is_premium = current_user.is_premium_active()
+
+        # Generuj pytania na rozmowę
+        from utils.openrouter_api import generate_interview_questions
+        result = generate_interview_questions(cv_text=cv_upload.original_text,
+                                            job_title=job_title,
+                                            job_description=job_description,
+                                            is_premium=is_premium)
+
+        if not result or not result.get('success'):
+            return jsonify({
+                'success':
+                False,
+                'message':
+                'Nie udało się wygenerować pytań na rozmowę'
+            })
+
+        # Zapisz pytania w bazie danych
+        questions_session_id = str(uuid.uuid4())
+        new_questions = InterviewQuestions()
+        new_questions.user_id = current_user.id
+        new_questions.cv_upload_id = cv_upload.id
+        new_questions.session_id = questions_session_id
+        new_questions.job_title = job_title
+        new_questions.job_description = job_description
+        new_questions.questions_content = result['questions']
+        new_questions.generated_at = datetime.utcnow()
+
+        db.session.add(new_questions)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'questions': result['questions'],
+            'questions_session_id': questions_session_id,
+            'message': 'Pytania na rozmowę zostały wygenerowane pomyślnie'
+        })
+
+    except Exception as e:
+        logger.error(f"Error in generate_interview_questions_route: {str(e)}")
+        error_message = "Wystąpił błąd podczas generowania pytań na rozmowę"
+        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+            error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć opis stanowiska."
+        elif "connection" in str(e).lower():
+            error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
+        return jsonify({
+            'success': False,
+            'message': error_message
+        })
+
+
+@app.route('/analyze-skills-gap', methods=['POST'])
+@login_required
+def analyze_skills_gap_route():
+    """Analizuje luki kompetencyjne między CV a wymaganiami stanowiska"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        job_title = data.get('job_title', '').strip()
+        job_description = data.get('job_description', '').strip()
+
+        if not session_id:
+            return jsonify({'success': False, 'message': 'Brak ID sesji'})
+
+        if not job_title:
+            return jsonify({
+                'success': False,
+                'message': 'Nazwa stanowiska jest wymagana'
+            })
+
+        # Pobierz CV z bazy danych
+        cv_upload = CVUpload.query.filter_by(session_id=session_id,
+                                             user_id=current_user.id).first()
+        if not cv_upload:
+            return jsonify({
+                'success': False,
+                'message': 'Nie znaleziono przesłanego CV'
+            })
+
+        # Sprawdź czy użytkownik ma dostęp premium
+        is_premium = current_user.is_premium_active()
+
+        # Analizuj luki kompetencyjne
+        from utils.openrouter_api import analyze_skills_gap
+        result = analyze_skills_gap(cv_text=cv_upload.original_text,
+                                  job_title=job_title,
+                                  job_description=job_description,
+                                  is_premium=is_premium)
+
+        if not result or not result.get('success'):
+            return jsonify({
+                'success':
+                False,
+                'message':
+                'Nie udało się przeanalizować luk kompetencyjnych'
+            })
+
+        # Zapisz analizę w bazie danych
+        analysis_session_id = str(uuid.uuid4())
+        new_analysis = SkillsGapAnalysis()
+        new_analysis.user_id = current_user.id
+        new_analysis.cv_upload_id = cv_upload.id
+        new_analysis.session_id = analysis_session_id
+        new_analysis.job_title = job_title
+        new_analysis.job_description = job_description
+        new_analysis.analysis_content = result['analysis']
+        new_analysis.analyzed_at = datetime.utcnow()
+
+        db.session.add(new_analysis)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'analysis': result['analysis'],
+            'analysis_session_id': analysis_session_id,
+            'message': 'Analiza luk kompetencyjnych została ukończona pomyślnie'
+        })
+
+    except Exception as e:
+        logger.error(f"Error in analyze_skills_gap_route: {str(e)}")
+        error_message = "Wystąpił błąd podczas analizy luk kompetencyjnych"
+        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+            error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć opis stanowiska."
+        elif "connection" in str(e).lower():
+            error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
+        return jsonify({
+            'success': False,
+            'message': error_message
+        })
+
+
 @app.route('/optimize-cv', methods=['POST'])
 @login_required
 def optimize_cv_route():
@@ -675,6 +835,30 @@ def view_cover_letter(session_id):
     cv_upload = CVUpload.query.get(cover_letter.cv_upload_id)
     return render_template('cover_letter.html',
                            cover_letter=cover_letter,
+                           cv_upload=cv_upload)
+
+
+@app.route('/interview-questions/<session_id>')
+@login_required
+def view_interview_questions(session_id):
+    """Wyświetl wygenerowane pytania na rozmowę kwalifikacyjną"""
+    questions = InterviewQuestions.query.filter_by(
+        session_id=session_id, user_id=current_user.id).first_or_404()
+    cv_upload = CVUpload.query.get(questions.cv_upload_id)
+    return render_template('interview_questions.html',
+                           questions=questions,
+                           cv_upload=cv_upload)
+
+
+@app.route('/skills-gap-analysis/<session_id>')
+@login_required
+def view_skills_gap_analysis(session_id):
+    """Wyświetl analizę luk kompetencyjnych"""
+    analysis = SkillsGapAnalysis.query.filter_by(
+        session_id=session_id, user_id=current_user.id).first_or_404()
+    cv_upload = CVUpload.query.get(analysis.cv_upload_id)
+    return render_template('skills_gap_analysis.html',
+                           analysis=analysis,
                            cv_upload=cv_upload)
 
 

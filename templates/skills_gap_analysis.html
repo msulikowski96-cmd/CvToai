@@ -1,0 +1,111 @@
+
+{% extends "base.html" %}
+
+{% block title %}Analiza luk kompetencyjnych - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">🔍 Analiza luk kompetencyjnych</h1>
+                    <p class="text-muted mb-0">
+                        Stanowisko: <strong>{{ analysis.job_title }}</strong>
+                    </p>
+                </div>
+                <a href="{{ url_for('result', session_id=cv_upload.session_id) }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Powrót do wyników
+                </a>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Data analizy</small>
+                            <p class="mb-0 fw-medium">{{ analysis.analyzed_at.strftime('%d.%m.%Y o %H:%M') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Stanowisko</small>
+                            <p class="mb-0 fw-medium">{{ analysis.job_title }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Content -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-graph-up"></i> Szczegółowa analiza</h5>
+                </div>
+                <div class="card-body">
+                    {% if analysis.analysis_content %}
+                        <div class="analysis-content">
+                            {{ analysis.analysis_content | safe | replace('\n', '<br>') }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Analiza nie została jeszcze przeprowadzona.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-4 text-center">
+                <button class="btn btn-primary me-2" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Drukuj
+                </button>
+                <button class="btn btn-outline-primary" onclick="copyToClipboard()">
+                    <i class="bi bi-clipboard"></i> Kopiuj do schowka
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const content = document.querySelector('.analysis-content').innerText;
+    navigator.clipboard.writeText(content).then(() => {
+        alert('Analiza została skopiowana do schowka!');
+    });
+}
+</script>
+
+<style>
+.analysis-content {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.analysis-content h3,
+.analysis-content h4 {
+    color: #333;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.analysis-content ul,
+.analysis-content ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+@media print {
+    .btn, .card-header {
+        display: none !important;
+    }
+    .analysis-content {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+}
+</style>
+{% endblock %}
