@@ -96,6 +96,7 @@ ALLOWED_EXTENSIONS = {'pdf'}
 # Stripe configuration
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
 # Cennik
 PRICING = {
@@ -1255,7 +1256,7 @@ def stripe_webhook():
     
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, os.environ.get('STRIPE_WEBHOOK_SECRET')
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
         )
     except ValueError:
         logger.error("Invalid payload")
