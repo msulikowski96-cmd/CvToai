@@ -1,0 +1,248 @@
+
+{% extends "base.html" %}
+
+{% block title %}Cennik - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="text-center mb-5">
+                <h1 class="display-4 text-primary">Cennik</h1>
+                <p class="lead">Wybierz plan dopasowany do Twoich potrzeb</p>
+            </div>
+
+            <!-- Status płatności użytkownika -->
+            {% if user_status.type != 'free' %}
+            <div class="alert alert-success text-center mb-4">
+                <h5 class="mb-2">
+                    <i class="fas fa-check-circle"></i> 
+                    {% if user_status.type == 'subscription' %}
+                        Masz aktywną subskrypcję: {{ user_status.plan }}
+                    {% elif user_status.type == 'single' %}
+                        Pozostało optymalizacji CV: {{ user_status.optimizations_left }}
+                    {% elif user_status.type == 'developer' %}
+                        Konto deweloperskie - pełny dostęp
+                    {% endif %}
+                </h5>
+                {% if user_status.expires %}
+                <p class="mb-0">Wygasa: {{ user_status.expires.strftime('%d.%m.%Y') }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="row">
+                <!-- Jednorazowa optymalizacja CV -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h3>Jednorazowa optymalizacja CV</h3>
+                            <h2 class="display-4 font-weight-bold">19 zł</h2>
+                            <p class="mb-0">Płatność jednorazowa</p>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-4">
+                                <h5>Co otrzymasz:</h5>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success"></i> Optymalizacja 1 CV</li>
+                                    <li><i class="fas fa-check text-success"></i> Dostosowanie do oferty pracy</li>
+                                    <li><i class="fas fa-check text-success"></i> Analiza i ocena CV</li>
+                                    <li><i class="fas fa-check text-success"></i> Lepsze słowa kluczowe</li>
+                                    <li><i class="fas fa-check text-success"></i> Optymalizacja pod ATS</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6 class="text-muted">BRAK dostępu do:</h6>
+                                <ul class="list-unstyled text-muted">
+                                    <li><i class="fas fa-times"></i> Listów motywacyjnych</li>
+                                    <li><i class="fas fa-times"></i> Pytań rekrutacyjnych</li>
+                                    <li><i class="fas fa-times"></i> Analizy luk kompetencyjnych</li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-auto">
+                                {% if user_status.type == 'free' %}
+                                <button class="btn btn-primary btn-lg btn-block" onclick="startPayment('single_cv')">
+                                    <i class="fas fa-shopping-cart"></i> Kup teraz
+                                </button>
+                                {% elif user_status.type == 'single' %}
+                                <button class="btn btn-secondary btn-lg btn-block" disabled>
+                                    Masz już zakupione
+                                </button>
+                                {% elif user_status.type == 'subscription' %}
+                                <button class="btn btn-success btn-lg btn-block" disabled>
+                                    <i class="fas fa-check"></i> Masz lepszy plan
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pełny pakiet miesięczny -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 border-success position-relative">
+                        <div class="badge badge-success position-absolute" style="top: -10px; right: 15px;">
+                            POLECANE
+                        </div>
+                        <div class="card-header bg-success text-white text-center">
+                            <h3>Pełny pakiet miesięczny</h3>
+                            <h2 class="display-4 font-weight-bold">49 zł</h2>
+                            <p class="mb-0">miesięcznie</p>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-4">
+                                <h5>Wszystko z planu podstawowego PLUS:</h5>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success"></i> <strong>Nielimitowane optymalizacje CV</strong></li>
+                                    <li><i class="fas fa-check text-success"></i> <strong>Generowanie listów motywacyjnych</strong></li>
+                                    <li><i class="fas fa-check text-success"></i> <strong>Pytania rekrutacyjne</strong></li>
+                                    <li><i class="fas fa-check text-success"></i> <strong>Analiza luk kompetencyjnych</strong></li>
+                                    <li><i class="fas fa-check text-success"></i> Priorytetowe wsparcie</li>
+                                    <li><i class="fas fa-check text-success"></i> Dostęp do nowych funkcji</li>
+                                </ul>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="alert alert-info">
+                                    <small>
+                                        <i class="fas fa-info-circle"></i> 
+                                        Anuluj w dowolnym momencie. Bez ukrytych opłat.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto">
+                                {% if user_status.type in ['free', 'single'] %}
+                                <button class="btn btn-success btn-lg btn-block" onclick="startPayment('monthly_package')">
+                                    <i class="fas fa-rocket"></i> Rozpocznij subskrypcję
+                                </button>
+                                {% elif user_status.type == 'subscription' %}
+                                <button class="btn btn-secondary btn-lg btn-block" disabled>
+                                    <i class="fas fa-check"></i> Aktywna subskrypcja
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dodatkowe informacje -->
+            <div class="row mt-5">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-shield-alt text-success"></i>
+                                Bezpieczne płatności
+                            </h5>
+                            <p class="card-text">
+                                Wszystkie płatności są przetwarzane przez Stripe - jeden z najbezpieczniejszych 
+                                systemów płatności na świecie. Akceptujemy karty kredytowe, BLIK i przelewy P24.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <h4 class="text-center mb-4">Często zadawane pytania</h4>
+                    
+                    <div class="accordion" id="faqAccordion">
+                        <div class="card">
+                            <div class="card-header" id="faq1">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse1">
+                                        Czy mogę anulować subskrypcję w dowolnym momencie?
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapse1" class="collapse" data-parent="#faqAccordion">
+                                <div class="card-body">
+                                    Tak, możesz anulować subskrypcję w dowolnym momencie z poziomu swojego profilu. 
+                                    Dostęp do funkcji premium pozostanie aktywny do końca opłaconego okresu.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header" id="faq2">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse2">
+                                        Czy jednorazowa płatność za CV wygasa?
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapse2" class="collapse" data-parent="#faqAccordion">
+                                <div class="card-body">
+                                    Nie, jednorazowa płatność za optymalizację CV nie wygasa. 
+                                    Możesz zoptymalizować jedno CV gdy tylko chcesz.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header" id="faq3">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse3">
+                                        Jakie metody płatności akceptujecie?
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapse3" class="collapse" data-parent="#faqAccordion">
+                                <div class="card-body">
+                                    Akceptujemy karty kredytowe i debetowe (Visa, Mastercard), 
+                                    BLIK oraz przelewy przez Przelewy24.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+function startPayment(paymentType) {
+    // Pokaż loading
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Przekierowywanie...';
+    button.disabled = true;
+
+    fetch('/create-checkout-session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            payment_type: paymentType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+        } else {
+            alert('Wystąpił błąd: ' + (data.error || 'Nieznany błąd'));
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Wystąpił błąd podczas inicjowania płatności');
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+</script>
+{% endblock %}

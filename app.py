@@ -11,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from sqlalchemy import or_
+import stripe
 
 # Force UTF-8 encoding
 os.environ['PYTHONIOENCODING'] = 'utf-8'
@@ -92,6 +93,26 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf'}
 
+# Stripe configuration
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+
+# Cennik
+PRICING = {
+    'single_cv': {
+        'price': 1900,  # 19 zł w groszach
+        'currency': 'PLN',
+        'name': 'Jednorazowa optymalizacja CV',
+        'description': 'Optymalizacja jednego CV bez dodatkowych funkcji'
+    },
+    'monthly_package': {
+        'price': 4900,  # 49 zł w groszach  
+        'currency': 'PLN',
+        'name': 'Pełny pakiet miesięczny',
+        'description': 'CV + list motywacyjny + pytania + analiza luk kompetencyjnych'
+    }
+}
+
 # Ensure upload directory exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -126,7 +147,84 @@ class User(UserMixin, db.Model):
     def is_premium_active(self):
         if self.is_developer():
             return True
+        
+        # Sprawdź aktywną subskrypcję
+        active_subscription = Subscription.query.filter_by(
+            user_id=self.id, 
+            status='active'
+        ).first()
+        
+        if active_subscription and active_subscription.is_active():
+            return True
+            
         return self.premium_until and datetime.utcnow() < self.premium_until
+
+    def can_optimize_cv(self):
+        """Sprawdza czy użytkownik może optymalizować CV"""
+        if self.is_developer():
+            return True
+            
+        # Sprawdź aktywną subskrypcję (pełny pakiet)
+        if self.is_premium_active():
+            return True
+            
+        # Sprawdź jednorazowe płatności
+        single_payment = SinglePayment.query.filter_by(user_id=self.id).filter(
+            SinglePayment.cv_optimizations_used < SinglePayment.cv_optimizations_limit
+        ).first()
+        
+        return single_payment is not None
+
+    def can_use_full_features(self):
+        """Sprawdza czy użytkownik ma dostęp do pełnych funkcji (list motywacyjny, pytania, analiza)"""
+        if self.is_developer():
+            return True
+            
+        # Tylko subskrybenci mają dostęp do pełnych funkcji
+        return self.is_premium_active()
+
+    def use_cv_optimization(self):
+        """Używa jedną optymalizację CV z jednorazowej płatności"""
+        single_payment = SinglePayment.query.filter_by(user_id=self.id).filter(
+            SinglePayment.cv_optimizations_used < SinglePayment.cv_optimizations_limit
+        ).first()
+        
+        if single_payment:
+            return single_payment.use_optimization()
+        return False
+
+    def get_payment_status(self):
+        """Zwraca status płatności użytkownika"""
+        if self.is_developer():
+            return {'type': 'developer', 'status': 'active'}
+            
+        # Sprawdź subskrypcję
+        subscription = Subscription.query.filter_by(
+            user_id=self.id, 
+            status='active'
+        ).first()
+        
+        if subscription and subscription.is_active():
+            return {
+                'type': 'subscription',
+                'status': 'active',
+                'expires': subscription.current_period_end,
+                'plan': subscription.plan_type
+            }
+            
+        # Sprawdź jednorazowe płatności
+        single_payment = SinglePayment.query.filter_by(user_id=self.id).filter(
+            SinglePayment.cv_optimizations_used < SinglePayment.cv_optimizations_limit
+        ).first()
+        
+        if single_payment:
+            return {
+                'type': 'single',
+                'status': 'active',
+                'optimizations_left': single_payment.cv_optimizations_limit - single_payment.cv_optimizations_used
+            }
+            
+        return {'type': 'free', 'status': 'inactive'}
 
     def is_developer(self):
         return self.username == 'developer'
@@ -263,6 +361,78 @@ class SkillsGapAnalysis(db.Model):
 
     def __repr__(self):
         return f'<SkillsGapAnalysis {self.job_title}>'
+
+
+class StripePayment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    stripe_payment_intent_id = db.Column(db.String(200), unique=True, nullable=False)
+    stripe_session_id = db.Column(db.String(200), unique=True, nullable=True)
+    amount = db.Column(db.Integer, nullable=False)  # kwota w groszach
+    currency = db.Column(db.String(3), default='PLN')
+    payment_type = db.Column(db.String(50), nullable=False)  # 'single_cv' lub 'monthly_package'
+    status = db.Column(db.String(50), default='pending')  # pending, completed, failed, refunded
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relacja do użytkownika
+    user = db.relationship('User', backref=db.backref('payments', lazy=True))
+
+    def __repr__(self):
+        return f'<StripePayment {self.payment_type}: {self.amount/100} {self.currency}>'
+
+
+class Subscription(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    stripe_subscription_id = db.Column(db.String(200), unique=True, nullable=False)
+    stripe_customer_id = db.Column(db.String(200), nullable=False)
+    status = db.Column(db.String(50), nullable=False)  # active, canceled, past_due, etc.
+    plan_type = db.Column(db.String(50), default='monthly_package')
+    amount = db.Column(db.Integer, nullable=False)  # 4900 (49 zł)
+    currency = db.Column(db.String(3), default='PLN')
+    current_period_start = db.Column(db.DateTime, nullable=False)
+    current_period_end = db.Column(db.DateTime, nullable=False)
+    cancel_at_period_end = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relacja do użytkownika
+    user = db.relationship('User', backref=db.backref('subscriptions', lazy=True))
+
+    def is_active(self):
+        return (self.status == 'active' and 
+                datetime.utcnow() < self.current_period_end)
+
+    def __repr__(self):
+        return f'<Subscription {self.plan_type}: {self.status}>'
+
+
+class SinglePayment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    payment_id = db.Column(db.Integer, db.ForeignKey('stripe_payment.id'), nullable=False)
+    cv_optimizations_used = db.Column(db.Integer, default=0)
+    cv_optimizations_limit = db.Column(db.Integer, default=1)  # 1 optymalizacja za 19 zł
+    expires_at = db.Column(db.DateTime, nullable=True)  # Brak wygaśnięcia dla jednorazowej
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relacje
+    user = db.relationship('User', backref=db.backref('single_payments', lazy=True))
+    payment = db.relationship('StripePayment', backref=db.backref('single_payment', uselist=False))
+
+    def can_optimize_cv(self):
+        return self.cv_optimizations_used < self.cv_optimizations_limit
+
+    def use_optimization(self):
+        if self.can_optimize_cv():
+            self.cv_optimizations_used += 1
+            db.session.commit()
+            return True
+        return False
+
+    def __repr__(self):
+        return f'<SinglePayment {self.cv_optimizations_used}/{self.cv_optimizations_limit}>'
 
 
 @login_manager.user_loader
@@ -451,6 +621,14 @@ def generate_cover_letter_route():
                 'message': 'Nazwa stanowiska jest wymagana'
             })
 
+        # Sprawdź czy użytkownik ma dostęp do pełnych funkcji
+        if not current_user.can_use_full_features():
+            return jsonify({
+                'success': False,
+                'message': 'List motywacyjny jest dostępny tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
+                'redirect_to_pricing': True
+            })
+
         # Pobierz CV z bazy danych
         cv_upload = CVUpload.query.filter_by(session_id=session_id,
                                              user_id=current_user.id).first()
@@ -537,6 +715,14 @@ def generate_interview_questions_route():
                 'message': 'Nazwa stanowiska jest wymagana'
             })
 
+        # Sprawdź czy użytkownik ma dostęp do pełnych funkcji
+        if not current_user.can_use_full_features():
+            return jsonify({
+                'success': False,
+                'message': 'Pytania na rozmowę są dostępne tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
+                'redirect_to_pricing': True
+            })
+
         # Pobierz CV z bazy danych
         cv_upload = CVUpload.query.filter_by(session_id=session_id,
                                              user_id=current_user.id).first()
@@ -615,6 +801,14 @@ def analyze_skills_gap_route():
             return jsonify({
                 'success': False,
                 'message': 'Nazwa stanowiska jest wymagana'
+            })
+
+        # Sprawdź czy użytkownik ma dostęp do pełnych funkcji
+        if not current_user.can_use_full_features():
+            return jsonify({
+                'success': False,
+                'message': 'Analiza luk kompetencyjnych jest dostępna tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
+                'redirect_to_pricing': True
             })
 
         # Pobierz CV z bazy danych
@@ -696,6 +890,21 @@ def optimize_cv_route():
                 'Sesja wygasła. Proszę przesłać CV ponownie.'
             })
 
+        # Sprawdź czy użytkownik może optymalizować CV
+        if not current_user.can_optimize_cv():
+            payment_status = current_user.get_payment_status()
+            if payment_status['type'] == 'free':
+                return jsonify({
+                    'success': False,
+                    'message': 'Aby optymalizować CV, musisz wykupić jednorazową optymalizację (19 zł) lub pełny pakiet (49 zł/msc).',
+                    'redirect_to_pricing': True
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Wykorzystałeś już dostępne optymalizacje CV.'
+                })
+
         cv_text = cv_upload.original_text
         job_title = cv_upload.job_title
         job_description = cv_upload.job_description
@@ -717,6 +926,10 @@ def optimize_cv_route():
                 'message':
                 'Nie udało się zoptymalizować CV. Spróbuj ponownie.'
             })
+
+        # Użyj optymalizacji (dla jednorazowych płatności)
+        if not current_user.is_premium_active():
+            current_user.use_cv_optimization()
 
         # Store optimized CV in the database
         cv_upload.optimized_cv = optimized_cv
@@ -899,6 +1112,290 @@ def terms_of_service():
 def about():
     """O nas"""
     return render_template('about.html')
+
+
+@app.route('/pricing')
+@login_required 
+def pricing():
+    """Strona z cennikiem"""
+    user_payment_status = current_user.get_payment_status()
+    return render_template('pricing.html', 
+                         pricing=PRICING,
+                         user_status=user_payment_status,
+                         stripe_public_key=STRIPE_PUBLISHABLE_KEY)
+
+
+@app.route('/create-checkout-session', methods=['POST'])
+@login_required
+def create_checkout_session():
+    """Tworzy sesję płatności Stripe"""
+    try:
+        data = request.get_json()
+        payment_type = data.get('payment_type')
+        
+        if payment_type not in PRICING:
+            return jsonify({'error': 'Nieprawidłowy typ płatności'}), 400
+            
+        price_info = PRICING[payment_type]
+        
+        # Sprawdź czy użytkownik już ma aktywną subskrypcję
+        if payment_type == 'monthly_package':
+            existing_subscription = Subscription.query.filter_by(
+                user_id=current_user.id,
+                status='active'
+            ).first()
+            
+            if existing_subscription and existing_subscription.is_active():
+                return jsonify({'error': 'Masz już aktywną subskrypcję'}), 400
+        
+        # Utwórz lub pobierz Stripe customer
+        if not current_user.stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=current_user.email,
+                name=f"{current_user.first_name} {current_user.last_name}",
+                metadata={'user_id': current_user.id}
+            )
+            current_user.stripe_customer_id = customer.id
+            db.session.commit()
+        
+        # Konfiguracja sesji checkout
+        if payment_type == 'single_cv':
+            # Jednorazowa płatność
+            checkout_session = stripe.checkout.Session.create(
+                customer=current_user.stripe_customer_id,
+                payment_method_types=['card', 'blik', 'p24'],
+                line_items=[{
+                    'price_data': {
+                        'currency': price_info['currency'].lower(),
+                        'product_data': {
+                            'name': price_info['name'],
+                            'description': price_info['description'],
+                        },
+                        'unit_amount': price_info['price'],
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=url_for('pricing', _external=True),
+                metadata={
+                    'user_id': current_user.id,
+                    'payment_type': payment_type
+                }
+            )
+        else:
+            # Subskrypcja miesięczna
+            checkout_session = stripe.checkout.Session.create(
+                customer=current_user.stripe_customer_id,
+                payment_method_types=['card', 'blik', 'p24'],
+                line_items=[{
+                    'price_data': {
+                        'currency': price_info['currency'].lower(),
+                        'product_data': {
+                            'name': price_info['name'],
+                            'description': price_info['description'],
+                        },
+                        'unit_amount': price_info['price'],
+                        'recurring': {'interval': 'month'},
+                    },
+                    'quantity': 1,
+                }],
+                mode='subscription',
+                success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=url_for('pricing', _external=True),
+                metadata={
+                    'user_id': current_user.id,
+                    'payment_type': payment_type
+                }
+            )
+        
+        return jsonify({'checkout_url': checkout_session.url})
+        
+    except Exception as e:
+        logger.error(f"Error creating checkout session: {str(e)}")
+        return jsonify({'error': 'Wystąpił błąd podczas tworzenia sesji płatności'}), 500
+
+
+@app.route('/payment-success')
+@login_required
+def payment_success():
+    """Strona sukcesu płatności"""
+    session_id = request.args.get('session_id')
+    
+    if session_id:
+        try:
+            # Pobierz sesję z Stripe
+            checkout_session = stripe.checkout.Session.retrieve(session_id)
+            
+            if checkout_session.payment_status == 'paid':
+                payment_type = checkout_session.metadata.get('payment_type')
+                
+                # Zapisz płatność w bazie danych
+                if payment_type == 'single_cv':
+                    process_single_payment(checkout_session)
+                elif payment_type == 'monthly_package':
+                    process_subscription_payment(checkout_session)
+                
+                flash('Płatność została zrealizowana pomyślnie!', 'success')
+            else:
+                flash('Wystąpił problem z płatnością.', 'error')
+                
+        except Exception as e:
+            logger.error(f"Error processing payment success: {str(e)}")
+            flash('Wystąpił błąd podczas przetwarzania płatności.', 'error')
+    
+    return render_template('payment_success.html')
+
+
+@app.route('/webhook', methods=['POST'])
+def stripe_webhook():
+    """Webhook do obsługi eventów Stripe"""
+    payload = request.get_data(as_text=True)
+    sig_header = request.headers.get('Stripe-Signature')
+    
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, os.environ.get('STRIPE_WEBHOOK_SECRET')
+        )
+    except ValueError:
+        logger.error("Invalid payload")
+        return '', 400
+    except stripe.error.SignatureVerificationError:
+        logger.error("Invalid signature")
+        return '', 400
+
+    # Obsługa eventów
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        handle_checkout_session_completed(session)
+    
+    elif event['type'] == 'invoice.payment_succeeded':
+        invoice = event['data']['object']
+        handle_subscription_payment_succeeded(invoice)
+        
+    elif event['type'] == 'customer.subscription.deleted':
+        subscription = event['data']['object']
+        handle_subscription_deleted(subscription)
+
+    return '', 200
+
+
+def process_single_payment(checkout_session):
+    """Przetwarza jednorazową płatność"""
+    try:
+        # Zapisz płatność
+        payment = StripePayment()
+        payment.user_id = current_user.id
+        payment.stripe_payment_intent_id = checkout_session.payment_intent
+        payment.stripe_session_id = checkout_session.id
+        payment.amount = checkout_session.amount_total
+        payment.currency = checkout_session.currency.upper()
+        payment.payment_type = 'single_cv'
+        payment.status = 'completed'
+        payment.completed_at = datetime.utcnow()
+        
+        db.session.add(payment)
+        db.session.flush()
+        
+        # Utwórz rekord jednorazowej płatności
+        single_payment = SinglePayment()
+        single_payment.user_id = current_user.id
+        single_payment.payment_id = payment.id
+        single_payment.cv_optimizations_used = 0
+        single_payment.cv_optimizations_limit = 1
+        
+        db.session.add(single_payment)
+        db.session.commit()
+        
+        logger.info(f"Single payment processed for user {current_user.id}")
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error processing single payment: {str(e)}")
+
+
+def process_subscription_payment(checkout_session):
+    """Przetwarza płatność subskrypcji"""
+    try:
+        # Pobierz subskrypcję z Stripe
+        stripe_subscription = stripe.Subscription.retrieve(checkout_session.subscription)
+        
+        # Zapisz płatność
+        payment = StripePayment()
+        payment.user_id = current_user.id
+        payment.stripe_payment_intent_id = checkout_session.payment_intent
+        payment.stripe_session_id = checkout_session.id
+        payment.amount = checkout_session.amount_total
+        payment.currency = checkout_session.currency.upper()
+        payment.payment_type = 'monthly_package'
+        payment.status = 'completed'
+        payment.completed_at = datetime.utcnow()
+        
+        db.session.add(payment)
+        
+        # Zapisz subskrypcję
+        subscription = Subscription()
+        subscription.user_id = current_user.id
+        subscription.stripe_subscription_id = stripe_subscription.id
+        subscription.stripe_customer_id = stripe_subscription.customer
+        subscription.status = stripe_subscription.status
+        subscription.plan_type = 'monthly_package'
+        subscription.amount = stripe_subscription.items.data[0].price.unit_amount
+        subscription.currency = stripe_subscription.items.data[0].price.currency.upper()
+        subscription.current_period_start = datetime.fromtimestamp(stripe_subscription.current_period_start)
+        subscription.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
+        
+        db.session.add(subscription)
+        db.session.commit()
+        
+        logger.info(f"Subscription processed for user {current_user.id}")
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error processing subscription: {str(e)}")
+
+
+def handle_checkout_session_completed(session):
+    """Obsługuje zakończoną sesję checkout"""
+    user_id = session['metadata'].get('user_id')
+    payment_type = session['metadata'].get('payment_type')
+    
+    if user_id and payment_type:
+        user = User.query.get(int(user_id))
+        if user:
+            if payment_type == 'single_cv':
+                # Logika już obsłużona w process_single_payment
+                pass
+            elif payment_type == 'monthly_package':
+                # Logika już obsłużona w process_subscription_payment
+                pass
+
+
+def handle_subscription_payment_succeeded(invoice):
+    """Obsługuje udaną płatność subskrypcji"""
+    subscription_id = invoice['subscription']
+    subscription_obj = Subscription.query.filter_by(
+        stripe_subscription_id=subscription_id
+    ).first()
+    
+    if subscription_obj:
+        # Aktualizuj daty subskrypcji
+        stripe_subscription = stripe.Subscription.retrieve(subscription_id)
+        subscription_obj.current_period_start = datetime.fromtimestamp(stripe_subscription.current_period_start)
+        subscription_obj.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
+        subscription_obj.status = stripe_subscription.status
+        db.session.commit()
+
+
+def handle_subscription_deleted(subscription):
+    """Obsługuje usunięcie subskrypcji"""
+    subscription_obj = Subscription.query.filter_by(
+        stripe_subscription_id=subscription['id']
+    ).first()
+    
+    if subscription_obj:
+        subscription_obj.status = 'canceled'
+        db.session.commit()
 
 
 # Error handlers

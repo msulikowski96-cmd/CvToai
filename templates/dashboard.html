@@ -20,12 +20,12 @@
                                     <p class="text-secondary mb-0">Zarządzaj swoimi CV i analizami</p>
                                 </div>
                             </div>
-                            
+
                             <p class="text-lg mb-3">
                                 Witaj ponownie, <span class="text-primary font-weight-semibold">{{ current_user.first_name }}</span>! 
                                 Gotowy na kolejne optymalizacje?
                             </p>
-                            
+
                             <div class="d-flex align-items-center gap-4">
                                 <div class="d-flex align-items-center">
                                     {% if current_user.is_premium_active() %}
@@ -103,6 +103,33 @@
             </div>
         </div>
     </div>
+
+    <!-- Dodano sekcję statusu płatności -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <h1 class="text-primary">Dashboard - {{ current_user.first_name }}</h1>
+            <p class="lead">Witaj w CV Optimizer Pro! Wybierz opcję poniżej, aby rozpocząć.</p>
+
+            <!-- Status płatności -->
+            {% set payment_status = current_user.get_payment_status() %}
+            {% if payment_status.type == 'subscription' %}
+                <div class="alert alert-success">
+                    <i class="fas fa-crown"></i> <strong>Subskrypcja aktywna</strong> - masz dostęp do wszystkich funkcji!
+                </div>
+            {% elif payment_status.type == 'single' %}
+                <div class="alert alert-info">
+                    <i class="fas fa-ticket-alt"></i> Pozostało optymalizacji CV: <strong>{{ payment_status.optimizations_left }}</strong>
+                    <a href="{{ url_for('pricing') }}" class="btn btn-sm btn-outline-primary ml-2">Przejdź na pełny pakiet</a>
+                </div>
+            {% elif payment_status.type == 'free' %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle"></i> Używasz darmowej wersji. 
+                    <a href="{{ url_for('pricing') }}" class="btn btn-sm btn-primary ml-2">Zobacz cennik</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
 
     <!-- Modern Upload Section -->
     <div class="row mb-5">
@@ -185,7 +212,7 @@
                     <div class="progress mb-3" style="height: 12px; border-radius: var(--radius-lg);">
                         <div class="progress-bar" style="background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: var(--radius-lg); width: 0%;"></div>
                     </div>
-                    
+
                     <div class="text-xs text-muted">
                         <i class="bi bi-clock me-1"></i>
                         Czas przetwarzania: zwykle 2-5 minut
@@ -212,7 +239,7 @@
                             </div>
                         </div>
                         <a href="{{ url_for('profile') }}" class="btn btn-secondary">
-                            <i class="bi bi-eye me-2"></i>Zobacz wszystkie
+                            <i class="bi bi-eye me-2"></i> Zobacz wszystkie
                         </a>
                     </div>
                 </div>
@@ -249,7 +276,7 @@
 
                                     <div class="d-grid">
                                         <a href="{{ url_for('result', session_id=cv.session_id) }}" class="btn btn-primary">
-                                            <i class="bi bi-eye me-2"></i>Zobacz rezultaty
+                                            <i class="bi bi-eye me-2"></i> Zobacz rezultaty
                                         </a>
                                     </div>
                                 </div>
@@ -291,29 +318,29 @@
 document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('cv-upload-form');
     const loadingSection = document.getElementById('loading-section');
-    
+
     // Enhanced form submission with modern UX
     uploadForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(uploadForm);
-        
+
         // Validate file
         const fileInput = document.getElementById('cv_file');
         if (!fileInput.files[0]) {
             alert('Proszę wybrać plik CV.');
             return;
         }
-        
+
         if (fileInput.files[0].size > 16 * 1024 * 1024) {
             alert('Plik jest za duży. Maksymalny rozmiar to 16MB.');
             return;
         }
-        
+
         // Show modern loading state
         loadingSection.classList.remove('d-none');
         uploadForm.parentElement.parentElement.style.display = 'none';
-        
+
         // Smooth progress animation
         let progress = 0;
         const progressBar = loadingSection.querySelector('.progress-bar');
@@ -322,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (progress > 90) progress = 90;
             progressBar.style.width = progress + '%';
         }, 800);
-        
+
         // Upload request
         fetch('/upload-cv', {
             method: 'POST',
@@ -332,19 +359,19 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             clearInterval(progressInterval);
             progressBar.style.width = '100%';
-            
+
             setTimeout(() => {
                 if (data.success) {
                     // Success animation
                     loadingSection.querySelector('h4').textContent = 'CV przesłane pomyślnie!';
                     loadingSection.querySelector('p').textContent = 'Przekierowujemy do rezultatów...';
                     loadingSection.querySelector('.spinner').style.display = 'none';
-                    
+
                     // Add success icon
                     const successIcon = document.createElement('div');
                     successIcon.innerHTML = '<i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>';
                     loadingSection.querySelector('.card-body').insertBefore(successIcon, loadingSection.querySelector('h4'));
-                    
+
                     setTimeout(() => {
                         window.location.href = '/result/' + data.session_id;
                     }, 1500);
@@ -363,14 +390,14 @@ document.addEventListener('DOMContentLoaded', function() {
             uploadForm.parentElement.parentElement.style.display = 'block';
         });
     });
-    
+
     // File input enhancement
     const fileInput = document.getElementById('cv_file');
     fileInput.addEventListener('change', function() {
         if (this.files[0]) {
             const fileName = this.files[0].name;
             const fileSize = (this.files[0].size / 1024 / 1024).toFixed(2);
-            
+
             // Create file info display
             let fileInfo = this.parentElement.querySelector('.file-info');
             if (!fileInfo) {
@@ -378,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileInfo.className = 'file-info mt-2 p-2 rounded border';
                 this.parentElement.appendChild(fileInfo);
             }
-            
+
             fileInfo.innerHTML = `
                 <div class="d-flex align-items-center">
                     <i class="bi bi-file-pdf text-danger me-2"></i>
@@ -391,14 +418,14 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
     });
-    
+
     // Add animation to stats cards
     const statsCards = document.querySelectorAll('.card h3');
     const observerOptions = {
         threshold: 0.5,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -408,13 +435,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, observerOptions);
-    
+
     statsCards.forEach(card => {
         if (card.textContent.match(/^\d+/)) {
             observer.observe(card);
         }
     });
-    
+
     function animateNumber(element, target) {
         let current = 0;
         const increment = target / 30;
