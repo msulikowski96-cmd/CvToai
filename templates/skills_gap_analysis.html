@@ -44,8 +44,8 @@
                 </div>
                 <div class="card-body">
                     {% if analysis.analysis_content %}
-                        <div class="analysis-content">
-                            {{ analysis.analysis_content | safe | replace('\n', '<br>') }}
+                        <div class="analysis-content formatted-ai-content">
+                            {{ analysis.analysis_content | safe }}
                         </div>
                     {% else %}
                         <div class="alert alert-warning">
@@ -76,20 +76,203 @@ function copyToClipboard() {
         alert('Analiza została skopiowana do schowka!');
     });
 }
+
+// Format AI content for better readability
+document.addEventListener('DOMContentLoaded', function() {
+    const content = document.querySelector('.formatted-ai-content');
+    if (content) {
+        let text = content.innerHTML;
+        
+        // Format headers
+        text = text.replace(/### (.*?)(?=\n|$)/g, '<h3>$1</h3>');
+        text = text.replace(/#### (.*?)(?=\n|$)/g, '<h4>$1</h4>');
+        text = text.replace(/## (.*?)(?=\n|$)/g, '<h2>$1</h2>');
+        text = text.replace(/# (.*?)(?=\n|$)/g, '<h1>$1</h1>');
+        
+        // Format special elements
+        text = text.replace(/✅ (.*?)(?=\n|$)/g, '<div class="success-item">✅ $1</div>');
+        text = text.replace(/❌ (.*?)(?=\n|$)/g, '<div class="error-item">❌ $1</div>');
+        text = text.replace(/🎓 (.*?)(?=\n|$)/g, '<div class="info-item">🎓 $1</div>');
+        text = text.replace(/🔥 (.*?)(?=\n|$)/g, '<div class="warning-item">🔥 $1</div>');
+        text = text.replace(/🔸 (.*?)(?=\n|$)/g, '<div class="medium-priority">🔸 $1</div>');
+        text = text.replace(/🔹 (.*?)(?=\n|$)/g, '<div class="low-priority">🔹 $1</div>');
+        
+        // Format percentages
+        text = text.replace(/(\d+)% dopasowania/g, '<span class="percentage">$1% dopasowania</span>');
+        
+        // Format numbered lists
+        text = text.replace(/(\d+\.\s)(.*?)(?=\n|$)/g, '<li>$2</li>');
+        
+        // Format bold text
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Format line breaks
+        text = text.replace(/\n\n/g, '</p><p>');
+        text = text.replace(/\n/g, '<br>');
+        
+        // Wrap in paragraphs
+        if (!text.startsWith('<h') && !text.startsWith('<p>')) {
+            text = '<p>' + text + '</p>';
+        }
+        
+        content.innerHTML = text;
+    }
+});
 </script>
 
 <style>
-.analysis-content {
-    white-space: pre-wrap;
-    line-height: 1.6;
-    font-size: 0.95rem;
+.formatted-ai-content {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.7;
+    font-size: 1rem;
+    color: var(--text-primary);
 }
 
-.analysis-content h3,
-.analysis-content h4 {
-    color: #333;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
+.formatted-ai-content h1,
+.formatted-ai-content h2,
+.formatted-ai-content h3 {
+    color: var(--primary);
+    font-weight: 600;
+    margin: 1.5rem 0 1rem 0;
+    border-bottom: 2px solid var(--border-primary);
+    padding-bottom: 0.5rem;
+}
+
+.formatted-ai-content h4 {
+    color: var(--secondary);
+    font-weight: 600;
+    margin: 1.25rem 0 0.75rem 0;
+    font-size: 1.1rem;
+}
+
+.formatted-ai-content p {
+    margin: 0.75rem 0;
+    text-align: justify;
+}
+
+.formatted-ai-content ol,
+.formatted-ai-content ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.formatted-ai-content li {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+.formatted-ai-content strong {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.formatted-ai-content .success {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.formatted-ai-content .warning {
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.formatted-ai-content .error {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.formatted-ai-content .info {
+    color: var(--info);
+    font-weight: 600;
+}
+
+.formatted-ai-content code {
+    background: var(--bg-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.9rem;
+}
+
+.formatted-ai-content blockquote {
+    border-left: 4px solid var(--primary);
+    margin: 1rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    font-style: italic;
+}
+
+.formatted-ai-content .percentage {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    background: linear-gradient(120deg, rgba(var(--primary-rgb), 0.1) 0%, transparent 100%);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-md);
+    display: inline-block;
+    margin: 0.5rem 0;
+}
+
+.success-item {
+    color: var(--success);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--success);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(5, 150, 105, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.error-item {
+    color: var(--danger);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--danger);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(220, 38, 38, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.info-item {
+    color: var(--info);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--info);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.warning-item {
+    color: var(--warning);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--warning);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(217, 119, 6, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-weight: 600;
+}
+
+.medium-priority {
+    color: var(--secondary);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--secondary);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(107, 114, 128, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.low-priority {
+    color: var(--muted);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--muted);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(156, 163, 175, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .analysis-content ul,

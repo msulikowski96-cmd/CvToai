@@ -44,8 +44,8 @@
                 </div>
                 <div class="card-body">
                     {% if questions.questions_content %}
-                        <div class="questions-content">
-                            {{ questions.questions_content | safe | replace('\n', '<br>') }}
+                        <div class="questions-content formatted-ai-content">
+                            {{ questions.questions_content | safe }}
                         </div>
                     {% else %}
                         <div class="alert alert-warning">
@@ -76,13 +76,107 @@ function copyToClipboard() {
         alert('Pytania zostały skopiowane do schowka!');
     });
 }
+
+// Format AI content for better readability
+document.addEventListener('DOMContentLoaded', function() {
+    const content = document.querySelector('.formatted-ai-content');
+    if (content) {
+        let text = content.innerHTML;
+        
+        // Format headers with ### to h3, #### to h4, etc.
+        text = text.replace(/### (.*?)(?=\n|$)/g, '<h3>$1</h3>');
+        text = text.replace(/#### (.*?)(?=\n|$)/g, '<h4>$1</h4>');
+        text = text.replace(/## (.*?)(?=\n|$)/g, '<h2>$1</h2>');
+        text = text.replace(/# (.*?)(?=\n|$)/g, '<h1>$1</h1>');
+        
+        // Format numbered lists
+        text = text.replace(/(\d+\.\s\*\*)(.*?)(\*\*)(.*?)(?=\n|$)/g, '<li><strong>$2</strong>$4</li>');
+        text = text.replace(/(\d+\.\s)(.*?)(?=\n|$)/g, '<li>$2</li>');
+        
+        // Format bold text
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Format line breaks
+        text = text.replace(/\n\n/g, '</p><p>');
+        text = text.replace(/\n/g, '<br>');
+        
+        // Wrap in paragraphs
+        if (!text.startsWith('<h') && !text.startsWith('<p>')) {
+            text = '<p>' + text + '</p>';
+        }
+        
+        content.innerHTML = text;
+    }
+});
 </script>
 
 <style>
-.questions-content {
-    white-space: pre-wrap;
+.formatted-ai-content {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.7;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.formatted-ai-content h1,
+.formatted-ai-content h2,
+.formatted-ai-content h3 {
+    color: var(--primary);
+    font-weight: 600;
+    margin: 1.5rem 0 1rem 0;
+    border-bottom: 2px solid var(--border-primary);
+    padding-bottom: 0.5rem;
+}
+
+.formatted-ai-content h4 {
+    color: var(--secondary);
+    font-weight: 600;
+    margin: 1.25rem 0 0.75rem 0;
+    font-size: 1.1rem;
+}
+
+.formatted-ai-content p {
+    margin: 0.75rem 0;
+    text-align: justify;
+}
+
+.formatted-ai-content ol,
+.formatted-ai-content ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.formatted-ai-content li {
+    margin: 0.5rem 0;
     line-height: 1.6;
-    font-size: 0.95rem;
+}
+
+.formatted-ai-content strong {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.formatted-ai-content code {
+    background: var(--bg-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.9rem;
+}
+
+.formatted-ai-content blockquote {
+    border-left: 4px solid var(--primary);
+    margin: 1rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    font-style: italic;
+}
+
+.formatted-ai-content .highlight {
+    background: linear-gradient(120deg, rgba(var(--primary-rgb), 0.1) 0%, transparent 100%);
+    padding: 0.125rem 0.25rem;
+    border-radius: var(--radius-sm);
 }
 
 @media print {
