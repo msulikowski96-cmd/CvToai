@@ -1,245 +1,239 @@
 <!doctype html>
 <html lang="pl">
-    <head>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7717242133259434"
-     crossorigin="anonymous"></script>
-        <meta charset="UTF-8" />
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{% block title %}CV Optimizer Pro{% endblock %}</title>
-
-        <!-- Google Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-            rel="stylesheet"
-        />
-
-        <!-- Bootstrap CSS -->
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-        />
-        <!-- Bootstrap Icons -->
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
-            rel="stylesheet"
-        />
-        <!-- Custom CSS -->
-        <link
-            href="{{ url_for('static', filename='css/custom.css') }}"
-            rel="stylesheet"
-        />
-
-        <!-- PWA Meta tags -->
-        <meta name="theme-color" content="#1e3a8a" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta
-            name="apple-mobile-web-app-status-bar-style"
-            content="black-translucent"
-        />
-        <meta name="apple-mobile-web-app-title" content="CV Optimizer Pro" />
-        <link
-            rel="manifest"
-            href="{{ url_for('static', filename='manifest.json') }}"
-        />
-
-        <!-- Favicon -->
-        <link
-            rel="apple-touch-icon"
-            sizes="180x180"
-            href="{{ url_for('static', filename='icon-192.png') }}"
-        />
-        <link
-            rel="icon"
-            type="image/png"
-            sizes="32x32"
-            href="{{ url_for('static', filename='icon-192.png') }}"
-        />
-        <link
-            rel="icon"
-            type="image/png"
-            sizes="16x16"
-            href="{{ url_for('static', filename='icon-192.png') }}"
-        />
-    </head>
-    <body class="bg-dark text-white" style="font-family: var(--font-body)">
-        <!-- Modern Professional Navigation -->
-        <nav
-            class="navbar navbar-expand-lg navbar-dark fixed-top modern-navbar"
-        >
-            <div class="container">
-                <a class="navbar-brand" href="{{ url_for('index') }}">
-                    <div class="brand-logo">
-                        <svg
-                            width="32"
-                            height="32"
-                            viewBox="0 0 32 32"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <rect
-                                width="32"
-                                height="32"
-                                rx="8"
-                                fill="url(#brandGradient)"
-                            />
-                            <path
-                                d="M8 12h16M8 16h12M8 20h14"
-                                stroke="white"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                            />
-                            <defs>
-                                <linearGradient
-                                    id="brandGradient"
-                                    x1="0"
-                                    y1="0"
-                                    x2="32"
-                                    y2="32"
-                                    gradientUnits="userSpaceOnUse"
-                                >
-                                    <stop offset="0%" stop-color="#1e40af" />
-                                    <stop offset="100%" stop-color="#3730a3" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <span class="brand-text">CV Optimizer Pro</span>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CV Optimizer Pro{% endblock %}</title>
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts - Inter for ultra-modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom Ultra-Modern CSS -->
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0066FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CV Optimizer Pro">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Profesjonalne optymalizowanie CV przez AI. Zwiększ swoje szanse na wymarzoną pracę z CV Optimizer Pro.">
+    <meta name="keywords" content="CV, optymalizacja, AI, praca, kariera, rekrutacja">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icon-192.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icon-192.png') }}">
+</head>
+<body>
+    <!-- Ultra-Modern Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <!-- Brand Logo -->
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <div class="brand-logo">
+                    <div class="brand-icon">
+                        <i class="bi bi-file-earmark-text"></i>
                     </div>
-                </a>
-
-                <button
-                    class="navbar-toggler modern-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav"
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        {% if current_user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a
-                                class="nav-link dropdown-toggle user-dropdown"
-                                href="#"
-                                id="userDropdown"
-                                role="button"
-                                data-bs-toggle="dropdown"
-                            >
-                                <div class="user-avatar">
-                                    <span
-                                        >{{ current_user.first_name[0] if
-                                        current_user.first_name else 'U'
-                                        }}</span
-                                    >
-                                </div>
-                                <span class="user-name"
-                                    >{{ current_user.first_name }}</span
-                                >
+                    <span class="brand-text">CV Optimizer Pro</span>
+                </div>
+            </a>
+            
+            <!-- Mobile Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Navigation Menu -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if current_user.is_authenticated %}
+                        <!-- Dashboard Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
                             </a>
-                            <ul
-                                class="dropdown-menu dropdown-menu-end modern-dropdown"
-                            >
+                        </li>
+                        
+                        <!-- User Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle user-dropdown" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar">
+                                    {{ current_user.first_name[0] if current_user.first_name else 'U' }}
+                                </div>
+                                <span>{{ current_user.first_name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a
-                                        class="dropdown-item"
-                                        href="{{ url_for('dashboard') }}"
-                                        ><i class="bi bi-speedometer2 me-2"></i
-                                        >Dashboard</a
-                                    >
+                                    <a class="dropdown-item" href="{{ url_for('profile') }}">
+                                        <i class="bi bi-person-circle"></i>
+                                        Profil
+                                    </a>
                                 </li>
+                                {% if current_user.is_premium_active() %}
                                 <li>
-                                    <a
-                                        class="dropdown-item"
-                                        href="{{ url_for('profile') }}"
-                                        ><i class="bi bi-person-circle me-2"></i
-                                        >Profil</a
-                                    >
+                                    <span class="dropdown-item text-success">
+                                        <i class="bi bi-star-fill"></i>
+                                        Premium
+                                    </span>
                                 </li>
-                                <li><hr class="dropdown-divider" /></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a
-                                        class="dropdown-item text-danger"
-                                        href="{{ url_for('logout') }}"
-                                        ><i
-                                            class="bi bi-box-arrow-right me-2"
-                                        ></i
-                                        >Wyloguj</a
-                                    >
+                                    <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        Wyloguj
+                                    </a>
                                 </li>
                             </ul>
                         </li>
-                        {% else %}
+                    {% else %}
+                        <!-- Login Link -->
                         <li class="nav-item me-2">
-                            <a
-                                class="nav-link modern-nav-link"
-                                href="{{ url_for('auth.login') }}"
-                            >
-                                <i class="bi bi-box-arrow-in-right me-1"></i
-                                >Zaloguj
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Zaloguj się
                             </a>
                         </li>
+                        
+                        <!-- Register CTA Button -->
                         <li class="nav-item">
-                            <a
-                                class="btn btn-primary modern-cta-btn"
-                                href="{{ url_for('auth.register') }}"
-                            >
-                                <i class="bi bi-person-plus me-1"></i>Rozpocznij
-                                za darmo
+                            <a class="btn btn-primary" href="{{ url_for('auth.register') }}">
+                                <i class="bi bi-person-plus me-1"></i>Rozpocznij za darmo
                             </a>
                         </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash Messages with Modern Styling -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-5 pt-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {% if category == 'success' %}
+                            <i class="bi bi-check-circle-fill"></i>
+                        {% elif category == 'error' or category == 'danger' %}
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        {% elif category == 'warning' %}
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill"></i>
                         {% endif %}
-                    </ul>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Main Content Area -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Modern Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="brand-icon me-3">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">CV Optimizer Pro</h5>
+                            <p class="text-muted mb-0">Profesjonalne optymalizowanie CV przez AI</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-flex gap-3 justify-content-lg-end">
+                        <a href="#" class="text-muted">
+                            <i class="bi bi-envelope"></i>
+                        </a>
+                        <a href="#" class="text-muted">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="text-muted">
+                            <i class="bi bi-twitter"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </nav>
-
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %} {% if
-        messages %}
-        <div class="container mt-5 pt-4">
-            {% for category, message in messages %}
-            <div
-                class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
-                role="alert"
-            >
-                {{ message }}
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                ></button>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">&copy; 2024 CV Optimizer Pro. Wszystkie prawa zastrzeżone.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex gap-4 justify-content-md-end">
+                        <a href="#" class="text-muted">Polityka prywatności</a>
+                        <a href="#" class="text-muted">Regulamin</a>
+                        <a href="#" class="text-muted">Kontakt</a>
+                    </div>
+                </div>
             </div>
-            {% endfor %}
         </div>
-        {% endif %} {% endwith %}
-
-        <!-- Main Content -->
-        <main
-            class="{% if current_user.is_authenticated %}pt-5 mt-4{% else %}pt-5{% endif %}"
-        >
-            {% block content %}{% endblock %}
-        </main>
-
-        <!-- Footer -->
-        <footer class="bg-secondary text-center py-4 mt-5">
-            <div class="container">
-                <p class="mb-0">
-                    &copy; 2024 CV Optimizer Pro. Wszystkie prawa zastrzeżone.
-                </p>
-            </div>
-        </footer>
-
-        <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Custom JS -->
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-        {% block scripts %}{% endblock %}
-    </body>
+    </footer>
+    
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Page-specific JavaScript -->
+    {% block scripts %}{% endblock %}
+    
+    <!-- Modern Loading Enhancement -->
+    <script>
+        // Add smooth loading animation
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.3s ease-in-out';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+            
+            // Add fade-in animation to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.6s ease-out';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 + (index * 100));
+            });
+        });
+        
+        // Enhanced navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+    </script>
+</body>
 </html>
