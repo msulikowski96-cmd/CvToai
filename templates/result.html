@@ -536,8 +536,8 @@ function generateCoverLetter() {
     button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
     const sessionId = '{{ session_id }}';
-    const jobTitle = '{{ cv_upload.job_title }}';
-    const jobDescription = '{{ (cv_upload.job_description or "") }}';
+    const jobTitle = '{{ cv_upload.job_title|replace("'", "\\'") }}';
+    const jobDescription = {{ (cv_upload.job_description or "")|tojson }};
 
     const data = {
         session_id: sessionId,
@@ -593,8 +593,8 @@ function generateInterviewQuestions() {
     button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
     const sessionId = '{{ session_id }}';
-    const jobTitle = '{{ cv_upload.job_title }}';
-    const jobDescription = '{{ (cv_upload.job_description or "") }}';
+    const jobTitle = '{{ cv_upload.job_title|replace("'", "\\'") }}';
+    const jobDescription = {{ (cv_upload.job_description or "")|tojson }};
 
     const data = {
         session_id: sessionId,
@@ -649,8 +649,8 @@ function analyzeSkillsGap() {
     button.innerHTML = '<i class="bi bi-hourglass-split"></i> Analizowanie...';
 
     const sessionId = '{{ session_id }}';
-    const jobTitle = '{{ cv_upload.job_title }}';
-    const jobDescription = '{{ (cv_upload.job_description or "") }}';
+    const jobTitle = '{{ cv_upload.job_title|replace("'", "\\'") }}';
+    const jobDescription = {{ (cv_upload.job_description or "")|tojson }};
     
     const data = {
         session_id: sessionId,
