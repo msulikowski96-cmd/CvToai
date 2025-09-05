@@ -820,10 +820,20 @@ def result(session_id):
     cover_letters = CoverLetter.query.filter_by(
         cv_upload_id=cv_upload.id).all()
 
+    # Pobierz powiązane pytania na rozmowę
+    interview_questions = InterviewQuestions.query.filter_by(
+        cv_upload_id=cv_upload.id).all()
+
+    # Pobierz powiązane analizy luk kompetencyjnych
+    skills_analyses = SkillsGapAnalysis.query.filter_by(
+        cv_upload_id=cv_upload.id).all()
+
     return render_template('result.html',
                            cv_upload=cv_upload,
                            session_id=session_id,
-                           cover_letters=cover_letters)
+                           cover_letters=cover_letters,
+                           interview_questions=interview_questions,
+                           skills_analyses=skills_analyses)
 
 
 @app.route('/cover-letter/<session_id>')

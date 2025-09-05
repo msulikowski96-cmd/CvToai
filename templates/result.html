@@ -362,6 +362,116 @@
                     </div>
                 </div>
                 {% endif %}
+
+                <!-- Interview Questions Section -->
+                {% if interview_questions %}
+                <div class="card modern-card glass-ultra card-3d hover-lift mb-5">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center">
+                            <div class="feature-icon-medium bg-info bg-gradient me-3">
+                                <i class="bi bi-question-circle"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title mb-1 fw-bold">Pytania na rozmowę</h3>
+                                <p class="mb-0 text-muted">Wygenerowane dla tego CV</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+                        <div class="row g-3">
+                            {% for questions in interview_questions %}
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm hover-lift" style="border-radius: 15px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-start mb-3">
+                                            <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-chat-quote text-white"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h5 class="card-title mb-1 fw-bold">{{ questions.job_title }}</h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <small class="text-muted">Utworzony: {{ questions.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ url_for('view_interview_questions', session_id=questions.session_id) }}" 
+                                               class="btn btn-info" style="border-radius: 8px;">
+                                                <i class="bi bi-eye me-1"></i> Zobacz pytania
+                                            </a>
+                                            <button onclick="copyToClipboard('questions-{{ loop.index0 }}')" 
+                                                    class="btn btn-outline-success" style="border-radius: 8px;">
+                                                <i class="bi bi-clipboard me-1"></i>Kopiuj
+                                            </button>
+                                        </div>
+
+                                        <!-- Hidden content for copying -->
+                                        <div id="questions-{{ loop.index0 }}" class="d-none">{{ questions.questions_content }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Skills Gap Analysis Section -->
+                {% if skills_analyses %}
+                <div class="card modern-card glass-ultra card-3d hover-lift mb-5">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center">
+                            <div class="feature-icon-medium bg-danger bg-gradient me-3">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title mb-1 fw-bold">Analizy luk kompetencyjnych</h3>
+                                <p class="mb-0 text-muted">Wygenerowane dla tego CV</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+                        <div class="row g-3">
+                            {% for analysis in skills_analyses %}
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm hover-lift" style="border-radius: 15px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-start mb-3">
+                                            <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-search text-white"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h5 class="card-title mb-1 fw-bold">{{ analysis.job_title }}</h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <small class="text-muted">Utworzony: {{ analysis.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ url_for('view_skills_gap_analysis', session_id=analysis.session_id) }}" 
+                                               class="btn btn-danger" style="border-radius: 8px;">
+                                                <i class="bi bi-eye me-1"></i> Zobacz analizę
+                                            </a>
+                                            <button onclick="copyToClipboard('analysis-{{ loop.index0 }}')" 
+                                                    class="btn btn-outline-success" style="border-radius: 8px;">
+                                                <i class="bi bi-clipboard me-1"></i>Kopiuj
+                                            </button>
+                                        </div>
+
+                                        <!-- Hidden content for copying -->
+                                        <div id="analysis-{{ loop.index0 }}" class="d-none">{{ analysis.analysis_content }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             {% else %}
                 <div class="alert alert-warning">
                     <h4>Brak danych</h4>
@@ -593,7 +703,7 @@ function generateInterviewQuestions() {
     button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
     const sessionId = '{{ session_id }}';
-    const jobTitle = '{{ cv_upload.job_title|replace("'", "\\'") }}';
+    const jobTitle = {{ cv_upload.job_title|tojson }};
     const jobDescription = {{ (cv_upload.job_description or "")|tojson }};
 
     const data = {
@@ -617,8 +727,9 @@ function generateInterviewQuestions() {
             } else {
                 alert('Pytania zostały wygenerowane!');
             }
+            // Przeładuj stronę aby pokazać nowe pytania
             setTimeout(() => {
-                window.open(`/interview-questions/${data.questions_session_id}`, '_blank');
+                location.reload();
             }, 1500);
         } else {
             if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
@@ -649,7 +760,7 @@ function analyzeSkillsGap() {
     button.innerHTML = '<i class="bi bi-hourglass-split"></i> Analizowanie...';
 
     const sessionId = '{{ session_id }}';
-    const jobTitle = '{{ cv_upload.job_title|replace("'", "\\'") }}';
+    const jobTitle = {{ cv_upload.job_title|tojson }};
     const jobDescription = {{ (cv_upload.job_description or "")|tojson }};
     
     const data = {
@@ -661,7 +772,7 @@ function analyzeSkillsGap() {
     fetch('/analyze-skills-gap', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
     })
@@ -673,8 +784,9 @@ function analyzeSkillsGap() {
             } else {
                 alert('Analiza została ukończona!');
             }
+            // Przeładuj stronę aby pokazać nową analizę
             setTimeout(() => {
-                window.location.href = `/skills-gap-analysis/${data.analysis_session_id}`;
+                location.reload();
             }, 1500);
         } else {
             if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
