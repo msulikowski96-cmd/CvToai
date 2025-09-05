@@ -2,7 +2,12 @@
 
 ## Overview
 
-cv Pro is a Progressive Web Application (PWA) that uses artificial intelligence to optimize resumes and cover letters for specific job positions. The application allows users to upload PDF CVs, input job descriptions, and receive AI-powered optimizations to improve their chances in the recruitment process. It features a freemium model with basic free functionality and premium paid features.
+CV Optimizer Pro is a Progressive Web Application (PWA) that uses artificial intelligence to optimize resumes and cover letters for specific job positions. The application allows users to upload PDF CVs, input job descriptions, and receive AI-powered optimizations to improve their chances in the recruitment process. It features a freemium model with basic free functionality and premium paid features.
+
+## Author & Copyright
+
+© 2024 Mateusz Sulikowski. All rights reserved.
+CV Optimizer Pro is proprietary software created and owned by Mateusz Sulikowski.
 
 ## User Preferences
 
@@ -58,6 +63,7 @@ Preferred communication style: Simple, everyday language.
 - **WSGI Server**: Gunicorn for production deployment
 - **Database Drivers**: PostgreSQL adapter with SQLite fallback support
 - **CDN Resources**: Bootstrap CSS/JS, Bootstrap Icons served from CDN
+- **Deployment Platform**: Web hosting with PostgreSQL database support
 
 ### Database Configuration
 - **PostgreSQL**: Primary database with connection pooling and health checks

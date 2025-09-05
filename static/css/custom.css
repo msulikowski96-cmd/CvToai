@@ -5,12 +5,12 @@
     --primary-hover: #0052CC;
     --primary-light: #3385FF;
     --primary-bg: rgba(0, 102, 255, 0.08);
-    
+
     /* Secondary Colors - Contemporary Grays */
     --secondary: #6B7280;
     --secondary-hover: #4B5563;
     --secondary-light: #9CA3AF;
-    
+
     /* Status Colors - Refined Palette */
     --success: #059669;
     --success-light: #10B981;
@@ -20,7 +20,7 @@
     --danger-light: #EF4444;
     --info: #0891B2;
     --info-light: #06B6D4;
-    
+
     /* Background System - Ultra Clean */
     --bg-primary: #FFFFFF;
     --bg-secondary: #F8FAFC;
@@ -28,7 +28,7 @@
     --bg-card: #FFFFFF;
     --bg-overlay: rgba(255, 255, 255, 0.95);
     --bg-glass: rgba(255, 255, 255, 0.8);
-    
+
     /* Text System - Perfect Contrast */
     --text-primary: #0F172A;
     --text-secondary: #475569;
@@ -36,13 +36,13 @@
     --text-muted: #94A3B8;
     --text-light: #CBD5E1;
     --text-inverse: #FFFFFF;
-    
+
     /* Border System - Subtle Definition */
     --border-primary: #E2E8F0;
     --border-secondary: #CBD5E1;
     --border-focus: var(--primary);
     --border-hover: #94A3B8;
-    
+
     /* Shadow System - Depth with Elegance */
     --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
@@ -50,7 +50,7 @@
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     --shadow-focus: 0 0 0 3px rgba(0, 102, 255, 0.12);
-    
+
     /* Radius System - Modern Curvature */
     --radius-xs: 0.25rem;
     --radius-sm: 0.375rem;
@@ -59,7 +59,7 @@
     --radius-xl: 1rem;
     --radius-2xl: 1.25rem;
     --radius-full: 9999px;
-    
+
     /* Spacing System - Harmonious Proportions */
     --space-xs: 0.25rem;
     --space-sm: 0.5rem;
@@ -69,7 +69,7 @@
     --space-2xl: 2.5rem;
     --space-3xl: 3rem;
     --space-4xl: 4rem;
-    
+
     /* Typography System - Perfect Readability */
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --font-weight-normal: 400;
@@ -77,7 +77,7 @@
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
     --font-weight-extrabold: 800;
-    
+
     /* Animation System - Smooth Interactions */
     --transition-fast: 150ms ease-out;
     --transition-normal: 250ms ease-out;
@@ -94,14 +94,14 @@
         --bg-card: #1E293B;
         --bg-overlay: rgba(15, 23, 42, 0.95);
         --bg-glass: rgba(15, 23, 42, 0.8);
-        
+
         --text-primary: #F8FAFC;
         --text-secondary: #CBD5E1;
         --text-tertiary: #94A3B8;
         --text-muted: #64748B;
         --text-light: #475569;
         --text-inverse: #0F172A;
-        
+
         --border-primary: #334155;
         --border-secondary: #475569;
         --border-hover: #64748B;
@@ -701,20 +701,20 @@ footer {
     .hero-title {
         font-size: 2.5rem;
     }
-    
+
     .hero-stats {
         grid-template-columns: 1fr;
         gap: var(--space-lg);
     }
-    
+
     .card-body {
         padding: var(--space-lg);
     }
-    
+
     .container {
         padding: 0 var(--space-md);
     }
-    
+
     main {
         padding-top: 80px;
     }
@@ -724,11 +724,11 @@ footer {
     .hero-title {
         font-size: 2rem;
     }
-    
+
     .hero-description {
         font-size: 1.125rem;
     }
-    
+
     .btn-lg {
         padding: var(--space-md) var(--space-lg);
         font-size: 1rem;
@@ -766,7 +766,7 @@ footer {
     .btn {
         display: none !important;
     }
-    
+
     .card {
         box-shadow: none;
         border: 1px solid #ddd;
@@ -808,4 +808,18 @@ footer {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
+}
+
+/* Author card styles */
+.author-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.author-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.3);
 }
