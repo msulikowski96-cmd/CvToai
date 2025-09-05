@@ -551,10 +551,14 @@ function analyzeCV(sessionId) {
         const customJobTitle = document.getElementById('customJobTitle').value.trim();
         const customJobDescription = document.getElementById('customJobDescription').value.trim();
 
+        const sessionId = '{{ session_id }}';
+        const defaultJobTitle = {{ cv_upload.job_title|tojson|safe }};
+        const defaultJobDescription = {{ (cv_upload.job_description or "")|tojson|safe }};
+        
         const data = {
-            session_id: '{{ session_id }}',
-            job_title: customJobTitle || '{{ cv_upload.job_title }}',
-            job_description: customJobDescription || '{{ cv_upload.job_description or "" }}',
+            session_id: sessionId,
+            job_title: customJobTitle || defaultJobTitle,
+            job_description: customJobDescription || defaultJobDescription,
             company_name: companyName
         };
 
@@ -600,10 +604,14 @@ function analyzeCV(sessionId) {
         button.disabled = true;
         button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
+        const sessionId = '{{ session_id }}';
+        const jobTitle = {{ cv_upload.job_title|tojson|safe }};
+        const jobDescription = {{ (cv_upload.job_description or "")|tojson|safe }};
+        
         const data = {
-            session_id: '{{ session_id }}',
-            job_title: '{{ cv_upload.job_title }}',
-            job_description: '{{ cv_upload.job_description or "" }}'
+            session_id: sessionId,
+            job_title: jobTitle,
+            job_description: jobDescription
         };
 
         fetch('/generate-interview-questions', {
@@ -641,10 +649,14 @@ function analyzeCV(sessionId) {
         button.disabled = true;
         button.innerHTML = '<i class="bi bi-hourglass-split"></i> Analizowanie...';
 
+        const sessionId = '{{ session_id }}';
+        const jobTitle = {{ cv_upload.job_title|tojson|safe }};
+        const jobDescription = {{ (cv_upload.job_description or "")|tojson|safe }};
+        
         const data = {
-            session_id: '{{ session_id }}',
-            job_title: '{{ cv_upload.job_title }}',
-            job_description: '{{ cv_upload.job_description or "" }}'
+            session_id: sessionId,
+            job_title: jobTitle,
+            job_description: jobDescription
         };
 
         fetch('/analyze-skills-gap', {
