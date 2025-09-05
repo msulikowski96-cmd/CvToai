@@ -528,175 +528,174 @@ function analyzeCV(sessionId) {
         `;
     });
 }
-</script>
-<script>
-    function generateCoverLetter() {
-        const button = event.target;
 
-        button.disabled = true;
-        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
+function generateCoverLetter() {
+    const button = event.target;
 
-        const sessionId = '{{ session_id }}';
-        const jobTitle = '{{ cv_upload.job_title }}';
-        const jobDescription = '{{ (cv_upload.job_description or "") }}';
+    button.disabled = true;
+    button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
-        const data = {
-            session_id: sessionId,
-            job_title: jobTitle,
-            job_description: jobDescription,
-            company_name: ''
-        };
+    const sessionId = '{{ session_id }}';
+    const jobTitle = '{{ cv_upload.job_title }}';
+    const jobDescription = '{{ (cv_upload.job_description or "") }}';
 
-        fetch('/generate-cover-letter', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                    CVOptimizer.showToast('success', data.message || 'List motywacyjny został wygenerowany!');
-                } else {
-                    alert('List motywacyjny został wygenerowany!');
-                }
-                setTimeout(() => {
-                    window.open(`/cover-letter/${data.cover_letter_session_id}`, '_blank');
-                }, 1500);
-            } else {
-                if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                    CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas generowania listu');
-                } else {
-                    alert(data.message || 'Wystąpił błąd podczas generowania listu');
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+    const data = {
+        session_id: sessionId,
+        job_title: jobTitle,
+        job_description: jobDescription,
+        company_name: ''
+    };
+
+    fetch('/generate-cover-letter', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
             if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                CVOptimizer.showToast('error', 'Wystąpił błąd podczas generowania listu. Spróbuj ponownie.');
+                CVOptimizer.showToast('success', data.message || 'List motywacyjny został wygenerowany!');
             } else {
-                alert('Wystąpił błąd podczas generowania listu. Spróbuj ponownie.');
+                alert('List motywacyjny został wygenerowany!');
             }
-        })
-        .finally(() => {
-            button.disabled = false;
-            button.innerHTML = '<i class="bi bi-magic"></i> Generuj list';
-        });
-    }
-
-    function generateInterviewQuestions() {
-        const button = event.target;
-
-        button.disabled = true;
-        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
-
-        const sessionId = '{{ session_id }}';
-        const jobTitle = '{{ cv_upload.job_title }}';
-        const jobDescription = '{{ (cv_upload.job_description or "") }}';
-
-        const data = {
-            session_id: sessionId,
-            job_title: jobTitle,
-            job_description: jobDescription
-        };
-
-        fetch('/generate-interview-questions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                    CVOptimizer.showToast('success', data.message || 'Pytania zostały wygenerowane!');
-                } else {
-                    alert('Pytania zostały wygenerowane!');
-                }
-                setTimeout(() => {
-                    window.open(`/interview-questions/${data.questions_session_id}`, '_blank');
-                }, 1500);
-            } else {
-                if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                    CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas generowania pytań');
-                } else {
-                    alert(data.message || 'Wystąpił błąd podczas generowania pytań');
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+            setTimeout(() => {
+                window.open(`/cover-letter/${data.cover_letter_session_id}`, '_blank');
+            }, 1500);
+        } else {
             if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                CVOptimizer.showToast('error', 'Wystąpił błąd podczas generowania pytań. Spróbuj ponownie.');
+                CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas generowania listu');
             } else {
-                alert('Wystąpił błąd podczas generowania pytań. Spróbuj ponownie.');
+                alert(data.message || 'Wystąpił błąd podczas generowania listu');
             }
-        })
-        .finally(() => {
-            button.disabled = false;
-            button.innerHTML = '<i class="bi bi-chat-quote"></i> Generuj pytania';
-        });
-    }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
+            CVOptimizer.showToast('error', 'Wystąpił błąd podczas generowania listu. Spróbuj ponownie.');
+        } else {
+            alert('Wystąpił błąd podczas generowania listu. Spróbuj ponownie.');
+        }
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-magic"></i> Generuj list';
+    });
+}
 
-    function analyzeSkillsGap() {
-        const button = event.target;
+function generateInterviewQuestions() {
+    const button = event.target;
 
-        button.disabled = true;
-        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Analizowanie...';
+    button.disabled = true;
+    button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
-        const sessionId = '{{ session_id }}';
-        const jobTitle = '{{ cv_upload.job_title }}';
-        const jobDescription = '{{ (cv_upload.job_description or "") }}';
-        
-        const data = {
-            session_id: sessionId,
-            job_title: jobTitle,
-            job_description: jobDescription
-        };
+    const sessionId = '{{ session_id }}';
+    const jobTitle = '{{ cv_upload.job_title }}';
+    const jobDescription = '{{ (cv_upload.job_description or "") }}';
 
-        fetch('/analyze-skills-gap', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                    CVOptimizer.showToast('success', data.message || 'Analiza została ukończona!');
-                } else {
-                    alert('Analiza została ukończona!');
-                }
-                setTimeout(() => {
-                    window.location.href = `/skills-gap-analysis/${data.analysis_session_id}`;
-                }, 1500);
-            } else {
-                if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                    CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas analizy');
-                } else {
-                    alert(data.message || 'Wystąpił błąd podczas analizy');
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+    const data = {
+        session_id: sessionId,
+        job_title: jobTitle,
+        job_description: jobDescription
+    };
+
+    fetch('/generate-interview-questions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
             if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
-                CVOptimizer.showToast('error', 'Wystąpił błąd podczas analizy. Spróbuj ponownie.');
+                CVOptimizer.showToast('success', data.message || 'Pytania zostały wygenerowane!');
             } else {
-                alert('Wystąpił błąd podczas analizy. Spróbuj ponownie.');
+                alert('Pytania zostały wygenerowane!');
             }
-        })
-        .finally(() => {
-            button.disabled = false;
-            button.innerHTML = '<i class="bi bi-search"></i> Analizuj luki';
-        });
-    }
+            setTimeout(() => {
+                window.open(`/interview-questions/${data.questions_session_id}`, '_blank');
+            }, 1500);
+        } else {
+            if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
+                CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas generowania pytań');
+            } else {
+                alert(data.message || 'Wystąpił błąd podczas generowania pytań');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
+            CVOptimizer.showToast('error', 'Wystąpił błąd podczas generowania pytań. Spróbuj ponownie.');
+        } else {
+            alert('Wystąpił błąd podczas generowania pytań. Spróbuj ponownie.');
+        }
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-chat-quote"></i> Generuj pytania';
+    });
+}
+
+function analyzeSkillsGap() {
+    const button = event.target;
+
+    button.disabled = true;
+    button.innerHTML = '<i class="bi bi-hourglass-split"></i> Analizowanie...';
+
+    const sessionId = '{{ session_id }}';
+    const jobTitle = '{{ cv_upload.job_title }}';
+    const jobDescription = '{{ (cv_upload.job_description or "") }}';
+    
+    const data = {
+        session_id: sessionId,
+        job_title: jobTitle,
+        job_description: jobDescription
+    };
+
+    fetch('/analyze-skills-gap', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
+                CVOptimizer.showToast('success', data.message || 'Analiza została ukończona!');
+            } else {
+                alert('Analiza została ukończona!');
+            }
+            setTimeout(() => {
+                window.location.href = `/skills-gap-analysis/${data.analysis_session_id}`;
+            }, 1500);
+        } else {
+            if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
+                CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas analizy');
+            } else {
+                alert(data.message || 'Wystąpił błąd podczas analizy');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (typeof CVOptimizer !== 'undefined' && CVOptimizer.showToast) {
+            CVOptimizer.showToast('error', 'Wystąpił błąd podczas analizy. Spróbuj ponownie.');
+        } else {
+            alert('Wystąpił błąd podczas analizy. Spróbuj ponownie.');
+        }
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-search"></i> Analizuj luki';
+    });
+}
 </script>
 {% endblock %}
