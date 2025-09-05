@@ -574,20 +574,20 @@ function analyzeCV(sessionId) {
             if (data.success) {
                 // Close modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('coverLetterModal'));
-                modal.hide();
+                if (modal) modal.hide();
 
                 // Show success message and redirect
-                showAlert('success', data.message);
+                CVOptimizer.showToast('success', data.message || 'List motywacyjny został wygenerowany!');
                 setTimeout(() => {
                     window.location.href = `/cover-letter/${data.cover_letter_session_id}`;
                 }, 1500);
             } else {
-                showAlert('danger', data.message);
+                CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas generowania listu');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showAlert('danger', 'Wystąpił błąd połączenia');
+            CVOptimizer.showToast('error', 'Wystąpił błąd połączenia. Spróbuj ponownie.');
         })
         .finally(() => {
             // Reset button
@@ -624,17 +624,17 @@ function analyzeCV(sessionId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showAlert('success', data.message);
+                CVOptimizer.showToast('success', data.message || 'Pytania zostały wygenerowane!');
                 setTimeout(() => {
                     window.location.href = `/interview-questions/${data.questions_session_id}`;
                 }, 1500);
             } else {
-                showAlert('danger', data.message);
+                CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas generowania pytań');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showAlert('danger', 'Wystąpił błąd podczas generowania pytań');
+            CVOptimizer.showToast('error', 'Wystąpił błąd podczas generowania pytań. Spróbuj ponownie.');
         })
         .finally(() => {
             button.disabled = false;
@@ -669,17 +669,17 @@ function analyzeCV(sessionId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showAlert('success', data.message);
+                CVOptimizer.showToast('success', data.message || 'Analiza została ukończona!');
                 setTimeout(() => {
                     window.location.href = `/skills-gap-analysis/${data.analysis_session_id}`;
                 }, 1500);
             } else {
-                showAlert('danger', data.message);
+                CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas analizy');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showAlert('danger', 'Wystąpił błąd podczas analizy luk kompetencyjnych');
+            CVOptimizer.showToast('error', 'Wystąpił błąd podczas analizy. Spróbuj ponownie.');
         })
         .finally(() => {
             button.disabled = false;
