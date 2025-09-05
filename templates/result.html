@@ -537,49 +537,30 @@ function analyzeCV(sessionId) {
         button.disabled = true;
         button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
-        // Show modal for additional details
-        showCoverLetterModal();
-    }
-
-    function showCoverLetterModal() {
-        const modal = new bootstrap.Modal(document.getElementById('coverLetterModal'));
-        modal.show();
-    }
-
-    function submitCoverLetterForm() {
-        const companyName = document.getElementById('companyName').value.trim();
-        const customJobTitle = document.getElementById('customJobTitle').value.trim();
-        const customJobDescription = document.getElementById('customJobDescription').value.trim();
-
         const sessionId = '{{ session_id }}';
-        const defaultJobTitle = {{ cv_upload.job_title|tojson|safe }};
-        const defaultJobDescription = {{ (cv_upload.job_description or "")|tojson|safe }};
-        
+        const jobTitle = {{ cv_upload.job_title|tojson|safe }};
+        const jobDescription = {{ (cv_upload.job_description or "")|tojson|safe }};
+
         const data = {
             session_id: sessionId,
-            job_title: customJobTitle || defaultJobTitle,
-            job_description: customJobDescription || defaultJobDescription,
-            company_name: companyName
+            job_title: jobTitle,
+            job_description: jobDescription,
+            company_name: ''
         };
 
         fetch('/generate-cover-letter', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('coverLetterModal'));
-                if (modal) modal.hide();
-
-                // Show success message and redirect
                 CVOptimizer.showToast('success', data.message || 'List motywacyjny został wygenerowany!');
                 setTimeout(() => {
-                    window.location.href = `/cover-letter/${data.cover_letter_session_id}`;
+                    window.open(`/cover-letter/${data.cover_letter_session_id}`, '_blank');
                 }, 1500);
             } else {
                 CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas generowania listu');
@@ -587,11 +568,9 @@ function analyzeCV(sessionId) {
         })
         .catch(error => {
             console.error('Error:', error);
-            CVOptimizer.showToast('error', 'Wystąpił błąd połączenia. Spróbuj ponownie.');
+            CVOptimizer.showToast('error', 'Wystąpił błąd podczas generowania listu. Spróbuj ponownie.');
         })
         .finally(() => {
-            // Reset button
-            const button = document.querySelector('button[onclick="generateCoverLetter()"]');
             button.disabled = false;
             button.innerHTML = '<i class="bi bi-magic"></i> Generuj list';
         });
@@ -607,7 +586,7 @@ function analyzeCV(sessionId) {
         const sessionId = '{{ session_id }}';
         const jobTitle = {{ cv_upload.job_title|tojson|safe }};
         const jobDescription = {{ (cv_upload.job_description or "")|tojson|safe }};
-        
+
         const data = {
             session_id: sessionId,
             job_title: jobTitle,
@@ -617,7 +596,7 @@ function analyzeCV(sessionId) {
         fetch('/generate-interview-questions', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
         })
@@ -626,7 +605,7 @@ function analyzeCV(sessionId) {
             if (data.success) {
                 CVOptimizer.showToast('success', data.message || 'Pytania zostały wygenerowane!');
                 setTimeout(() => {
-                    window.location.href = `/interview-questions/${data.questions_session_id}`;
+                    window.open(`/interview-questions/${data.questions_session_id}`, '_blank');
                 }, 1500);
             } else {
                 CVOptimizer.showToast('error', data.message || 'Wystąpił błąd podczas generowania pytań');

@@ -45,7 +45,7 @@
                             </h3>
                         </div>
                         <div class="card-body pt-4">
-                            <div id="cover-letter-content" class="formatted-letter-content p-4 rounded-3">{{ cover_letter.cover_letter_content }}</div>
+                            <div id="cover-letter-content" class="formatted-letter-content formatted-ai-content p-4 rounded-3">{{ cover_letter.cover_letter_content }}</div>
                         </div>
                     </div>
                 </div>
@@ -212,6 +212,95 @@
         line-height: 1.6;
         padding: 1.5rem !important;
     }
+}
+
+.formatted-ai-content h1,
+.formatted-ai-content h2,
+.formatted-ai-content h3 {
+    color: var(--primary);
+    font-weight: 600;
+    margin: 1.5rem 0 1rem 0;
+    border-bottom: 2px solid var(--border-primary);
+    padding-bottom: 0.5rem;
+}
+
+.formatted-ai-content h4 {
+    color: var(--secondary);
+    font-weight: 600;
+    margin: 1.25rem 0 0.75rem 0;
+    font-size: 1.1rem;
+}
+
+.formatted-ai-content .percentage {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    background: linear-gradient(120deg, rgba(var(--primary-rgb), 0.1) 0%, transparent 100%);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-md);
+    display: inline-block;
+    margin: 0.5rem 0;
+}
+
+.success-item {
+    color: var(--success);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--success);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(5, 150, 105, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.error-item {
+    color: var(--danger);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--danger);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(220, 38, 38, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.info-item {
+    color: var(--info);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--info);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.warning-item {
+    color: var(--warning);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--warning);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(217, 119, 6, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-weight: 600;
+}
+
+.medium-priority {
+    color: var(--secondary);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--secondary);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(107, 114, 128, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.low-priority {
+    color: var(--muted);
+    padding: 0.5rem 0;
+    border-left: 3px solid var(--muted);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    background: rgba(156, 163, 175, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 @media print {
@@ -472,8 +561,48 @@ function showToast(toastId) {
     toast.show();
 }
 
-// Enhanced button interactions
+// Format AI content for better readability
 document.addEventListener('DOMContentLoaded', function() {
+    const content = document.querySelector('.formatted-ai-content');
+    if (content) {
+        let text = content.innerHTML;
+        
+        // Format headers
+        text = text.replace(/### (.*?)(?=\n|$)/g, '<h3>$1</h3>');
+        text = text.replace(/#### (.*?)(?=\n|$)/g, '<h4>$1</h4>');
+        text = text.replace(/## (.*?)(?=\n|$)/g, '<h2>$1</h2>');
+        text = text.replace(/# (.*?)(?=\n|$)/g, '<h1>$1</h1>');
+        
+        // Format special elements
+        text = text.replace(/✅ (.*?)(?=\n|$)/g, '<div class="success-item">✅ $1</div>');
+        text = text.replace(/❌ (.*?)(?=\n|$)/g, '<div class="error-item">❌ $1</div>');
+        text = text.replace(/🎓 (.*?)(?=\n|$)/g, '<div class="info-item">🎓 $1</div>');
+        text = text.replace(/🔥 (.*?)(?=\n|$)/g, '<div class="warning-item">🔥 $1</div>');
+        text = text.replace(/🔸 (.*?)(?=\n|$)/g, '<div class="medium-priority">🔸 $1</div>');
+        text = text.replace(/🔹 (.*?)(?=\n|$)/g, '<div class="low-priority">🔹 $1</div>');
+        
+        // Format percentages
+        text = text.replace(/(\d+)% dopasowania/g, '<span class="percentage">$1% dopasowania</span>');
+        
+        // Format numbered lists
+        text = text.replace(/(\d+\.\s)(.*?)(?=\n|$)/g, '<li>$2</li>');
+        
+        // Format bold text
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Format line breaks
+        text = text.replace(/\n\n/g, '</p><p>');
+        text = text.replace(/\n/g, '<br>');
+        
+        // Wrap in paragraphs
+        if (!text.startsWith('<h') && !text.startsWith('<p>')) {
+            text = '<p>' + text + '</p>';
+        }
+        
+        content.innerHTML = text;
+    }
+
+    // Enhanced button interactions
     // Add click effects to buttons
     const buttons = document.querySelectorAll('.btn');
     buttons.forEach(button => {
