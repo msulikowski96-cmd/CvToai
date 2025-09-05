@@ -877,6 +877,30 @@ def health():
     return {'status': 'healthy', 'timestamp': datetime.now().isoformat()}
 
 
+@app.route('/contact')
+def contact():
+    """Strona kontakt"""
+    return render_template('contact.html')
+
+
+@app.route('/privacy-policy')
+def privacy_policy():
+    """Polityka prywatności"""
+    return render_template('privacy_policy.html')
+
+
+@app.route('/terms-of-service')
+def terms_of_service():
+    """Regulamin serwisu"""
+    return render_template('terms_of_service.html')
+
+
+@app.route('/about')
+def about():
+    """O nas"""
+    return render_template('about.html')
+
+
 # Error handlers
 @app.errorhandler(413)
 def too_large(e):

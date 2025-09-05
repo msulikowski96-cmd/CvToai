@@ -182,9 +182,10 @@
                 </div>
                 <div class="col-md-6 text-md-end">
                     <div class="d-flex gap-4 justify-content-md-end">
-                        <a href="#" class="text-muted">Polityka prywatności</a>
-                        <a href="#" class="text-muted">Regulamin</a>
-                        <a href="#" class="text-muted">Kontakt</a>
+                        <a href="{{ url_for('privacy_policy') }}" class="text-muted">Polityka prywatności</a>
+                        <a href="{{ url_for('terms_of_service') }}" class="text-muted">Regulamin</a>
+                        <a href="{{ url_for('contact') }}" class="text-muted">Kontakt</a>
+                        <a href="{{ url_for('about') }}" class="text-muted">O nas</a>
                     </div>
                 </div>
             </div>

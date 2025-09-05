@@ -1,0 +1,128 @@
+
+{% extends "base.html" %}
+
+{% block title %}Polityka Prywatności - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <div class="feature-icon bg-success mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h1 class="display-4 fw-bold mb-3">Polityka Prywatności</h1>
+                <p class="lead text-muted">
+                    Ostatnia aktualizacja: {{ now().strftime('%d.%m.%Y') }}
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2>1. Informacje ogólne</h2>
+                    <p>CV Optimizer Pro ("my", "nas", "nasze") szanuje Twoją prywatność i zobowiązuje się do ochrony Twoich danych osobowych. Niniejsza Polityka Prywatności opisuje, jak zbieramy, używamy i chronimy Twoje informacje podczas korzystania z naszej usługi.</p>
+
+                    <h2>2. Jakie dane zbieramy</h2>
+                    <h3>2.1 Dane osobowe</h3>
+                    <ul>
+                        <li>Imię i nazwisko</li>
+                        <li>Adres email</li>
+                        <li>Nazwa użytkownika</li>
+                        <li>Hasło (w formie zaszyfrowanej)</li>
+                    </ul>
+
+                    <h3>2.2 Dane CV</h3>
+                    <ul>
+                        <li>Zawartość przesłanego CV w formacie PDF</li>
+                        <li>Opisy stanowisk docelowych</li>
+                        <li>Rezultaty analizy i optymalizacji</li>
+                    </ul>
+
+                    <h3>2.3 Dane techniczne</h3>
+                    <ul>
+                        <li>Adres IP</li>
+                        <li>Typ przeglądarki</li>
+                        <li>Czas korzystania z usługi</li>
+                        <li>Logi błędów i aktywności</li>
+                    </ul>
+
+                    <h2>3. Jak wykorzystujemy Twoje dane</h2>
+                    <ul>
+                        <li><strong>Świadczenie usługi:</strong> Optymalizacja CV i generowanie analiz</li>
+                        <li><strong>Komunikacja:</strong> Odpowiadanie na zapytania i wsparcie techniczne</li>
+                        <li><strong>Ulepszenia:</strong> Analiza użytkowania w celu poprawy jakości usługi</li>
+                        <li><strong>Bezpieczeństwo:</strong> Zapobieganie nadużyciom i zapewnienie bezpieczeństwa</li>
+                    </ul>
+
+                    <h2>4. Podstawa prawna przetwarzania</h2>
+                    <p>Przetwarzamy Twoje dane osobowe na następujących podstawach:</p>
+                    <ul>
+                        <li><strong>Wykonanie umowy:</strong> Art. 6 ust. 1 lit. b) RODO</li>
+                        <li><strong>Zgoda:</strong> Art. 6 ust. 1 lit. a) RODO</li>
+                        <li><strong>Prawnie uzasadniony interes:</strong> Art. 6 ust. 1 lit. f) RODO</li>
+                    </ul>
+
+                    <h2>5. Przechowywanie danych</h2>
+                    <ul>
+                        <li><strong>Dane konta:</strong> Do momentu usunięcia konta</li>
+                        <li><strong>Dane CV:</strong> Automatyczne usunięcie po 30 dniach</li>
+                        <li><strong>Logi techniczne:</strong> Do 12 miesięcy</li>
+                    </ul>
+
+                    <h2>6. Udostępnianie danych</h2>
+                    <p>Nie sprzedajemy ani nie udostępniamy Twoich danych osobowych stronom trzecim, z wyjątkiem:</p>
+                    <ul>
+                        <li>Dostawców usług technicznych (hosting, płatności) - z odpowiednimi umowami ochrony danych</li>
+                        <li>Wymagań prawnych (na żądanie organów państwowych)</li>
+                    </ul>
+
+                    <h2>7. Twoje prawa</h2>
+                    <p>Zgodnie z RODO masz prawo do:</p>
+                    <ul>
+                        <li>Dostępu do swoich danych</li>
+                        <li>Sprostowania nieprawidłowych danych</li>
+                        <li>Usunięcia danych ("prawo do bycia zapomnianym")</li>
+                        <li>Ograniczenia przetwarzania</li>
+                        <li>Przenoszenia danych</li>
+                        <li>Wniesienia sprzeciwu wobec przetwarzania</li>
+                        <li>Cofnięcia zgody w dowolnym momencie</li>
+                    </ul>
+
+                    <h2>8. Bezpieczeństwo danych</h2>
+                    <p>Stosujemy odpowiednie środki techniczne i organizacyjne:</p>
+                    <ul>
+                        <li>Szyfrowanie danych w transmisji i przechowywaniu</li>
+                        <li>Regularne kopie bezpieczeństwa</li>
+                        <li>Kontrola dostępu do systemów</li>
+                        <li>Monitorowanie bezpieczeństwa</li>
+                    </ul>
+
+                    <h2>9. Pliki cookies</h2>
+                    <p>Używamy plików cookies do:</p>
+                    <ul>
+                        <li>Zarządzania sesjami użytkowników</li>
+                        <li>Zapewnienia funkcjonalności strony</li>
+                        <li>Analizy ruchu (anonimowo)</li>
+                    </ul>
+
+                    <h2>10. Kontakt</h2>
+                    <p>W sprawach dotyczących ochrony danych skontaktuj się z nami:</p>
+                    <ul>
+                        <li><strong>Email:</strong> privacy@cvoptimizer.pro</li>
+                        <li><strong>Adres:</strong> [Adres administratora danych]</li>
+                    </ul>
+
+                    <h2>11. Zmiany w polityce</h2>
+                    <p>Zastrzegamy sobie prawo do aktualizacji niniejszej Polityki Prywatności. O wszelkich istotnych zmianach poinformujemy użytkowników przez email lub powiadomienie na stronie.</p>
+
+                    <div class="alert alert-info mt-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Masz pytania?</strong> Skontaktuj się z nami przez <a href="{{ url_for('contact') }}">formularz kontaktowy</a>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

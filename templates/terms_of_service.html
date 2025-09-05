@@ -1,0 +1,170 @@
+
+{% extends "base.html" %}
+
+{% block title %}Regulamin Serwisu - CV Optimizer Pro{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <div class="feature-icon bg-info mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
+                    <i class="bi bi-file-text"></i>
+                </div>
+                <h1 class="display-4 fw-bold mb-3">Regulamin Serwisu</h1>
+                <p class="lead text-muted">
+                    Ostatnia aktualizacja: {{ now().strftime('%d.%m.%Y') }}
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2>1. Postanowienia ogólne</h2>
+                    <p>Niniejszy Regulamin określa zasady korzystania z serwisu CV Optimizer Pro dostępnego pod adresem [adres serwisu] oraz aplikacji mobilnej (dalej: "Serwis").</p>
+
+                    <h2>2. Definicje</h2>
+                    <ul>
+                        <li><strong>Serwis:</strong> Platforma CV Optimizer Pro świadcząca usługi optymalizacji CV</li>
+                        <li><strong>Użytkownik:</strong> Osoba korzystająca z Serwisu</li>
+                        <li><strong>Konto:</strong> Zbiór danych i uprawnień Użytkownika w Serwisie</li>
+                        <li><strong>Premium:</strong> Płatna wersja usługi z dodatkowymi funkcjami</li>
+                    </ul>
+
+                    <h2>3. Zasady korzystania z Serwisu</h2>
+                    <h3>3.1 Rejestracja</h3>
+                    <ul>
+                        <li>Rejestracja wymaga podania prawdziwych danych</li>
+                        <li>Każdy Użytkownik może posiadać jedno konto</li>
+                        <li>Hasło powinno być bezpieczne i poufne</li>
+                    </ul>
+
+                    <h3>3.2 Zakazane działania</h3>
+                    <p>Użytkownik zobowiązuje się nie:</p>
+                    <ul>
+                        <li>Naruszać praw autorskich i własności intelektualnej</li>
+                        <li>Przesyłać treści nielegalnych, obraźliwych lub szkodliwych</li>
+                        <li>Podejmować działań mających na celu zakłócenie działania Serwisu</li>
+                        <li>Używać botów, skryptów lub automatyzacji bez zgody</li>
+                        <li>Udostępniać konta innym osobom</li>
+                    </ul>
+
+                    <h2>4. Usługi Serwisu</h2>
+                    <h3>4.1 Wersja bezpłatna</h3>
+                    <ul>
+                        <li>Podstawowa optymalizacja CV</li>
+                        <li>Analiza ATS</li>
+                        <li>Ograniczona liczba użyć miesięcznie</li>
+                    </ul>
+
+                    <h3>4.2 Wersja Premium</h3>
+                    <ul>
+                        <li>Zaawansowana optymalizacja CV</li>
+                        <li>Generowanie listów motywacyjnych</li>
+                        <li>Pytania do rozmowy kwalifikacyjnej</li>
+                        <li>Analiza luk kompetencyjnych</li>
+                        <li>Nielimitowane użycie</li>
+                        <li>Priorytetowe wsparcie</li>
+                    </ul>
+
+                    <h2>5. Płatności i rozliczenia</h2>
+                    <h3>5.1 Opłaty</h3>
+                    <ul>
+                        <li>Jednorazowe użycie Premium: 9,99 PLN</li>
+                        <li>Subskrypcja miesięczna: 29,99 PLN</li>
+                        <li>Ceny zawierają podatek VAT</li>
+                    </ul>
+
+                    <h3>5.2 Płatności</h3>
+                    <ul>
+                        <li>Płatności realizowane przez Stripe</li>
+                        <li>Akceptowane karty: Visa, Mastercard, Blik</li>
+                        <li>Płatność natychmiastowa</li>
+                    </ul>
+
+                    <h3>5.3 Zwroty</h3>
+                    <ul>
+                        <li>Prawo odstąpienia w ciągu 14 dni</li>
+                        <li>Zwrot środków w przypadku problemów technicznych</li>
+                        <li>Decyzja o zwrocie w terminie 30 dni</li>
+                    </ul>
+
+                    <h2>6. Odpowiedzialność</h2>
+                    <h3>6.1 Odpowiedzialność Serwisu</h3>
+                    <ul>
+                        <li>Dążymy do zapewnienia ciągłości działania</li>
+                        <li>Nie gwarantujemy 100% dostępności</li>
+                        <li>Nie odpowiadamy za skutki użycia wygenerowanych treści</li>
+                    </ul>
+
+                    <h3>6.2 Odpowiedzialność Użytkownika</h3>
+                    <ul>
+                        <li>Za bezpieczeństwo konta i hasła</li>
+                        <li>Za legalność przesyłanych treści</li>
+                        <li>Za przestrzeganie niniejszego Regulaminu</li>
+                    </ul>
+
+                    <h2>7. Własność intelektualna</h2>
+                    <ul>
+                        <li>Serwis i jego zawartość są chronione prawem autorskim</li>
+                        <li>Użytkownik zachowuje prawa do przesłanych treści</li>
+                        <li>Wygenerowane treści mogą być swobodnie wykorzystane przez Użytkownika</li>
+                    </ul>
+
+                    <h2>8. Ochrona danych</h2>
+                    <p>Szczegółowe informacje o przetwarzaniu danych osobowych znajdują się w <a href="{{ url_for('privacy_policy') }}">Polityce Prywatności</a>.</p>
+
+                    <h2>9. Zakończenie korzystania</h2>
+                    <h3>9.1 Przez Użytkownika</h3>
+                    <ul>
+                        <li>Możliwość usunięcia konta w każdej chwili</li>
+                        <li>Anulowanie subskrypcji przed następnym okresem rozliczeniowym</li>
+                    </ul>
+
+                    <h3>9.2 Przez Serwis</h3>
+                    <ul>
+                        <li>W przypadku naruszenia Regulaminu</li>
+                        <li>Po wcześniejszym powiadomieniu</li>
+                        <li>Z prawem do odwołania</li>
+                    </ul>
+
+                    <h2>10. Zmiany Regulaminu</h2>
+                    <ul>
+                        <li>Zastrzegamy prawo do zmian Regulaminu</li>
+                        <li>Powiadomienie o zmianach przez email</li>
+                        <li>Zmiany wchodzą w życie po 30 dniach</li>
+                        <li>Brak sprzeciwu = akceptacja zmian</li>
+                    </ul>
+
+                    <h2>11. Rozstrzyganie sporów</h2>
+                    <ul>
+                        <li>Prawo polskie</li>
+                        <li>Sądy w Polsce</li>
+                        <li>Możliwość mediacji</li>
+                        <li>Platforma ODR dla konsumentów UE</li>
+                    </ul>
+
+                    <h2>12. Postanowienia końcowe</h2>
+                    <ul>
+                        <li>Regulamin wchodzi w życie od {{ now().strftime('%d.%m.%Y') }}</li>
+                        <li>W sprawach nieuregulowanych stosuje się prawo polskie</li>
+                        <li>Jeśli część Regulaminu jest nieważna, pozostałe postanowienia pozostają w mocy</li>
+                    </ul>
+
+                    <h2>13. Kontakt</h2>
+                    <p>W sprawach dotyczących Regulaminu:</p>
+                    <ul>
+                        <li><strong>Email:</strong> legal@cvoptimizer.pro</li>
+                        <li><strong>Formularz:</strong> <a href="{{ url_for('contact') }}">Strona kontakt</a></li>
+                    </ul>
+
+                    <div class="alert alert-warning mt-4">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Ważne:</strong> Korzystając z Serwisu akceptujesz niniejszy Regulamin w całości.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
