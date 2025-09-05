@@ -371,69 +371,10 @@
         </div>
     </div>
 </div>
-
-<!-- Modal dla listu motywacyjnego -->
-<div class="modal fade" id="coverLetterModal" tabindex="-1" aria-labelledby="coverLetterModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="coverLetterModalLabel">
-                    <i class="bi bi-envelope me-2"></i>Generowanie listu motywacyjnego
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="coverLetterForm">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="companyName" class="form-label">Nazwa firmy (opcjonalnie)</label>
-                            <input type="text" class="form-control" id="companyName" placeholder="np. Google, Microsoft">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="customJobTitle" class="form-label">Stanowisko (opcjonalnie)</label>
-                            <input type="text" class="form-control" id="customJobTitle" placeholder="Zostaw puste aby użyć: {{ cv_upload.job_title }}">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="customJobDescription" class="form-label">Opis stanowiska (opcjonalnie)</label>
-                        <textarea class="form-control" id="customJobDescription" rows="3" placeholder="Dodatkowe wymagania lub informacje o stanowisku"></textarea>
-                    </div>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Wskazówka:</strong> Uzupełnienie nazwy firmy i szczegółów stanowiska pomoże wygenerować bardziej spersonalizowany list motywacyjny.
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                <button type="button" class="btn btn-success" onclick="submitCoverLetterForm()">
-                    <i class="bi bi-magic me-1"></i>Generuj list
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Główne funkcje aplikacji
-function showAlert(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.container').firstChild);
-    
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
-}
-
 function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
     const text = element.textContent;
@@ -458,18 +399,6 @@ function toggleOriginal() {
     content.classList.toggle('d-none');
 }
 
-function downloadText(content, filename) {
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
-}
-
-// Funkcje CV
 function optimizeCV(sessionId) {
     const btn = document.getElementById('optimize-btn');
     btn.disabled = true;
@@ -505,28 +434,34 @@ function optimizeCV(sessionId) {
             `;
             setTimeout(() => location.reload(), 1000);
         } else {
-            showAlert('Błąd: ' + data.message, 'danger');
-            resetOptimizeButton(btn);
+            CVOptimizer.showToast('error', 'Błąd: ' + data.message);
+            btn.disabled = false;
+            btn.classList.remove('shimmer');
+            btn.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-magic me-2 fs-5"></i>
+                    <div>
+                        <div class="fw-bold">Optymalizuj CV</div>
+                        <div class="small opacity-75">AI usprawni Twoje CV</div>
+                    </div>
+                </div>
+            `;
         }
     })
     .catch(error => {
-        showAlert('Wystąpił błąd: ' + error.message, 'danger');
-        resetOptimizeButton(btn);
-    });
-}
-
-function resetOptimizeButton(btn) {
-    btn.disabled = false;
-    btn.classList.remove('shimmer');
-    btn.innerHTML = `
-        <div class="d-flex align-items-center justify-content-center">
-            <i class="bi bi-magic me-2 fs-5"></i>
-            <div>
-                <div class="fw-bold">Optymalizuj CV</div>
-                <div class="small opacity-75">AI usprawni Twoje CV</div>
+        CVOptimizer.showToast('error', 'Wystąpił błąd: ' + error.message);
+        btn.disabled = false;
+        btn.classList.remove('shimmer');
+        btn.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center">
+                <i class="bi bi-magic me-2 fs-5"></i>
+                <div>
+                    <div class="fw-bold">Optymalizuj CV</div>
+                    <div class="small opacity-75">AI usprawni Twoje CV</div>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    });
 }
 
 function analyzeCV(sessionId) {
@@ -564,162 +499,180 @@ function analyzeCV(sessionId) {
             `;
             setTimeout(() => location.reload(), 1000);
         } else {
-            showAlert('Błąd: ' + data.message, 'danger');
-            resetAnalyzeButton(btn);
+            CVOptimizer.showToast('error', 'Błąd: ' + data.message);
+            btn.disabled = false;
+            btn.classList.remove('shimmer');
+            btn.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-graph-up me-2 fs-5"></i>
+                    <div>
+                        <div class="fw-bold">Analizuj CV</div>
+                        <div class="small opacity-75">Otrzymaj szczegółową ocenę</div>
+                    </div>
+                </div>
+            `;
         }
     })
     .catch(error => {
-        showAlert('Wystąpił błąd: ' + error.message, 'danger');
-        resetAnalyzeButton(btn);
-    });
-}
-
-function resetAnalyzeButton(btn) {
-    btn.disabled = false;
-    btn.classList.remove('shimmer');
-    btn.innerHTML = `
-        <div class="d-flex align-items-center justify-content-center">
-            <i class="bi bi-graph-up me-2 fs-5"></i>
-            <div>
-                <div class="fw-bold">Analizuj CV</div>
-                <div class="small opacity-75">Otrzymaj szczegółową ocenę</div>
+        CVOptimizer.showToast('error', 'Wystąpił błąd: ' + error.message);
+        btn.disabled = false;
+        btn.classList.remove('shimmer');
+        btn.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center">
+                <i class="bi bi-graph-up me-2 fs-5"></i>
+                <div>
+                    <div class="fw-bold">Analizuj CV</div>
+                    <div class="small opacity-75">Otrzymaj szczegółową ocenę</div>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    });
 }
+</script>
+<script>
+    function generateCoverLetter() {
+        const button = event.target;
+        const originalText = button.innerHTML;
 
-// Funkcje dodatkowe
-function generateCoverLetter() {
-    const modal = new bootstrap.Modal(document.getElementById('coverLetterModal'));
-    modal.show();
-}
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
-function submitCoverLetterForm() {
-    const sessionId = '{{ session_id }}';
-    const companyName = document.getElementById('companyName').value.trim();
-    const customJobTitle = document.getElementById('customJobTitle').value.trim();
-    const customJobDescription = document.getElementById('customJobDescription').value.trim();
-    
-    const jobTitle = customJobTitle || '{{ cv_upload.job_title }}';
-    const jobDescription = customJobDescription || '{{ cv_upload.job_description or "" }}';
-    
-    const button = document.querySelector('#coverLetterModal .btn-success');
-    const originalText = button.innerHTML;
-    button.disabled = true;
-    button.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Generuję...';
-    
-    fetch('/generate-cover-letter', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            session_id: sessionId,
-            job_title: jobTitle,
-            job_description: jobDescription,
+        // Show modal for additional details
+        showCoverLetterModal();
+    }
+
+    function showCoverLetterModal() {
+        const modal = new bootstrap.Modal(document.getElementById('coverLetterModal'));
+        modal.show();
+    }
+
+    function submitCoverLetterForm() {
+        const companyName = document.getElementById('companyName').value.trim();
+        const customJobTitle = document.getElementById('customJobTitle').value.trim();
+        const customJobDescription = document.getElementById('customJobDescription').value.trim();
+
+        const data = {
+            session_id: '{{ session_id }}',
+            job_title: customJobTitle || '{{ cv_upload.job_title }}',
+            job_description: customJobDescription || '{{ cv_upload.job_description or "" }}',
             company_name: companyName
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('✅ ' + data.message, 'success');
-            bootstrap.Modal.getInstance(document.getElementById('coverLetterModal')).hide();
-            setTimeout(() => {
-                window.location.href = `/cover-letter/${data.cover_letter_session_id}`;
-            }, 1500);
-        } else {
-            showAlert('❌ ' + data.message, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('❌ Wystąpił błąd podczas generowania listu motywacyjnego', 'danger');
-    })
-    .finally(() => {
-        button.disabled = false;
-        button.innerHTML = originalText;
-    });
-}
+        };
 
-function generateInterviewQuestions() {
-    const sessionId = '{{ session_id }}';
-    const button = event.target.closest('button');
-    const originalText = button.innerHTML;
-    
-    button.disabled = true;
-    button.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Generuję pytania...';
-    
-    fetch('/generate-interview-questions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            session_id: sessionId,
+        fetch('/generate-cover-letter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('coverLetterModal'));
+                modal.hide();
+
+                // Show success message and redirect
+                showAlert('success', data.message);
+                setTimeout(() => {
+                    window.location.href = `/cover-letter/${data.cover_letter_session_id}`;
+                }, 1500);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'Wystąpił błąd połączenia');
+        })
+        .finally(() => {
+            // Reset button
+            const button = document.querySelector('button[onclick="generateCoverLetter()"]');
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-magic"></i> Generuj list';
+        });
+    }
+
+    function generateInterviewQuestions() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
+
+        const data = {
+            session_id: '{{ session_id }}',
             job_title: '{{ cv_upload.job_title }}',
             job_description: '{{ cv_upload.job_description or "" }}'
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('✅ ' + data.message, 'success');
-            setTimeout(() => {
-                window.location.href = `/interview-questions/${data.questions_session_id}`;
-            }, 1500);
-        } else {
-            showAlert('❌ ' + data.message, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('❌ Wystąpił błąd podczas generowania pytań', 'danger');
-    })
-    .finally(() => {
-        button.disabled = false;
-        button.innerHTML = originalText;
-    });
-}
+        };
 
-function analyzeSkillsGap() {
-    const sessionId = '{{ session_id }}';
-    const button = event.target.closest('button');
-    const originalText = button.innerHTML;
-    
-    button.disabled = true;
-    button.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Analizuję luki...';
-    
-    fetch('/analyze-skills-gap', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            session_id: sessionId,
+        fetch('/generate-interview-questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                setTimeout(() => {
+                    window.location.href = `/interview-questions/${data.questions_session_id}`;
+                }, 1500);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'Wystąpił błąd podczas generowania pytań');
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-chat-quote"></i> Generuj pytania';
+        });
+    }
+
+    function analyzeSkillsGap() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Analizowanie...';
+
+        const data = {
+            session_id: '{{ session_id }}',
             job_title: '{{ cv_upload.job_title }}',
             job_description: '{{ cv_upload.job_description or "" }}'
+        };
+
+        fetch('/analyze-skills-gap', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('✅ ' + data.message, 'success');
-            setTimeout(() => {
-                window.location.href = `/skills-gap-analysis/${data.analysis_session_id}`;
-            }, 1500);
-        } else {
-            showAlert('❌ ' + data.message, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('❌ Wystąpił błąd podczas analizy luk kompetencyjnych', 'danger');
-    })
-    .finally(() => {
-        button.disabled = false;
-        button.innerHTML = originalText;
-    });
-}
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                setTimeout(() => {
+                    window.location.href = `/skills-gap-analysis/${data.analysis_session_id}`;
+                }, 1500);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'Wystąpił błąd podczas analizy luk kompetencyjnych');
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-search"></i> Analizuj luki';
+        });
+    }
 </script>
 {% endblock %}
