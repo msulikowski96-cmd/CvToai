@@ -1,0 +1,179 @@
+
+{% extends "base.html" %}
+
+{% block title %}CV - {{ cv_upload.filename }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="cv-header bg-dark text-white p-3 d-print-none">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4 class="mb-1">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Zoptymalizowane CV: {{ cv_upload.filename }}
+                </h4>
+                <small class="text-muted">
+                    Stanowisko: {{ cv_upload.job_title }} | 
+                    Zoptymalizowano: {{ cv_upload.optimized_at.strftime('%d.%m.%Y %H:%M') }}
+                </small>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group">
+                    <button class="btn btn-outline-light btn-sm" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i>Drukuj
+                    </button>
+                    <button class="btn btn-outline-light btn-sm" onclick="copyToClipboard('cv-content')">
+                        <i class="bi bi-clipboard me-1"></i>Kopiuj
+                    </button>
+                    <button class="btn btn-outline-light btn-sm" onclick="downloadCV()">
+                        <i class="bi bi-download me-1"></i>Pobierz
+                    </button>
+                    <button class="btn btn-light btn-sm" onclick="window.close()">
+                        <i class="bi bi-x-circle me-1"></i>Zamknij
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cv-content" class="cv-display">
+        {% if cv_upload.optimized_cv.startswith('<!DOCTYPE') %}
+            <!-- CV w formacie HTML -->
+            {{ cv_upload.optimized_cv|safe }}
+        {% else %}
+            <!-- CV w formacie tekstowym - sformatuj w prosty sposób -->
+            <div class="container my-4">
+                <div class="card shadow">
+                    <div class="card-body" style="font-family: 'Times New Roman', serif; line-height: 1.6;">
+                        <pre style="white-space: pre-wrap; font-family: inherit;">{{ cv_upload.optimized_cv }}</pre>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Toast dla powiadomień -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="copyToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <strong class="me-auto">Sukces</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                CV zostało skopiowane do schowka!
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .d-print-none {
+        display: none !important;
+    }
+    
+    .cv-display {
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        background: white !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+}
+
+.cv-display {
+    background: #f8f9fa;
+    min-height: calc(100vh - 80px);
+}
+
+.cv-display .container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.cv-display .card {
+    border-radius: 10px;
+    border: none;
+}
+</style>
+
+<script>
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    let text;
+    
+    // Sprawdź czy to HTML czy tekstowy
+    if (element.innerHTML.includes('<!DOCTYPE')) {
+        // Dla HTML, wyciągnij tylko tekst
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = element.innerHTML;
+        text = tempDiv.textContent || tempDiv.innerText || '';
+    } else {
+        text = element.textContent || element.innerText;
+    }
+
+    navigator.clipboard.writeText(text).then(() => {
+        // Pokaż toast
+        const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+        toast.show();
+    }).catch(err => {
+        alert('Nie udało się skopiować CV do schowka');
+    });
+}
+
+function downloadCV() {
+    const content = document.getElementById('cv-content');
+    let text;
+    
+    // Sprawdź czy to HTML czy tekstowy
+    if (content.innerHTML.includes('<!DOCTYPE')) {
+        // Dla HTML, pobierz jako HTML
+        const htmlContent = content.querySelector('html') ? 
+            content.innerHTML : 
+            '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CV</title></head><body>' + content.innerHTML + '</body></html>';
+        
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cv-zoptymalizowane.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } else {
+        // Dla tekstu, pobierz jako TXT
+        text = content.textContent || content.innerText;
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cv-zoptymalizowane.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+// Automatycznie dostosuj wysokość okna do zawartości
+window.addEventListener('load', function() {
+    // Opcjonalne: dostosuj rozmiar okna jeśli to popup
+    if (window.opener) {
+        try {
+            const contentHeight = document.body.scrollHeight;
+            window.resizeTo(Math.min(1200, window.screen.width * 0.8), Math.min(contentHeight + 100, window.screen.height * 0.9));
+        } catch (e) {
+            // Ignoruj błędy związane z ograniczeniami przeglądarki
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1086,6 +1086,20 @@ def view_skills_gap_analysis(session_id):
                            cv_upload=cv_upload)
 
 
+@app.route('/view-cv/<session_id>')
+@login_required
+def view_cv(session_id):
+    """Wyświetl zoptymalizowane CV w nowym oknie z formatowaniem"""
+    cv_upload = CVUpload.query.filter_by(session_id=session_id,
+                                         user_id=current_user.id).first_or_404()
+    
+    if not cv_upload.optimized_cv:
+        flash('CV nie zostało jeszcze zoptymalizowane.', 'error')
+        return redirect(url_for('result', session_id=session_id))
+    
+    return render_template('view_cv.html', cv_upload=cv_upload)
+
+
 @app.route('/health')
 def health():
     return {'status': 'healthy', 'timestamp': datetime.now().isoformat()}
