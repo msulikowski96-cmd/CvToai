@@ -130,6 +130,9 @@
                                 <button class="btn btn-success" onclick="downloadText(document.getElementById('optimized-cv').textContent, 'optimized-cv.txt')">
                                     <i class="bi bi-download me-1"></i>Pobierz
                                 </button>
+                                <button class="btn btn-info" onclick="openCVInNewWindow('{{ session_id }}')">
+                                    <i class="bi bi-eye me-1"></i>Zobacz CV
+                                </button>
                             </div>
                         </div>
                         <div class="card-body pt-3">
@@ -510,51 +513,27 @@ function copyToClipboard(elementId) {
     });
 }
 
+function downloadText(text, filename) {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 function toggleOriginal() {
     const content = document.getElementById('original-cv-content');
     content.classList.toggle('d-none');
 }
 
 function openCVInNewWindow(sessionId) {
-    // Ensure the optimized CV is available in the DOM before opening
-    const optimizedCvElement = document.getElementById('optimized-cv');
-    if (!optimizedCvElement) {
-        console.error("Element with id 'optimized-cv' not found.");
-        return;
-    }
-
-    const cvContent = optimizedCvElement.innerHTML;
-    const newWindow = window.open("", "_blank");
-
-    if (!newWindow) {
-        alert("Pop-up blocker detected. Please allow pop-ups for this site to view the CV in a new window.");
-        return;
-    }
-
-    // Construct the HTML for the new window
-    // This assumes the optimized CV is already formatted HTML.
-    // If it's plain text, you might need to wrap it in <pre> or style it.
-    newWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Optimized CV Preview</title>
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
-                .cv-container { border: 1px solid #ccc; padding: 20px; border-radius: 8px; background-color: #f9f9f9; }
-                /* Add any other necessary styling here */
-            </style>
-        </head>
-        <body>
-            <div class="cv-container">
-                ${cvContent}
-            </div>
-        </body>
-        </html>
-    `);
-    newWindow.document.close();
+    // Otwórz CV w nowym oknie używając endpoint view-cv
+    const url = `/view-cv/${sessionId}`;
+    window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
 }
 
 
@@ -592,10 +571,8 @@ function optimizeCV(sessionId) {
                 </div>
             `;
             setTimeout(() => {
-                // Otwórz CV w nowym oknie
-                openCVInNewWindow(sessionId);
                 // Przeładuj stronę po chwili
-                setTimeout(() => location.reload(), 1000);
+                location.reload();
             }, 1000);
         } else {
             CVOptimizer.showToast('error', 'Błąd: ' + data.message);
