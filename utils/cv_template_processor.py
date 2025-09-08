@@ -103,18 +103,23 @@ def parse_cv_to_structured_data(cv_text):
             'o mnie': 'summary',
             'opis': 'summary',
             'cel zawodowy': 'summary',
+            'podsumowanie': 'summary',
+            'podsumowanie zawodowe': 'summary',
             'umiejętności': 'skills',
             'kompetencje': 'skills',
             'skills': 'skills',
             'technologie': 'skills',
             'narzędzia': 'skills',
             'języki programowania': 'skills',
+            'techniczne': 'skills',
+            'komunikacyjne': 'skills',
             'doświadczenie': 'experience',
             'doświadczenie zawodowe': 'experience',
             'praca': 'experience',
             'historia zatrudnienia': 'experience',
             'kariera': 'experience',
             'work experience': 'experience',
+            'zatrudnienie': 'experience',
             'wykształcenie': 'education',
             'edukacja': 'education',
             'education': 'education',
@@ -130,7 +135,8 @@ def parse_cv_to_structured_data(cv_text):
             'dodatkowe informacje': 'additional_info',
             'inne': 'additional_info',
             'projekty': 'additional_info',
-            'osiągnięcia': 'additional_info'
+            'osiągnięcia': 'additional_info',
+            'informacje dodatkowe': 'additional_info'
         }
         
         for i, line in enumerate(lines):
@@ -311,22 +317,29 @@ def parse_experience_item(content):
         'responsibilities': []
     }
     
-    # Pierwsza niepusta linia to prawdopodobnie stanowisko
-    for line in content:
-        if line.strip() and not exp['position']:
-            exp['position'] = line.strip()
-            break
+    # Pierwsza niepusta linia to prawdopodobnie stanowisko i firma
+    first_line = content[0].strip() if content else ''
+    
+    # Sprawdź czy pierwsza linia zawiera stanowisko | firma
+    if '|' in first_line:
+        parts = first_line.split('|')
+        exp['position'] = parts[0].strip()
+        if len(parts) > 1:
+            exp['company'] = parts[1].strip()
+    else:
+        exp['position'] = first_line
     
     # Szukaj daty, firmy i obowiązków
     date_patterns = [
-        r'\d{4}[\s-]*\d{4}',  # 2020-2024
-        r'\d{1,2}[\./]\d{4}[\s-]*\d{1,2}[\./]\d{4}',  # 01/2020 - 12/2024
+        r'\d{4}[\s-–]*(?:\d{4}|obecnie|obecnie.*|present|current)',  # 2020-2024, 2020-obecnie
+        r'\d{1,2}[\./]\d{4}[\s-–]*\d{1,2}[\./]\d{4}',  # 01/2020 - 12/2024
         r'(?:styczeń|luty|marzec|kwiecień|maj|czerwiec|lipiec|sierpień|wrzesień|październik|listopad|grudzień)',
         r'(?:january|february|march|april|may|june|july|august|september|october|november|december)',
-        r'obecnie|present|current'
+        r'obecnie|present|current',
+        r'\*\d{4}'  # *2024 format
     ]
     
-    responsibility_markers = ['-', '•', '*', '▸', '→', '◦']
+    responsibility_markers = ['-', '•', '*', '▸', '→', '◦', '–', '‒']
     
     for line in content[1:] if len(content) > 1 else []:
         line = line.strip()
@@ -341,7 +354,8 @@ def parse_experience_item(content):
         elif (not exp['company'] and 
               not any(line.startswith(marker) for marker in responsibility_markers) and
               not is_date and
-              len(line) > 2 and len(line) < 100):
+              len(line) > 2 and len(line) < 150 and
+              not line.lower().startswith(('opis', 'obowiązki', 'zakres'))):
             exp['company'] = line
         elif any(line.startswith(marker) for marker in responsibility_markers):
             # Usuń marker i dodaj do obowiązków
@@ -350,10 +364,11 @@ def parse_experience_item(content):
                 if responsibility.startswith(marker):
                     responsibility = responsibility[len(marker):].strip()
                     break
-            if responsibility:
+            if responsibility and len(responsibility) > 10:
                 exp['responsibilities'].append(responsibility)
-        elif line and len(line) > 15 and not is_date and exp['company']:
-            # Długa linia bez markera - prawdopodobnie opis obowiązków
+        elif (line and len(line) > 20 and not is_date and 
+              not line.lower().startswith(('stanowisko', 'firma', 'okres')) and
+              '.' in line):  # Prawdopodobnie zdanie opisujące obowiązki
             exp['responsibilities'].append(line)
     
     return exp if exp['position'] else None
