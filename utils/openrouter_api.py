@@ -63,7 +63,7 @@ FREE_MODEL = "qwen/qwen-2.5-72b-instruct:free"
 DEEP_REASONING_PROMPT = """Jesteś światowej klasy ekspertem w rekrutacji i optymalizacji CV z 15-letnim doświadczeniem w branży HR. Posiadasz głęboką wiedzę o polskim rynku pracy, trendach rekrutacyjnych i najlepszych praktykach w tworzeniu CV."""
 
 
-def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2):
+def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2, max_tokens=None):
     """Make a request to OpenRouter API with retry mechanism"""
     if not API_KEY_VALID:
         logger.error("API key is not valid")
@@ -71,6 +71,10 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2)
 
     if model is None:
         model = PREMIUM_MODEL if is_premium else FREE_MODEL
+
+    # Set max_tokens based on user type if not specified
+    if max_tokens is None:
+        max_tokens = 4000 if is_premium else 1500
 
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -89,7 +93,7 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2)
             "content": prompt
         }],
         "temperature": 0.3,
-        "max_tokens": 1500,  # Jeszcze bardziej zmniejszone
+        "max_tokens": max_tokens,
         "top_p": 0.9,
         "frequency_penalty": 0.1,
         "presence_penalty": 0.1
@@ -209,8 +213,8 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False, paymen
     try:
         response = make_openrouter_request(
             prompt, 
-            max_tokens=max_tokens,
-            is_premium=(is_premium or payment_verified)
+            is_premium=(is_premium or payment_verified),
+            max_tokens=max_tokens
         )
 
         if response and response.strip():
