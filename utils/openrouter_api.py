@@ -148,29 +148,95 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2)
     return None
 
 
-def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
-    """Optimize CV for a specific job"""
+def optimize_cv(cv_text, job_title, job_description="", is_premium=False, payment_verified=False):
+    """
+    Optymalizuje CV za pomocą OpenRouter AI (Claude 3.5 Sonnet) i formatuje w profesjonalnym szablonie HTML
+    """
     prompt = f"""
-    ZADANIE: Zoptymalizuj poniższe CV pod stanowisko "{job_title}"
+    Jesteś ekspertem od optymalizacji CV. Twoim zadaniem jest przepisanie podanego CV tak, aby było bardziej atrakcyjne dla rekruterów i lepiej dopasowane do stanowiska: {job_title}
 
-    OPIS STANOWISKA:
-    {job_description}
+    ZASADY OPTYMALIZACJI:
+    1. NIE DODAWAJ żadnych fałszywych informacji
+    2. NIE WYMIŚLAJ stanowisk, firm, dat ani umiejętności
+    3. PRZEPISZ tylko to co jest w oryginalnym CV
+    4. ULEPSZAJ sformułowania używając słów kluczowych z opisu stanowiska
+    5. ZACHOWAJ wszystkie prawdziwe fakty z oryginalnego CV
 
-    CV DO OPTYMALIZACJI:
+    [PODSUMOWANIE ZAWODOWE] 
+    - Stwórz zwięzłe podsumowanie na podstawie doświadczenia z CV
+    - 2-3 zdania o kluczowych umiejętnościach i doświadczeniu
+    - Użyj tylko faktów z oryginalnego CV
+
+    [DOŚWIADCZENIE ZAWODOWE]
+    - Zachowaj wszystkie firmy, stanowiska i daty z oryginału
+    - Przepisz opisy obowiązków używając lepszych czasowników akcji
+    - Każde stanowisko: 3-4 punkty z konkretnymi obowiązkami
+    - Różnicuj opisy podobnych stanowisk
+
+    [WYKSZTAŁCENIE]
+    - Przepisz dokładnie informacje z oryginalnego CV
+    - Nie dodawaj kursów których nie ma w oryginale
+
+    [UMIEJĘTNOŚCI]
+    - Użyj tylko umiejętności wymienione w oryginalnym CV
+    - Pogrupuj je logicznie (Techniczne, Komunikacyjne, itp.)
+
+    ORYGINALNE CV:
     {cv_text}
 
-    INSTRUKCJE:
-    1. Dostosuj CV pod konkretne stanowisko
-    2. Dodaj odpowiednie słowa kluczowe
-    3. Popraw formatowanie i strukturę
-    4. Zwiększ atrakcyjność dla rekruterów
-    5. Zachowaj prawdziwość informacji
-    6. Napisz w języku polskim
+    OPIS STANOWISKA (dla kontekstu):
+    {job_description}
 
-    Zwróć TYLKO zoptymalizowane CV bez dodatkowych komentarzy.
+    ZWRÓĆ TYLKO KOMPLETNY TEKST ZOPTYMALIZOWANEGO CV - nic więcej.
+    Nie dodawaj JSON, metadanych ani komentarzy.
+    Po prostu wygeneruj gotowe CV do użycia.
     """
 
-    return make_openrouter_request(prompt, is_premium=is_premium)
+    # Rozszerzony limit tokenów dla płacących użytkowników
+    if is_premium or payment_verified:
+        max_tokens = 4000
+        prompt += f"""
+
+    DODATKOWE INSTRUKCJE DLA UŻYTKOWNIKÓW PREMIUM:
+    - Stwórz bardziej szczegółowe opisy stanowisk (4-5 punktów zamiast 3-4)
+    - Dodaj więcej słów kluczowych z branży
+    - Ulepszaj strukturę CV dla maksymalnej czytelności
+    - Optymalizuj pod systemy ATS (Applicant Tracking Systems)
+    """
+    else:
+        max_tokens = 2500
+
+    try:
+        response = make_openrouter_request(
+            prompt, 
+            max_tokens=max_tokens,
+            is_premium=(is_premium or payment_verified)
+        )
+
+        if response and response.strip():
+            # Wygeneruj sformatowane HTML CV z użyciem szablonu
+            # Zakładając, że masz funkcję generate_cv_html w pliku utils/cv_template_processor.py
+            # Jeśli jej nie masz, musisz ją dodać lub użyć innego podejścia.
+            # Na potrzeby tego przykładu, zakładamy że istnieje.
+            try:
+                from utils.cv_template_processor import generate_cv_html
+                html_cv = generate_cv_html(response.strip())
+
+                if html_cv:
+                    return html_cv
+                else:
+                    # Fallback do zwykłego tekstu jeśli HTML nie udało się wygenerować
+                    return response.strip()
+            except ImportError:
+                logger.warning("utils.cv_template_processor not found. Falling back to plain text CV.")
+                return response.strip()
+        else:
+            logger.error("Empty response from OpenRouter API")
+            return None
+
+    except Exception as e:
+        logger.error(f"Error in optimize_cv: {str(e)}")
+        return None
 
 
 def analyze_cv_with_score(cv_text,
@@ -228,36 +294,36 @@ def generate_cover_letter(cv_text,
         job_desc_info = f"\n\nOpis stanowiska:\n{job_description}" if job_description else ""
 
         prompt = f"""
-🎯 ZADANIE: Wygeneruj profesjonalny list motywacyjny w języku polskim
+    🎯 ZADANIE: Wygeneruj profesjonalny list motywacyjny w języku polskim
 
-📋 DANE WEJŚCIOWE:
-• Stanowisko: {job_title}{company_info}
-• CV kandydata: {cv_text[:3000]}...{job_desc_info}
+    📋 DANE WEJŚCIOWE:
+    • Stanowisko: {job_title}{company_info}
+    • CV kandydata: {cv_text[:3000]}...{job_desc_info}
 
-✅ WYMAGANIA LISTU MOTYWACYJNEGO:
-1. Format profesjonalny (nagłówek, zwroty grzecznościowe, podpis)
-2. Długość: 3-4 akapity (około 250-350 słów)
-3. Personalizacja pod konkretne stanowisko
-4. Podkreślenie najważniejszych kwalifikacji z CV
-5. Wykazanie motywacji i zaangażowania
-6. Profesjonalny, ale ciepły ton komunikacji
+    ✅ WYMAGANIA LISTU MOTYWACYJNEGO:
+    1. Format profesjonalny (nagłówek, zwroty grzecznościowe, podpis)
+    2. Długość: 3-4 akapity (około 250-350 słów)
+    3. Personalizacja pod konkretne stanowisko
+    4. Podkreślenie najważniejszych kwalifikacji z CV
+    5. Wykazanie motywacji i zaangażowania
+    6. Profesjonalny, ale ciepły ton komunikacji
 
-📝 STRUKTURA LISTU:
-1. **Nagłówek** - data, zwrot grzecznościowy
-2. **Wstęp** - przedstawienie się i cel listu
-3. **Główna część** - kwalifikacje, doświadczenie, motywacja
-4. **Zakończenie** - zaproszenie do kontaktu, podziękowania
-5. **Podpis** - zwroty końcowe
+    📝 STRUKTURA LISTU:
+    1. **Nagłówek** - data, zwrot grzecznościowy
+    2. **Wstęp** - przedstawienie się i cel listu
+    3. **Główna część** - kwalifikacje, doświadczenie, motywacja
+    4. **Zakończenie** - zaproszenie do kontaktu, podziękowania
+    5. **Podpis** - zwroty końcowe
 
-🚀 DODATKOWE WSKAZÓWKI:
-• Użyj konkretnych przykładów z CV
-• Dostosuj ton do branży i stanowiska
-• Podkreśl wartość, jaką kandydat wniesie do firmy
-• Unikaj powtarzania informacji z CV - uzupełnij je
-• Zachowaj autentyczność i profesjonalizm
+    🚀 DODATKOWE WSKAZÓWKI:
+    • Użyj konkretnych przykładów z CV
+    • Dostosuj ton do branży i stanowiska
+    • Podkreśl wartość, jaką kandydat wniesie do firmy
+    • Unikaj powtarzania informacji z CV - uzupełnij je
+    • Zachowaj autentyczność i profesjonalizm
 
-Wygeneruj teraz kompletny list motywacyjny:
-        """
+    Wygeneruj teraz kompletny list motywacyjny:
+            """
 
         logger.info(
             f"📧 Generowanie listu motywacyjnego dla stanowiska: {job_title}")
@@ -292,57 +358,57 @@ def generate_interview_questions(cv_text, job_title, job_description="", is_prem
     """
     try:
         job_desc_info = f"\n\nOpis stanowiska:\n{job_description}" if job_description else ""
-        
+
         prompt = f"""
-🎯 ZADANIE: Wygeneruj personalizowane pytania na rozmowę kwalifikacyjną w języku polskim
+    🎯 ZADANIE: Wygeneruj personalizowane pytania na rozmowę kwalifikacyjną w języku polskim
 
-📋 DANE WEJŚCIOWE:
-• Stanowisko: {job_title}
-• CV kandydata: {cv_text[:3000]}...{job_desc_info}
+    📋 DANE WEJŚCIOWE:
+    • Stanowisko: {job_title}
+    • CV kandydata: {cv_text[:3000]}...{job_desc_info}
 
-✅ WYMAGANIA PYTAŃ:
-1. 10-15 pytań dostosowanych do profilu kandydata
-2. Pytania powinny być różnorodne: techniczne, behawioralne, sytuacyjne
-3. Uwzględnij doświadczenie i umiejętności z CV
-4. Dodaj pytania specyficzne dla branży i stanowiska
-5. Uwzględnij poziom doświadczenia kandydata
+    ✅ WYMAGANIA PYTAŃ:
+    1. 10-15 pytań dostosowanych do profilu kandydata
+    2. Pytania powinny być różnorodne: techniczne, behawioralne, sytuacyjne
+    3. Uwzględnij doświadczenie i umiejętności z CV
+    4. Dodaj pytania specyficzne dla branży i stanowiska
+    5. Uwzględnij poziom doświadczenia kandydata
 
-📝 KATEGORIE PYTAŃ:
-1. **Pytania podstawowe** - o doświadczeniu i motywacji
-2. **Pytania techniczne** - o konkretne umiejętności z CV
-3. **Pytania behawioralne** - o sytuacje i zachowania
-4. **Pytania sytuacyjne** - scenariusze problemowe
-5. **Pytania o firmę** - zainteresowanie pozycją i firmą
+    📝 KATEGORIE PYTAŃ:
+    1. **Pytania podstawowe** - o doświadczeniu i motywacji
+    2. **Pytania techniczne** - o konkretne umiejętności z CV
+    3. **Pytania behawioralne** - o sytuacje i zachowania
+    4. **Pytania sytuacyjne** - scenariusze problemowe
+    5. **Pytania o firmę** - zainteresowanie pozycją i firmą
 
-🎤 FORMAT ODPOWIEDZI:
-PYTANIA PODSTAWOWE:
-1. [pytanie]
-2. [pytanie]
+    🎤 FORMAT ODPOWIEDZI:
+    PYTANIA PODSTAWOWE:
+    1. [pytanie]
+    2. [pytanie]
 
-PYTANIA TECHNICZNE:
-1. [pytanie]
-2. [pytanie]
+    PYTANIA TECHNICZNE:
+    1. [pytanie]
+    2. [pytanie]
 
-PYTANIA BEHAWIORALNE:
-1. [pytanie]
-2. [pytanie]
+    PYTANIA BEHAWIORALNE:
+    1. [pytanie]
+    2. [pytanie]
 
-PYTANIA SYTUACYJNE:
-1. [pytanie]
-2. [pytanie]
+    PYTANIA SYTUACYJNE:
+    1. [pytanie]
+    2. [pytanie]
 
-PYTANIA O FIRMĘ I STANOWISKO:
-1. [pytanie]
-2. [pytanie]
+    PYTANIA O FIRMĘ I STANOWISKO:
+    1. [pytanie]
+    2. [pytanie]
 
-🚀 WSKAZÓWKI:
-• Każde pytanie powinno być konkretne i merytoryczne
-• Uwzględnij słowa kluczowe z opisu stanowiska
-• Dostosuj poziom trudności do doświadczenia kandydata
-• Dodaj pytania sprawdzające soft skills
+    🚀 WSKAZÓWKI:
+    • Każde pytanie powinno być konkretne i merytoryczne
+    • Uwzględnij słowa kluczowe z opisu stanowiska
+    • Dostosuj poziom trudności do doświadczenia kandydata
+    • Dodaj pytania sprawdzające soft skills
 
-Wygeneruj teraz personalizowane pytania na rozmowę kwalifikacyjną:
-        """
+    Wygeneruj teraz personalizowane pytania na rozmowę kwalifikacyjną:
+            """
 
         logger.info(f"🤔 Generowanie pytań na rozmowę dla stanowiska: {job_title}")
 
@@ -350,7 +416,7 @@ Wygeneruj teraz personalizowane pytania na rozmowę kwalifikacyjną:
 
         if questions:
             logger.info(f"✅ Pytania na rozmowę wygenerowane pomyślnie (długość: {len(questions)} znaków)")
-            
+
             return {
                 'success': True,
                 'questions': questions,
@@ -372,58 +438,58 @@ def analyze_skills_gap(cv_text, job_title, job_description="", is_premium=False)
     """
     try:
         job_desc_info = f"\n\nOpis stanowiska:\n{job_description}" if job_description else ""
-        
+
         prompt = f"""
-🎯 ZADANIE: Przeprowadź szczegółową analizę luk kompetencyjnych w języku polskim
+    🎯 ZADANIE: Przeprowadź szczegółową analizę luk kompetencyjnych w języku polskim
 
-📋 DANE WEJŚCIOWE:
-• Stanowisko: {job_title}
-• CV kandydata: {cv_text[:3000]}...{job_desc_info}
+    📋 DANE WEJŚCIOWE:
+    • Stanowisko: {job_title}
+    • CV kandydata: {cv_text[:3000]}...{job_desc_info}
 
-✅ CELE ANALIZY:
-1. Porównaj umiejętności z CV z wymaganiami stanowiska
-2. Zidentyfikuj mocne strony kandydata
-3. Wykryj luki kompetencyjne i brakujące umiejętności
-4. Zasugeruj sposoby rozwoju i uzupełnienia braków
-5. Oceń ogólne dopasowanie do stanowiska (0-100%)
+    ✅ CELE ANALIZY:
+    1. Porównaj umiejętności z CV z wymaganiami stanowiska
+    2. Zidentyfikuj mocne strony kandydata
+    3. Wykryj luki kompetencyjne i brakujące umiejętności
+    4. Zasugeruj sposoby rozwoju i uzupełnienia braków
+    5. Oceń ogólne dopasowanie do stanowiska (0-100%)
 
-📊 FORMAT ODPOWIEDZI:
+    📊 FORMAT ODPOWIEDZI:
 
-OCENA OGÓLNA: [XX]% dopasowania do stanowiska
+    OCENA OGÓLNA: [XX]% dopasowania do stanowiska
 
-MOCNE STRONY KANDYDATA:
-✅ [umiejętność 1] - [krótkie uzasadnienie]
-✅ [umiejętność 2] - [krótkie uzasadnienie]
-✅ [umiejętność 3] - [krótkie uzasadnienie]
+    MOCNE STRONY KANDYDATA:
+    ✅ [umiejętność 1] - [krótkie uzasadnienie]
+    ✅ [umiejętność 2] - [krótkie uzasadnienie]
+    ✅ [umiejętność 3] - [krótkie uzasadnienie]
 
-LUKI KOMPETENCYJNE:
-❌ [brakująca umiejętność 1] - [dlaczego jest potrzebna]
-❌ [brakująca umiejętność 2] - [dlaczego jest potrzebna]
-❌ [brakująca umiejętność 3] - [dlaczego jest potrzebna]
+    LUKI KOMPETENCYJNE:
+    ❌ [brakująca umiejętność 1] - [dlaczego jest potrzebna]
+    ❌ [brakująca umiejętność 2] - [dlaczego jest potrzebna]
+    ❌ [brakująca umiejętność 3] - [dlaczego jest potrzebna]
 
-REKOMENDACJE ROZWOJU:
-🎓 [konkretna rekomendacja 1] - [kurs/certyfikat/doświadczenie]
-🎓 [konkretna rekomendacja 2] - [kurs/certyfikat/doświadczenie]
-🎓 [konkretna rekomendacja 3] - [kurs/certyfikat/doświadczenie]
+    REKOMENDACJE ROZWOJU:
+    🎓 [konkretna rekomendacja 1] - [kurs/certyfikat/doświadczenie]
+    🎓 [konkretna rekomendacja 2] - [kurs/certyfikat/doświadczenie]
+    🎓 [konkretna rekomendacja 3] - [kurs/certyfikat/doświadczenie]
 
-PRIORYTET ROZWOJU:
-🔥 WYSOKI PRIORYTET: [umiejętności kluczowe dla stanowiska]
-🔸 ŚREDNI PRIORYTET: [umiejętności przydatne]
-🔹 NISKI PRIORYTET: [umiejętności dodatkowe]
+    PRIORYTET ROZWOJU:
+    🔥 WYSOKI PRIORYTET: [umiejętności kluczowe dla stanowiska]
+    🔸 ŚREDNI PRIORYTET: [umiejętności przydatne]
+    🔹 NISKI PRIORYTET: [umiejętności dodatkowe]
 
-PLAN DZIAŁANIA (3-6 miesięcy):
-1. [konkretny krok do podjęcia]
-2. [konkretny krok do podjęcia]
-3. [konkretny krok do podjęcia]
+    PLAN DZIAŁANIA (3-6 miesięcy):
+    1. [konkretny krok do podjęcia]
+    2. [konkretny krok do podjęcia]
+    3. [konkretny krok do podjęcia]
 
-🚀 WSKAZÓWKI:
-• Skup się na umiejętnościach technicznych i soft skills
-• Uwzględnij trendy w branży
-• Zasugeruj konkretne zasoby edukacyjne
-• Oceń realność pozyskania brakujących kompetencji
+    🚀 WSKAZÓWKI:
+    • Skup się na umiejętnościach technicznych i soft skills
+    • Uwzględnij trendy w branży
+    • Zasugeruj konkretne zasoby edukacyjne
+    • Oceń realność pozyskania brakujących kompetencji
 
-Przeprowadź teraz szczegółową analizę luk kompetencyjnych:
-        """
+    Przeprowadź teraz szczegółową analizę luk kompetencyjnych:
+            """
 
         logger.info(f"🔍 Analiza luk kompetencyjnych dla stanowiska: {job_title}")
 
@@ -431,7 +497,7 @@ Przeprowadź teraz szczegółową analizę luk kompetencyjnych:
 
         if analysis:
             logger.info(f"✅ Analiza luk kompetencyjnych ukończona pomyślnie (długość: {len(analysis)} znaków)")
-            
+
             return {
                 'success': True,
                 'analysis': analysis,
