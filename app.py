@@ -52,10 +52,12 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 from flask import send_from_directory
 import os
 
+
 @app.route('/ads.txt')
 def ads_txt():
     # Plik ads.txt musi być w katalogu głównym obok tego pliku .py
-    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'ads.txt')
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)),
+                               'ads.txt')
 
 
 # Configure the database - using Neon Database (PostgreSQL)
@@ -114,10 +116,14 @@ PRICING = {
         'description': 'Optymalizacja jednego CV bez dodatkowych funkcji'
     },
     'monthly_package': {
-        'price': 4900,  # 49 zł w groszach  
-        'currency': 'PLN',
-        'name': 'Pełny pakiet miesięczny',
-        'description': 'CV + list motywacyjny + pytania + analiza luk kompetencyjnych'
+        'price':
+        4900,  # 49 zł w groszach  
+        'currency':
+        'PLN',
+        'name':
+        'Pełny pakiet miesięczny',
+        'description':
+        'CV + list motywacyjny + pytania + analiza luk kompetencyjnych'
     }
 }
 
@@ -158,9 +164,7 @@ class User(UserMixin, db.Model):
 
         # Sprawdź aktywną subskrypcję
         active_subscription = Subscription.query.filter_by(
-            user_id=self.id, 
-            status='active'
-        ).first()
+            user_id=self.id, status='active').first()
 
         if active_subscription and active_subscription.is_active():
             return True
@@ -178,8 +182,8 @@ class User(UserMixin, db.Model):
 
         # Sprawdź jednorazowe płatności
         single_payment = SinglePayment.query.filter_by(user_id=self.id).filter(
-            SinglePayment.cv_optimizations_used < SinglePayment.cv_optimizations_limit
-        ).first()
+            SinglePayment.cv_optimizations_used <
+            SinglePayment.cv_optimizations_limit).first()
 
         return single_payment is not None
 
@@ -194,8 +198,8 @@ class User(UserMixin, db.Model):
     def use_cv_optimization(self):
         """Używa jedną optymalizację CV z jednorazowej płatności"""
         single_payment = SinglePayment.query.filter_by(user_id=self.id).filter(
-            SinglePayment.cv_optimizations_used < SinglePayment.cv_optimizations_limit
-        ).first()
+            SinglePayment.cv_optimizations_used <
+            SinglePayment.cv_optimizations_limit).first()
 
         if single_payment:
             return single_payment.use_optimization()
@@ -207,10 +211,8 @@ class User(UserMixin, db.Model):
             return {'type': 'developer', 'status': 'active'}
 
         # Sprawdź subskrypcję
-        subscription = Subscription.query.filter_by(
-            user_id=self.id, 
-            status='active'
-        ).first()
+        subscription = Subscription.query.filter_by(user_id=self.id,
+                                                    status='active').first()
 
         if subscription and subscription.is_active():
             return {
@@ -222,14 +224,18 @@ class User(UserMixin, db.Model):
 
         # Sprawdź jednorazowe płatności
         single_payment = SinglePayment.query.filter_by(user_id=self.id).filter(
-            SinglePayment.cv_optimizations_used < SinglePayment.cv_optimizations_limit
-        ).first()
+            SinglePayment.cv_optimizations_used <
+            SinglePayment.cv_optimizations_limit).first()
 
         if single_payment:
             return {
-                'type': 'single',
-                'status': 'active',
-                'optimizations_left': single_payment.cv_optimizations_limit - single_payment.cv_optimizations_used
+                'type':
+                'single',
+                'status':
+                'active',
+                'optimizations_left':
+                single_payment.cv_optimizations_limit -
+                single_payment.cv_optimizations_used
             }
 
         return {'type': 'free', 'status': 'inactive'}
@@ -374,12 +380,17 @@ class SkillsGapAnalysis(db.Model):
 class StripePayment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    stripe_payment_intent_id = db.Column(db.String(200), unique=True, nullable=False)
+    stripe_payment_intent_id = db.Column(db.String(200),
+                                         unique=True,
+                                         nullable=False)
     stripe_session_id = db.Column(db.String(200), unique=True, nullable=True)
     amount = db.Column(db.Integer, nullable=False)  # kwota w groszach
     currency = db.Column(db.String(3), default='PLN')
-    payment_type = db.Column(db.String(50), nullable=False)  # 'single_cv' lub 'monthly_package'
-    status = db.Column(db.String(50), default='pending')  # pending, completed, failed, refunded
+    payment_type = db.Column(
+        db.String(50), nullable=False)  # 'single_cv' lub 'monthly_package'
+    status = db.Column(
+        db.String(50),
+        default='pending')  # pending, completed, failed, refunded
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime, nullable=True)
 
@@ -393,9 +404,12 @@ class StripePayment(db.Model):
 class Subscription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    stripe_subscription_id = db.Column(db.String(200), unique=True, nullable=False)
+    stripe_subscription_id = db.Column(db.String(200),
+                                       unique=True,
+                                       nullable=False)
     stripe_customer_id = db.Column(db.String(200), nullable=False)
-    status = db.Column(db.String(50), nullable=False)  # active, canceled, past_due, etc.
+    status = db.Column(db.String(50),
+                       nullable=False)  # active, canceled, past_due, etc.
     plan_type = db.Column(db.String(50), default='monthly_package')
     amount = db.Column(db.Integer, nullable=False)  # 4900 (49 zł)
     currency = db.Column(db.String(3), default='PLN')
@@ -403,14 +417,17 @@ class Subscription(db.Model):
     current_period_end = db.Column(db.DateTime, nullable=False)
     cancel_at_period_end = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime,
+                           default=datetime.utcnow,
+                           onupdate=datetime.utcnow)
 
     # Relacja do użytkownika
-    user = db.relationship('User', backref=db.backref('subscriptions', lazy=True))
+    user = db.relationship('User',
+                           backref=db.backref('subscriptions', lazy=True))
 
     def is_active(self):
-        return (self.status == 'active' and 
-                datetime.utcnow() < self.current_period_end)
+        return (self.status == 'active'
+                and datetime.utcnow() < self.current_period_end)
 
     def __repr__(self):
         return f'<Subscription {self.plan_type}: {self.status}>'
@@ -419,15 +436,22 @@ class Subscription(db.Model):
 class SinglePayment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    payment_id = db.Column(db.Integer, db.ForeignKey('stripe_payment.id'), nullable=False)
+    payment_id = db.Column(db.Integer,
+                           db.ForeignKey('stripe_payment.id'),
+                           nullable=False)
     cv_optimizations_used = db.Column(db.Integer, default=0)
-    cv_optimizations_limit = db.Column(db.Integer, default=1)  # 1 optymalizacja za 19 zł
-    expires_at = db.Column(db.DateTime, nullable=True)  # Brak wygaśnięcia dla jednorazowej
+    cv_optimizations_limit = db.Column(db.Integer,
+                                       default=1)  # 1 optymalizacja za 19 zł
+    expires_at = db.Column(db.DateTime,
+                           nullable=True)  # Brak wygaśnięcia dla jednorazowej
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relacje
-    user = db.relationship('User', backref=db.backref('single_payments', lazy=True))
-    payment = db.relationship('StripePayment', backref=db.backref('single_payment', uselist=False))
+    user = db.relationship('User',
+                           backref=db.backref('single_payments', lazy=True))
+    payment = db.relationship('StripePayment',
+                              backref=db.backref('single_payment',
+                                                 uselist=False))
 
     def can_optimize_cv(self):
         return self.cv_optimizations_used < self.cv_optimizations_limit
@@ -452,6 +476,7 @@ def load_user(user_id):
 @app.template_global()
 def now():
     return datetime.utcnow()
+
 
 @app.template_global()
 def generate_cv_html(cv_text):
@@ -643,7 +668,8 @@ def generate_cover_letter_route():
         if not current_user.can_use_full_features():
             return jsonify({
                 'success': False,
-                'message': 'List motywacyjny jest dostępny tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
+                'message':
+                'List motywacyjny jest dostępny tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
                 'redirect_to_pricing': True
             })
 
@@ -704,14 +730,12 @@ def generate_cover_letter_route():
     except Exception as e:
         logger.error(f"Error in generate_cover_letter_route: {str(e)}")
         error_message = "Wystąpił błąd podczas generowania listu motywacyjnego"
-        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+        if any(keyword in str(e).lower()
+               for keyword in ["timeout", "timed out", "worker timeout"]):
             error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć opis stanowiska."
         elif "connection" in str(e).lower():
             error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
-        return jsonify({
-            'success': False,
-            'message': error_message
-        })
+        return jsonify({'success': False, 'message': error_message})
 
 
 @app.route('/generate-interview-questions', methods=['POST'])
@@ -737,7 +761,8 @@ def generate_interview_questions_route():
         if not current_user.can_use_full_features():
             return jsonify({
                 'success': False,
-                'message': 'Pytania na rozmowę są dostępne tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
+                'message':
+                'Pytania na rozmowę są dostępne tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
                 'redirect_to_pricing': True
             })
 
@@ -756,9 +781,9 @@ def generate_interview_questions_route():
         # Generuj pytania na rozmowę
         from utils.openrouter_api import generate_interview_questions
         result = generate_interview_questions(cv_text=cv_upload.original_text,
-                                            job_title=job_title,
-                                            job_description=job_description,
-                                            is_premium=is_premium)
+                                              job_title=job_title,
+                                              job_description=job_description,
+                                              is_premium=is_premium)
 
         if not result or not result.get('success'):
             return jsonify({
@@ -783,23 +808,25 @@ def generate_interview_questions_route():
         db.session.commit()
 
         return jsonify({
-            'success': True,
-            'questions': result['questions'],
-            'questions_session_id': questions_session_id,
-            'message': 'Pytania na rozmowę zostały wygenerowane pomyślnie'
+            'success':
+            True,
+            'questions':
+            result['questions'],
+            'questions_session_id':
+            questions_session_id,
+            'message':
+            'Pytania na rozmowę zostały wygenerowane pomyślnie'
         })
 
     except Exception as e:
         logger.error(f"Error in generate_interview_questions_route: {str(e)}")
         error_message = "Wystąpił błąd podczas generowania pytań na rozmowę"
-        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+        if any(keyword in str(e).lower()
+               for keyword in ["timeout", "timed out", "worker timeout"]):
             error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć opis stanowiska."
         elif "connection" in str(e).lower():
             error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
-        return jsonify({
-            'success': False,
-            'message': error_message
-        })
+        return jsonify({'success': False, 'message': error_message})
 
 
 @app.route('/analyze-skills-gap', methods=['POST'])
@@ -825,7 +852,8 @@ def analyze_skills_gap_route():
         if not current_user.can_use_full_features():
             return jsonify({
                 'success': False,
-                'message': 'Analiza luk kompetencyjnych jest dostępna tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
+                'message':
+                'Analiza luk kompetencyjnych jest dostępna tylko w pełnym pakiecie miesięcznym za 49 zł/msc.',
                 'redirect_to_pricing': True
             })
 
@@ -844,9 +872,9 @@ def analyze_skills_gap_route():
         # Analizuj luki kompetencyjne
         from utils.openrouter_api import analyze_skills_gap
         result = analyze_skills_gap(cv_text=cv_upload.original_text,
-                                  job_title=job_title,
-                                  job_description=job_description,
-                                  is_premium=is_premium)
+                                    job_title=job_title,
+                                    job_description=job_description,
+                                    is_premium=is_premium)
 
         if not result or not result.get('success'):
             return jsonify({
@@ -871,23 +899,25 @@ def analyze_skills_gap_route():
         db.session.commit()
 
         return jsonify({
-            'success': True,
-            'analysis': result['analysis'],
-            'analysis_session_id': analysis_session_id,
-            'message': 'Analiza luk kompetencyjnych została ukończona pomyślnie'
+            'success':
+            True,
+            'analysis':
+            result['analysis'],
+            'analysis_session_id':
+            analysis_session_id,
+            'message':
+            'Analiza luk kompetencyjnych została ukończona pomyślnie'
         })
 
     except Exception as e:
         logger.error(f"Error in analyze_skills_gap_route: {str(e)}")
         error_message = "Wystąpił błąd podczas analizy luk kompetencyjnych"
-        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+        if any(keyword in str(e).lower()
+               for keyword in ["timeout", "timed out", "worker timeout"]):
             error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć opis stanowiska."
         elif "connection" in str(e).lower():
             error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
-        return jsonify({
-            'success': False,
-            'message': error_message
-        })
+        return jsonify({'success': False, 'message': error_message})
 
 
 @app.route('/optimize-cv', methods=['POST'])
@@ -914,13 +944,16 @@ def optimize_cv_route():
             if payment_status['type'] == 'free':
                 return jsonify({
                     'success': False,
-                    'message': 'Aby optymalizować CV, musisz wykupić jednorazową optymalizację (19 zł) lub pełny pakiet (49 zł/msc).',
+                    'message':
+                    'Aby optymalizować CV, musisz wykupić jednorazową optymalizację (19 zł) lub pełny pakiet (49 zł/msc).',
                     'redirect_to_pricing': True
                 })
             else:
                 return jsonify({
-                    'success': False,
-                    'message': 'Wykorzystałeś już dostępne optymalizacje CV.'
+                    'success':
+                    False,
+                    'message':
+                    'Wykorzystałeś już dostępne optymalizacje CV.'
                 })
 
         cv_text = cv_upload.original_text
@@ -963,14 +996,12 @@ def optimize_cv_route():
     except Exception as e:
         logger.error(f"Error in optimize_cv_route: {str(e)}")
         error_message = "Wystąpił błąd podczas optymalizacji CV"
-        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+        if any(keyword in str(e).lower()
+               for keyword in ["timeout", "timed out", "worker timeout"]):
             error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć tekst CV."
         elif "connection" in str(e).lower():
             error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
-        return jsonify({
-            'success': False,
-            'message': error_message
-        })
+        return jsonify({'success': False, 'message': error_message})
 
 
 @app.route('/analyze-cv', methods=['POST'])
@@ -1027,14 +1058,12 @@ def analyze_cv_route():
     except Exception as e:
         logger.error(f"Error in analyze_cv_route: {str(e)}")
         error_message = "Wystąpił błąd podczas analizy CV"
-        if any(keyword in str(e).lower() for keyword in ["timeout", "timed out", "worker timeout"]):
+        if any(keyword in str(e).lower()
+               for keyword in ["timeout", "timed out", "worker timeout"]):
             error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć tekst CV."
         elif "connection" in str(e).lower():
             error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
-        return jsonify({
-            'success': False,
-            'message': error_message
-        })
+        return jsonify({'success': False, 'message': error_message})
 
 
 @app.route('/result/<session_id>')
@@ -1107,8 +1136,8 @@ def view_skills_gap_analysis(session_id):
 @login_required
 def view_cv(session_id):
     """Wyświetl zoptymalizowane CV w nowym oknie z formatowaniem"""
-    cv_upload = CVUpload.query.filter_by(session_id=session_id,
-                                         user_id=current_user.id).first_or_404()
+    cv_upload = CVUpload.query.filter_by(
+        session_id=session_id, user_id=current_user.id).first_or_404()
 
     if not cv_upload.optimized_cv:
         flash('CV nie zostało jeszcze zoptymalizowane.', 'error')
@@ -1147,14 +1176,14 @@ def about():
 
 
 @app.route('/pricing')
-@login_required 
+@login_required
 def pricing():
     """Strona z cennikiem"""
     user_payment_status = current_user.get_payment_status()
-    return render_template('pricing.html', 
-                         pricing=PRICING,
-                         user_status=user_payment_status,
-                         stripe_public_key=STRIPE_PUBLISHABLE_KEY)
+    return render_template('pricing.html',
+                           pricing=PRICING,
+                           user_status=user_payment_status,
+                           stripe_public_key=STRIPE_PUBLISHABLE_KEY)
 
 
 @app.route('/create-checkout-session', methods=['POST'])
@@ -1164,7 +1193,8 @@ def create_checkout_session():
     try:
         # Sprawdź czy Stripe jest skonfigurowany
         if not STRIPE_SECRET_KEY:
-            return jsonify({'error': 'System płatności nie jest dostępny'}), 503
+            return jsonify({'error':
+                            'System płatności nie jest dostępny'}), 503
 
         data = request.get_json()
         if not data:
@@ -1180,9 +1210,7 @@ def create_checkout_session():
         # Sprawdź czy użytkownik już ma aktywną subskrypcję
         if payment_type == 'monthly_package':
             existing_subscription = Subscription.query.filter_by(
-                user_id=current_user.id,
-                status='active'
-            ).first()
+                user_id=current_user.id, status='active').first()
 
             if existing_subscription and existing_subscription.is_active():
                 return jsonify({'error': 'Masz już aktywną subskrypcję'}), 400
@@ -1193,12 +1221,12 @@ def create_checkout_session():
                 customer = stripe.Customer.create(
                     email=current_user.email,
                     name=f"{current_user.first_name} {current_user.last_name}",
-                    metadata={'user_id': str(current_user.id)}
-                )
+                    metadata={'user_id': str(current_user.id)})
                 current_user.stripe_customer_id = customer.id
                 db.session.commit()
         except Exception as stripe_error:
-            logger.error(f"Error creating Stripe customer: {str(stripe_error)}")
+            logger.error(
+                f"Error creating Stripe customer: {str(stripe_error)}")
             return jsonify({'error': 'Błąd tworzenia konta płatności'}), 500
 
         # Konfiguracja sesji checkout
@@ -1220,13 +1248,13 @@ def create_checkout_session():
                         'quantity': 1,
                     }],
                     mode='payment',
-                    success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                    success_url=url_for('payment_success', _external=True) +
+                    '?session_id={CHECKOUT_SESSION_ID}',
                     cancel_url=url_for('pricing', _external=True),
                     metadata={
                         'user_id': str(current_user.id),
                         'payment_type': payment_type
-                    }
-                )
+                    })
             else:
                 # Subskrypcja miesięczna
                 checkout_session = stripe.checkout.Session.create(
@@ -1240,28 +1268,32 @@ def create_checkout_session():
                                 'description': price_info['description'],
                             },
                             'unit_amount': price_info['price'],
-                            'recurring': {'interval': 'month'},
+                            'recurring': {
+                                'interval': 'month'
+                            },
                         },
                         'quantity': 1,
                     }],
                     mode='subscription',
-                    success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                    success_url=url_for('payment_success', _external=True) +
+                    '?session_id={CHECKOUT_SESSION_ID}',
                     cancel_url=url_for('pricing', _external=True),
                     metadata={
                         'user_id': str(current_user.id),
                         'payment_type': payment_type
-                    }
-                )
+                    })
 
             return jsonify({'checkout_url': checkout_session.url})
 
         except stripe.error.StripeError as stripe_error:
-            logger.error(f"Stripe error creating checkout session: {str(stripe_error)}")
+            logger.error(
+                f"Stripe error creating checkout session: {str(stripe_error)}")
             return jsonify({'error': 'Błąd systemu płatności'}), 500
 
     except Exception as e:
         logger.error(f"Error creating checkout session: {str(e)}")
-        return jsonify({'error': 'Wystąpił błąd podczas tworzenia sesji płatności'}), 500
+        return jsonify(
+            {'error': 'Wystąpił błąd podczas tworzenia sesji płatności'}), 500
 
 
 @app.route('/payment-success')
@@ -1306,9 +1338,8 @@ def stripe_webhook():
     sig_header = request.headers.get('Stripe-Signature')
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, STRIPE_WEBHOOK_SECRET
-        )
+        event = stripe.Webhook.construct_event(payload, sig_header,
+                                               STRIPE_WEBHOOK_SECRET)
     except ValueError as e:
         logger.error(f"Invalid payload: {str(e)}")
         return '', 400
@@ -1391,7 +1422,8 @@ def process_subscription_payment(checkout_session):
             return
 
         # Pobierz subskrypcję z Stripe
-        stripe_subscription = stripe.Subscription.retrieve(checkout_session.subscription)
+        stripe_subscription = stripe.Subscription.retrieve(
+            checkout_session.subscription)
 
         # Zapisz płatność
         payment = StripePayment()
@@ -1413,10 +1445,14 @@ def process_subscription_payment(checkout_session):
         subscription.stripe_customer_id = stripe_subscription.customer
         subscription.status = stripe_subscription.status
         subscription.plan_type = 'monthly_package'
-        subscription.amount = stripe_subscription.items.data[0].price.unit_amount
-        subscription.currency = stripe_subscription.items.data[0].price.currency.upper()
-        subscription.current_period_start = datetime.fromtimestamp(stripe_subscription.current_period_start)
-        subscription.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
+        subscription.amount = stripe_subscription.items.data[
+            0].price.unit_amount
+        subscription.currency = stripe_subscription.items.data[
+            0].price.currency.upper()
+        subscription.current_period_start = datetime.fromtimestamp(
+            stripe_subscription.current_period_start)
+        subscription.current_period_end = datetime.fromtimestamp(
+            stripe_subscription.current_period_end)
 
         db.session.add(subscription)
         db.session.commit()
@@ -1448,14 +1484,15 @@ def handle_subscription_payment_succeeded(invoice):
     """Obsługuje udaną płatność subskrypcji"""
     subscription_id = invoice['subscription']
     subscription_obj = Subscription.query.filter_by(
-        stripe_subscription_id=subscription_id
-    ).first()
+        stripe_subscription_id=subscription_id).first()
 
     if subscription_obj:
         # Aktualizuj daty subskrypcji
         stripe_subscription = stripe.Subscription.retrieve(subscription_id)
-        subscription_obj.current_period_start = datetime.fromtimestamp(stripe_subscription.current_period_start)
-        subscription_obj.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
+        subscription_obj.current_period_start = datetime.fromtimestamp(
+            stripe_subscription.current_period_start)
+        subscription_obj.current_period_end = datetime.fromtimestamp(
+            stripe_subscription.current_period_end)
         subscription_obj.status = stripe_subscription.status
         db.session.commit()
 
@@ -1463,8 +1500,7 @@ def handle_subscription_payment_succeeded(invoice):
 def handle_subscription_deleted(subscription):
     """Obsługuje usunięcie subskrypcji"""
     subscription_obj = Subscription.query.filter_by(
-        stripe_subscription_id=subscription['id']
-    ).first()
+        stripe_subscription_id=subscription['id']).first()
 
     if subscription_obj:
         subscription_obj.status = 'canceled'
