@@ -201,3 +201,48 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// CV Optimizer Pro - Main JavaScript
+
+console.log('🚀 CV Optimizer Pro initialized');
+
+// Loading states
+function showLoading(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
+    }
+}
+
+function hideLoading(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = '';
+    }
+}
+
+// Download functions
+function downloadText(content, filename) {
+    if (!content) {
+        alert('Brak treści do pobrania');
+        return;
+    }
+
+    const element = document.createElement('a');
+    const file = new Blob([content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = filename || 'document.txt';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+function downloadCV() {
+    const cvContent = document.getElementById('cv-content');
+    if (cvContent) {
+        const content = cvContent.innerText || cvContent.textContent;
+        downloadText(content, 'zoptymalizowane_cv.txt');
+    } else {
+        alert('Nie znaleziono treści CV do pobrania');
+    }
+}
