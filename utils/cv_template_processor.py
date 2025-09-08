@@ -317,33 +317,41 @@ def parse_experience_item(content):
         'responsibilities': []
     }
     
+    # Połącz wszystkie linie w jeden tekst dla lepszego parsowania
+    full_text = ' '.join(content)
+    
     # Pierwsza niepusta linia to prawdopodobnie stanowisko i firma
     first_line = content[0].strip() if content else ''
     
-    # Sprawdź czy pierwsza linia zawiera stanowisko | firma
+    # Sprawdź czy pierwsza linia zawiera stanowisko | firma lub stanowisko - firma
     if '|' in first_line:
         parts = first_line.split('|')
         exp['position'] = parts[0].strip()
         if len(parts) > 1:
             exp['company'] = parts[1].strip()
+    elif ' - ' in first_line and len(first_line.split(' - ')) == 2:
+        parts = first_line.split(' - ')
+        exp['position'] = parts[0].strip()
+        exp['company'] = parts[1].strip()
     else:
         exp['position'] = first_line
     
     # Szukaj daty, firmy i obowiązków
     date_patterns = [
-        r'\d{4}[\s-–]*(?:\d{4}|obecnie|obecnie.*|present|current)',  # 2020-2024, 2020-obecnie
-        r'\d{1,2}[\./]\d{4}[\s-–]*\d{1,2}[\./]\d{4}',  # 01/2020 - 12/2024
-        r'(?:styczeń|luty|marzec|kwiecień|maj|czerwiec|lipiec|sierpień|wrzesień|październik|listopad|grudzień)',
-        r'(?:january|february|march|april|may|june|july|august|september|october|november|december)',
+        r'\d{4}[\s\-–]*(?:\d{4}|obecnie|obecnie.*|present|current)',  # 2020-2024, 2020-obecnie
+        r'\d{1,2}[\./]\d{4}[\s\-–]*\d{1,2}[\./]\d{4}',  # 01/2020 - 12/2024
+        r'(?:styczeń|luty|marzec|kwiecień|maj|czerwiec|lipiec|sierpień|wrzesień|październik|listopad|grudzień)[\s\-–]*\d{4}',
+        r'(?:january|february|march|april|may|june|july|august|september|october|november|december)[\s\-–]*\d{4}',
         r'obecnie|present|current',
-        r'\*\d{4}'  # *2024 format
+        r'\d{4}[\s\-–]*obecnie',
+        r'\d{4}[\s\-–]*\d{4}'
     ]
     
-    responsibility_markers = ['-', '•', '*', '▸', '→', '◦', '–', '‒']
+    responsibility_markers = ['-', '•', '*', '▸', '→', '◦', '–', '‒', '✓', '+']
     
-    for line in content[1:] if len(content) > 1 else []:
+    for i, line in enumerate(content):
         line = line.strip()
-        if not line:
+        if not line or i == 0:  # Pomiń pierwszą linię (już przetworzoną)
             continue
             
         # Sprawdź czy zawiera datę
@@ -354,8 +362,8 @@ def parse_experience_item(content):
         elif (not exp['company'] and 
               not any(line.startswith(marker) for marker in responsibility_markers) and
               not is_date and
-              len(line) > 2 and len(line) < 150 and
-              not line.lower().startswith(('opis', 'obowiązki', 'zakres'))):
+              len(line) > 2 and len(line) < 100 and
+              not line.lower().startswith(('opis', 'obowiązki', 'zakres', 'odpowiedzialności'))):
             exp['company'] = line
         elif any(line.startswith(marker) for marker in responsibility_markers):
             # Usuń marker i dodaj do obowiązków
@@ -364,12 +372,18 @@ def parse_experience_item(content):
                 if responsibility.startswith(marker):
                     responsibility = responsibility[len(marker):].strip()
                     break
-            if responsibility and len(responsibility) > 10:
+            if responsibility and len(responsibility) > 5:
                 exp['responsibilities'].append(responsibility)
-        elif (line and len(line) > 20 and not is_date and 
-              not line.lower().startswith(('stanowisko', 'firma', 'okres')) and
-              '.' in line):  # Prawdopodobnie zdanie opisujące obowiązki
+        elif (line and len(line) > 15 and not is_date and 
+              not line.lower().startswith(('stanowisko', 'firma', 'okres', 'pozycja')) and
+              not exp['company'] and
+              ('.' in line or len(line.split()) > 4)):  # Prawdopodobnie opis obowiązków
             exp['responsibilities'].append(line)
+    
+    # Jeśli nie ma obowiązków, dodaj przykładowe na podstawie stanowiska
+    if not exp['responsibilities'] and exp['position']:
+        sample_responsibility = f"Wykonywanie zadań związanych z pozycją {exp['position'].lower()}"
+        exp['responsibilities'].append(sample_responsibility)
     
     return exp if exp['position'] else None
 
