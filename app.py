@@ -94,9 +94,16 @@ UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf'}
 
 # Stripe configuration
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
+# Initialize Stripe only if keys are available
+if STRIPE_SECRET_KEY:
+    stripe.api_key = STRIPE_SECRET_KEY
+    logger.info("Stripe initialized successfully")
+else:
+    logger.warning("Stripe keys not found - payment functionality disabled")
 
 # Cennik
 PRICING = {
@@ -1155,7 +1162,14 @@ def pricing():
 def create_checkout_session():
     """Tworzy sesję płatności Stripe"""
     try:
+        # Sprawdź czy Stripe jest skonfigurowany
+        if not STRIPE_SECRET_KEY:
+            return jsonify({'error': 'System płatności nie jest dostępny'}), 503
+
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Brak danych żądania'}), 400
+            
         payment_type = data.get('payment_type')
         
         if payment_type not in PRICING:
@@ -1174,67 +1188,76 @@ def create_checkout_session():
                 return jsonify({'error': 'Masz już aktywną subskrypcję'}), 400
         
         # Utwórz lub pobierz Stripe customer
-        if not current_user.stripe_customer_id:
-            customer = stripe.Customer.create(
-                email=current_user.email,
-                name=f"{current_user.first_name} {current_user.last_name}",
-                metadata={'user_id': current_user.id}
-            )
-            current_user.stripe_customer_id = customer.id
-            db.session.commit()
+        try:
+            if not current_user.stripe_customer_id:
+                customer = stripe.Customer.create(
+                    email=current_user.email,
+                    name=f"{current_user.first_name} {current_user.last_name}",
+                    metadata={'user_id': str(current_user.id)}
+                )
+                current_user.stripe_customer_id = customer.id
+                db.session.commit()
+        except Exception as stripe_error:
+            logger.error(f"Error creating Stripe customer: {str(stripe_error)}")
+            return jsonify({'error': 'Błąd tworzenia konta płatności'}), 500
         
         # Konfiguracja sesji checkout
-        if payment_type == 'single_cv':
-            # Jednorazowa płatność
-            checkout_session = stripe.checkout.Session.create(
-                customer=current_user.stripe_customer_id,
-                payment_method_types=['card', 'blik', 'p24'],
-                line_items=[{
-                    'price_data': {
-                        'currency': price_info['currency'].lower(),
-                        'product_data': {
-                            'name': price_info['name'],
-                            'description': price_info['description'],
+        try:
+            if payment_type == 'single_cv':
+                # Jednorazowa płatność
+                checkout_session = stripe.checkout.Session.create(
+                    customer=current_user.stripe_customer_id,
+                    payment_method_types=['card', 'blik', 'p24'],
+                    line_items=[{
+                        'price_data': {
+                            'currency': price_info['currency'].lower(),
+                            'product_data': {
+                                'name': price_info['name'],
+                                'description': price_info['description'],
+                            },
+                            'unit_amount': price_info['price'],
                         },
-                        'unit_amount': price_info['price'],
-                    },
-                    'quantity': 1,
-                }],
-                mode='payment',
-                success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=url_for('pricing', _external=True),
-                metadata={
-                    'user_id': current_user.id,
-                    'payment_type': payment_type
-                }
-            )
-        else:
-            # Subskrypcja miesięczna
-            checkout_session = stripe.checkout.Session.create(
-                customer=current_user.stripe_customer_id,
-                payment_method_types=['card', 'blik', 'p24'],
-                line_items=[{
-                    'price_data': {
-                        'currency': price_info['currency'].lower(),
-                        'product_data': {
-                            'name': price_info['name'],
-                            'description': price_info['description'],
+                        'quantity': 1,
+                    }],
+                    mode='payment',
+                    success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                    cancel_url=url_for('pricing', _external=True),
+                    metadata={
+                        'user_id': str(current_user.id),
+                        'payment_type': payment_type
+                    }
+                )
+            else:
+                # Subskrypcja miesięczna
+                checkout_session = stripe.checkout.Session.create(
+                    customer=current_user.stripe_customer_id,
+                    payment_method_types=['card', 'blik', 'p24'],
+                    line_items=[{
+                        'price_data': {
+                            'currency': price_info['currency'].lower(),
+                            'product_data': {
+                                'name': price_info['name'],
+                                'description': price_info['description'],
+                            },
+                            'unit_amount': price_info['price'],
+                            'recurring': {'interval': 'month'},
                         },
-                        'unit_amount': price_info['price'],
-                        'recurring': {'interval': 'month'},
-                    },
-                    'quantity': 1,
-                }],
-                mode='subscription',
-                success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=url_for('pricing', _external=True),
-                metadata={
-                    'user_id': current_user.id,
-                    'payment_type': payment_type
-                }
-            )
-        
-        return jsonify({'checkout_url': checkout_session.url})
+                        'quantity': 1,
+                    }],
+                    mode='subscription',
+                    success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                    cancel_url=url_for('pricing', _external=True),
+                    metadata={
+                        'user_id': str(current_user.id),
+                        'payment_type': payment_type
+                    }
+                )
+            
+            return jsonify({'checkout_url': checkout_session.url})
+            
+        except stripe.error.StripeError as stripe_error:
+            logger.error(f"Stripe error creating checkout session: {str(stripe_error)}")
+            return jsonify({'error': 'Błąd systemu płatności'}), 500
         
     except Exception as e:
         logger.error(f"Error creating checkout session: {str(e)}")
@@ -1275,6 +1298,10 @@ def payment_success():
 @app.route('/webhook', methods=['POST'])
 def stripe_webhook():
     """Webhook do obsługi eventów Stripe"""
+    if not STRIPE_WEBHOOK_SECRET:
+        logger.error("Stripe webhook secret not configured")
+        return '', 400
+        
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get('Stripe-Signature')
     
@@ -1282,25 +1309,32 @@ def stripe_webhook():
         event = stripe.Webhook.construct_event(
             payload, sig_header, STRIPE_WEBHOOK_SECRET
         )
-    except ValueError:
-        logger.error("Invalid payload")
+    except ValueError as e:
+        logger.error(f"Invalid payload: {str(e)}")
         return '', 400
-    except stripe.error.SignatureVerificationError:
-        logger.error("Invalid signature")
+    except stripe.error.SignatureVerificationError as e:
+        logger.error(f"Invalid signature: {str(e)}")
         return '', 400
 
-    # Obsługa eventów
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        handle_checkout_session_completed(session)
-    
-    elif event['type'] == 'invoice.payment_succeeded':
-        invoice = event['data']['object']
-        handle_subscription_payment_succeeded(invoice)
+    try:
+        # Obsługa eventów
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            handle_checkout_session_completed(session)
         
-    elif event['type'] == 'customer.subscription.deleted':
-        subscription = event['data']['object']
-        handle_subscription_deleted(subscription)
+        elif event['type'] == 'invoice.payment_succeeded':
+            invoice = event['data']['object']
+            handle_subscription_payment_succeeded(invoice)
+            
+        elif event['type'] == 'customer.subscription.deleted':
+            subscription = event['data']['object']
+            handle_subscription_deleted(subscription)
+        
+        logger.info(f"Processed webhook event: {event['type']}")
+        
+    except Exception as e:
+        logger.error(f"Error processing webhook: {str(e)}")
+        return '', 500
 
     return '', 200
 
@@ -1308,9 +1342,16 @@ def stripe_webhook():
 def process_single_payment(checkout_session):
     """Przetwarza jednorazową płatność"""
     try:
+        user_id = int(checkout_session.metadata.get('user_id'))
+        user = User.query.get(user_id)
+        
+        if not user:
+            logger.error(f"User not found for payment: {user_id}")
+            return
+        
         # Zapisz płatność
         payment = StripePayment()
-        payment.user_id = current_user.id
+        payment.user_id = user_id
         payment.stripe_payment_intent_id = checkout_session.payment_intent
         payment.stripe_session_id = checkout_session.id
         payment.amount = checkout_session.amount_total
@@ -1324,7 +1365,7 @@ def process_single_payment(checkout_session):
         
         # Utwórz rekord jednorazowej płatności
         single_payment = SinglePayment()
-        single_payment.user_id = current_user.id
+        single_payment.user_id = user_id
         single_payment.payment_id = payment.id
         single_payment.cv_optimizations_used = 0
         single_payment.cv_optimizations_limit = 1
@@ -1332,7 +1373,7 @@ def process_single_payment(checkout_session):
         db.session.add(single_payment)
         db.session.commit()
         
-        logger.info(f"Single payment processed for user {current_user.id}")
+        logger.info(f"Single payment processed for user {user_id}")
         
     except Exception as e:
         db.session.rollback()
@@ -1342,12 +1383,19 @@ def process_single_payment(checkout_session):
 def process_subscription_payment(checkout_session):
     """Przetwarza płatność subskrypcji"""
     try:
+        user_id = int(checkout_session.metadata.get('user_id'))
+        user = User.query.get(user_id)
+        
+        if not user:
+            logger.error(f"User not found for subscription: {user_id}")
+            return
+        
         # Pobierz subskrypcję z Stripe
         stripe_subscription = stripe.Subscription.retrieve(checkout_session.subscription)
         
         # Zapisz płatność
         payment = StripePayment()
-        payment.user_id = current_user.id
+        payment.user_id = user_id
         payment.stripe_payment_intent_id = checkout_session.payment_intent
         payment.stripe_session_id = checkout_session.id
         payment.amount = checkout_session.amount_total
@@ -1360,7 +1408,7 @@ def process_subscription_payment(checkout_session):
         
         # Zapisz subskrypcję
         subscription = Subscription()
-        subscription.user_id = current_user.id
+        subscription.user_id = user_id
         subscription.stripe_subscription_id = stripe_subscription.id
         subscription.stripe_customer_id = stripe_subscription.customer
         subscription.status = stripe_subscription.status
@@ -1373,7 +1421,7 @@ def process_subscription_payment(checkout_session):
         db.session.add(subscription)
         db.session.commit()
         
-        logger.info(f"Subscription processed for user {current_user.id}")
+        logger.info(f"Subscription processed for user {user_id}")
         
     except Exception as e:
         db.session.rollback()

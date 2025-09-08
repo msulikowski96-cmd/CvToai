@@ -222,24 +222,37 @@ function startPayment(paymentType) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             payment_type: paymentType
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.checkout_url) {
             window.location.href = data.checkout_url;
         } else {
-            alert('Wystąpił błąd: ' + (data.error || 'Nieznany błąd'));
+            const errorMsg = data.error || 'Nieznany błąd podczas tworzenia sesji płatności';
+            alert('Wystąpił błąd: ' + errorMsg);
             button.innerHTML = originalText;
             button.disabled = false;
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Wystąpił błąd podczas inicjowania płatności');
+        console.error('Payment error:', error);
+        let errorMessage = 'Wystąpił błąd podczas inicjowania płatności';
+        if (error.message.includes('503')) {
+            errorMessage = 'System płatności jest tymczasowo niedostępny. Spróbuj ponownie później.';
+        } else if (error.message.includes('400')) {
+            errorMessage = 'Nieprawidłowe dane płatności. Odśwież stronę i spróbuj ponownie.';
+        }
+        alert(errorMessage);
         button.innerHTML = originalText;
         button.disabled = false;
     });
