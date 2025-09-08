@@ -243,17 +243,34 @@ def generate_cv_html(cv_text):
     Generuje sformatowane HTML CV na podstawie tekstu
     """
     try:
+        if not cv_text or not cv_text.strip():
+            return None
+            
         # Parsuj CV do strukturalnych danych
         cv_data = parse_cv_to_structured_data(cv_text)
         
+        # Sprawdź czy cv_data jest prawidłowe
+        if not cv_data or not isinstance(cv_data, dict):
+            logger.error("Failed to parse CV data")
+            return None
+        
         # Wczytaj szablon
-        with open('templates/cv_template.html', 'r', encoding='utf-8') as f:
-            template_content = f.read()
+        try:
+            with open('templates/cv_template.html', 'r', encoding='utf-8') as f:
+                template_content = f.read()
+        except FileNotFoundError:
+            logger.error("CV template file not found")
+            return None
         
         # Renderuj szablon z danymi
         html_cv = render_template_string(template_content, **cv_data)
         
-        return html_cv
+        # Sprawdź czy HTML został wygenerowany poprawnie
+        if html_cv and len(html_cv.strip()) > 100:  # Podstawowa walidacja długości
+            return html_cv
+        else:
+            logger.error("Generated HTML is too short or empty")
+            return None
         
     except Exception as e:
         logger.error(f"Error generating CV HTML: {str(e)}")

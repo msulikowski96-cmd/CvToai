@@ -37,11 +37,12 @@
     </div>
 
     <div id="cv-content" class="cv-display">
-        {% if cv_upload.optimized_cv.startswith('<!DOCTYPE') %}
+        {% set formatted_cv = generate_cv_html(cv_upload.optimized_cv) %}
+        {% if formatted_cv %}
             <!-- CV w formacie HTML -->
-            {{ cv_upload.optimized_cv|safe }}
+            {{ formatted_cv|safe }}
         {% else %}
-            <!-- CV w formacie tekstowym - sformatuj w prosty sposób -->
+            <!-- Fallback - CV w formacie tekstowym -->
             <div class="container my-4">
                 <div class="card shadow">
                     <div class="card-body" style="font-family: 'Times New Roman', serif; line-height: 1.6;">

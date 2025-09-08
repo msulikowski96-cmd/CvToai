@@ -60,7 +60,7 @@ PAID_MODEL = "qwen/qwen-2.5-72b-instruct:free"
 FREE_MODEL = "qwen/qwen-2.5-72b-instruct:free"
 
 # OPTYMALIZOWANY PROMPT SYSTEMOWY DLA QWEN
-DEEP_REASONING_PROMPT = """Jesteś światowej klasy ekspertem w rekrutacji i optymalizacji CV z 15-letnim doświadczeniem w branży HR. Posiadasz głęboką wiedzę o polskim rynku pracy, trendach rekrutacyjnych i najlepszych praktykach w tworzeniu CV."""
+DEEP_REASONING_PROMPT = """Jesteś światowej klasy ekspertom w rekrutacji i optymalizacji CV z 15-letnim doświadczeniem w branży HR. Posiadasz głęboką wiedzę o polskim rynku pracy, trendach rekrutacyjnych i najlepszych praktykach w tworzeniu CV."""
 
 
 def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2, max_tokens=None):
@@ -217,23 +217,10 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False, paymen
             max_tokens=max_tokens
         )
 
-        if response and response.strip():
-            # Wygeneruj sformatowane HTML CV z użyciem szablonu
-            # Zakładając, że masz funkcję generate_cv_html w pliku utils/cv_template_processor.py
-            # Jeśli jej nie masz, musisz ją dodać lub użyć innego podejścia.
-            # Na potrzeby tego przykładu, zakładamy że istnieje.
-            try:
-                from utils.cv_template_processor import generate_cv_html
-                html_cv = generate_cv_html(response.strip())
-
-                if html_cv:
-                    return html_cv
-                else:
-                    # Fallback do zwykłego tekstu jeśli HTML nie udało się wygenerować
-                    return response.strip()
-            except ImportError:
-                logger.warning("utils.cv_template_processor not found. Falling back to plain text CV.")
-                return response.strip()
+        if response:
+            # Zwróć zoptymalizowane CV jako sformatowany tekst
+            # HTML będzie generowany dopiero przy wyświetlaniu w view_cv
+            return response.strip()
         else:
             logger.error("Empty response from OpenRouter API")
             return None

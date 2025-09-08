@@ -446,6 +446,16 @@ def load_user(user_id):
 def now():
     return datetime.utcnow()
 
+@app.template_global()
+def generate_cv_html(cv_text):
+    """Generate formatted HTML CV for templates"""
+    try:
+        from utils.cv_template_processor import generate_cv_html as process_cv_html
+        return process_cv_html(cv_text)
+    except Exception as e:
+        logger.error(f"Error generating CV HTML in template: {str(e)}")
+        return None
+
 
 def allowed_file(filename):
     return '.' in filename and \
