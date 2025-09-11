@@ -93,20 +93,8 @@ API_KEY_VALID = validate_api_key()
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "qwen/qwen-2.5-72b-instruct:free"
 
-# NAJLEPSZE MODELE 2025 - ZOPTYMALIZOWANE KONFIGURACJE
-DEFAULT_MODEL = "qwen/qwen-2.5-72b-instruct:free"
-PREMIUM_MODEL = "openai/gpt-4o"  # Najlepszy do CV - multimodal, szybki, lepszy w polskim
-FAST_MODEL = "mistralai/mistral-small-3.2-24b-instruct"  # Najnowszy Mistral Small 3.2 24B
-FALLBACK_MODEL = "qwen/qwen-2.5-72b-instruct:free"  # Backup gdy premium modele niedostępne
-BUDGET_MODEL = "openai/gpt-4o-mini"  # Bardzo tani, nadal dobrej jakości
-
-# HIERARCHIA MODELI (od najlepszego do fallback)
-MODEL_HIERARCHY = [
-    PREMIUM_MODEL,     # GPT-4o - najlepsza jakość
-    FAST_MODEL,        # Mistral Small - szybki i dobry
-    FALLBACK_MODEL,    # Qwen - darmowy backup
-    BUDGET_MODEL       # GPT-4o Mini - ostateczny fallback
-]
+# WYŁĄCZNIE JEDEN MODEL QWEN ZGODNIE Z ŻYCZENIEM UŻYTKOWNIKA
+SINGLE_MODEL = "qwen/qwen3-235b-a22b:free"
 
 # NAJNOWSZY PROMPT SYSTEMOWY 2025 - MAKSYMALNA JAKOŚĆ AI
 DEEP_REASONING_PROMPT = """Jesteś ekspertem świata w optymalizacji CV z 20-letnim doświadczeniem w rekrutacji oraz AI. Masz specjalistyczną wiedzę o:
@@ -134,271 +122,104 @@ DEEP_REASONING_PROMPT = """Jesteś ekspertem świata w optymalizacji CV z 20-let
 Twoja misja: Stworzyć CV które przejdzie przez ATS i zachwyci rekruterów."""
 
 
-def analyze_task_complexity(prompt):
-    """
-    🧠 INTELIGENTNA ANALIZA ZADANIA - wybiera najlepszy model do zadania
-    """
-    import re
-    
-    # Wskaźniki złożoności - POLSKI + ANGIELSKI
-    complexity_indicators = {
-        'very_high': [
-            # Polski
-            'strategiczny', 'strategia', 'kompleksowa analiza', 'szczegółowa analiza',
-            'kompleksowy', 'pogłębiony', 'zaawansowany', 'wyrafinowany', 'profesjonalny',
-            # Angielski
-            'strategic', 'strategy', 'complex analysis', 'detailed analysis',
-            'comprehensive', 'in-depth', 'advanced', 'sophisticated'
-        ],
-        'high': [
-            # Polski
-            'optymalizuj', 'optymalizacja', 'przepisz', 'popraw', 'ulepszy', 'wzbogać',
-            'szczegółowy', 'dokładny', 'kompletny', 'profesjonalny', 'jakościowy',
-            # Angielski  
-            'optimize', 'rewrite', 'improve', 'enhance', 'professional',
-            'detailed', 'thorough', 'complete', 'comprehensive'
-        ],
-        'medium': [
-            # Polski
-            'analizuj', 'analiza', 'przegląd', 'sprawdź', 'oceń', 'ocena',
-            'generuj', 'stwórz', 'napisz', 'formatuj', 'przetwórz',
-            # Angielski
-            'analyze', 'review', 'check', 'evaluate', 'assess',
-            'generate', 'create', 'write', 'format'
-        ],
-        'low': [
-            # Polski
-            'wyciągnij', 'lista', 'prosty', 'podstawowy', 'szybki',
-            'krótki', 'skrócony', 'podsumowanie', 'policz', 'wylistuj',
-            # Angielski
-            'extract', 'list', 'simple', 'basic', 'quick',
-            'short', 'brief', 'summary', 'count'
-        ]
-    }
-    
-    # Analizuj długość (dłuższe = bardziej złożone)
-    length_factor = min(len(prompt) / 1000, 2.0)  # 0-2.0
-    
-    # Analizuj słowa kluczowe
-    prompt_lower = prompt.lower()
-    complexity_score = 0
-    
-    for indicator in complexity_indicators['very_high']:
-        if indicator in prompt_lower:
-            complexity_score += 4
-    
-    for indicator in complexity_indicators['high']:
-        if indicator in prompt_lower:
-            complexity_score += 3
-            
-    for indicator in complexity_indicators['medium']:
-        if indicator in prompt_lower:
-            complexity_score += 2
-            
-    for indicator in complexity_indicators['low']:
-        if indicator in prompt_lower:
-            complexity_score += 1
-    
-    # Dodatkowo sprawdź specjalne przypadki - POLSKI + ANGIELSKI
-    cv_keywords = ['cv', 'życiorys', 'curriculum vitae']
-    optimize_keywords = ['optimize', 'optymalizuj', 'optymalizacja', 'popraw', 'ulepszy']
-    
-    has_cv = any(keyword in prompt_lower for keyword in cv_keywords)
-    has_optimize = any(keyword in prompt_lower for keyword in optimize_keywords)
-    
-    if has_cv and has_optimize:
-        complexity_score += 4  # CV optimization = zawsze bardzo ważne
-        
-    if any(keyword in prompt_lower for keyword in ['cover letter', 'list motywacyjny', 'list przewodni']):
-        complexity_score += 3  # Cover letter = ważne
-        
-    # Funkcje aplikacji = zawsze wysokie priorytety
-    if any(func in prompt_lower for func in ['analyze_cv', 'optimize_cv', 'generate_cover_letter', 'analyze_skills_gap']):
-        complexity_score += 3
-        
-    total_complexity = complexity_score + length_factor
-    
-    # Zwróć kategorię złożoności
-    if total_complexity >= 8:
-        return 'very_high'
-    elif total_complexity >= 5:
-        return 'high'
-    elif total_complexity >= 3:
-        return 'medium'
-    else:
-        return 'low'
-
-
-def smart_model_selection(prompt, is_premium=False):
-    """
-    🎯 SMART MODEL SELECTION - wybiera najlepszy model dla zadania
-    """
-    complexity = analyze_task_complexity(prompt)
-    
-    logger.info(f"🧠 Zadanie ma złożoność: {complexity}")
-    
-    if is_premium:
-        if complexity == 'very_high':
-            return [PREMIUM_MODEL, FAST_MODEL, FALLBACK_MODEL]  # Najlepszy model
-        elif complexity == 'high':
-            return [PREMIUM_MODEL, FAST_MODEL, FALLBACK_MODEL]  # Premium najpierw dla high
-        elif complexity == 'medium':
-            return [FAST_MODEL, BUDGET_MODEL, FALLBACK_MODEL]   # Szybki i tani
-        else:  # low
-            return [BUDGET_MODEL, FALLBACK_MODEL]               # Bardzo tani
-    else:
-        # Dla darmowych użytkowników - zawsze tanie modele
-        if complexity in ['very_high', 'high']:
-            return [FALLBACK_MODEL, BUDGET_MODEL]  # Qwen + backup
-        else:
-            return [BUDGET_MODEL, FALLBACK_MODEL]  # Najta sze
+# UPROSZCZONA FUNKCJA - TYLKO JEDEN MODEL
+def get_single_model():
+    """Zwraca jedyny dozwolony model"""
+    return SINGLE_MODEL
 
 
 def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3, max_tokens=None, use_streaming=False, use_cache=True):
     """
-    🚀 NAJNOWSZA FUNKCJA OpenRouter z AI-powered model selection + caching
+    🚀 UPROSZCZONA FUNKCJA - TYLKO JEDEN MODEL QWEN
     """
     if not API_KEY_VALID:
         logger.error("API key is not valid")
         return None
 
-    # 🧠 INTELIGENTNY WYBÓR MODELU BAZUJĄCY NA ZADANIU
-    if model is None:
-        models_to_try = smart_model_selection(prompt, is_premium)
-        logger.info(f"🎯 Smart model selection: {[m.split('/')[-1] for m in models_to_try]}")
-    else:
-        models_to_try = [model]
+    # UŻYWAMY TYLKO JEDNEGO MODELU
+    model_to_use = SINGLE_MODEL
+    logger.info(f"🤖 Używam wyłącznie model: {model_to_use}")
 
-    # 💾 SPRAWDŹ CACHE NAJPIERW (używa pełnej hierarchii modeli)
-    cache_key = get_cache_key(prompt, models_to_try, is_premium)
+    # 💾 SPRAWDŹ CACHE NAJPIERW 
+    cache_key = get_cache_key(prompt, [model_to_use], is_premium)
     
     if use_cache:
         cached_response = get_from_cache(cache_key)
         if cached_response:
             return cached_response
 
-    # Zoptymalizowane parametry dla każdego typu modelu
-    def get_optimal_params(model_name):
-        params = {
-            "temperature": 0.3,  # Niższa temperatura = bardziej precyzyjne odpowiedzi
-            "top_p": 0.9,        # Lepsze fokusowanie na najlepszych tokenach
-            "frequency_penalty": 0.1,  # Unikaj powtórzeń
-            "presence_penalty": 0.1,   # Zachęcaj do różnorodności
-        }
-        
-        if "gpt-4o" in model_name:
-            params.update({
-                "temperature": 0.2,      # GPT-4o jest bardzo dobry, może być konserwatywny
-                "top_p": 0.95,           # Wysokie top_p dla creativity
-                "max_tokens": 4000,      # Długie, szczegółowe odpowiedzi
-            })
-        elif "mistral" in model_name:
-            params.update({
-                "temperature": 0.4,      # Mistral lubi trochę więcej kreatywności
-                "top_p": 0.85,           
-                "max_tokens": 3000,      # Średnie odpowiedzi
-            })
-        elif "qwen" in model_name:
-            params.update({
-                "temperature": 0.3,      # Qwen jest stabilny przy niższej temp
-                "top_p": 0.9,            
-                "max_tokens": 3500,      # Dobre długie odpowiedzi
-            })
-        else:
-            params["max_tokens"] = 2500  # Domyślnie dla innych modeli
-            
-        if max_tokens:
-            params["max_tokens"] = max_tokens
-            
-        return params
-
-    # NOWA INTELIGENTNA HIERARCHIA MODELI Z FALLBACK
-    last_error = None
+    # Parametry zoptymalizowane dla Qwen
+    params = {
+        "temperature": 0.3,          # Stabilna temperatura dla Qwen
+        "top_p": 0.9,               # Dobre fokusowanie na najlepszych tokenach
+        "frequency_penalty": 0.1,    # Unikaj powtórzeń
+        "presence_penalty": 0.1,     # Zachęcaj do różnorodności
+        "max_tokens": max_tokens or 3500  # Dobre długie odpowiedzi
+    }
     
-    for model_to_try in models_to_try:
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://cv-optimizer-pro.replit.app",
+        "X-Title": "CV Optimizer Pro"
+    }
+
+    data = {
+        "model": model_to_use,
+        "messages": [{
+            "role": "system", 
+            "content": DEEP_REASONING_PROMPT
+        }, {
+            "role": "user",
+            "content": prompt
+        }],
+        **params
+    }
+
+    # Próbuj z retry mechanism
+    for attempt in range(max_retries):
         try:
-            logger.info(f"🤖 Próbuję model: {model_to_try}")
+            logger.info(f"📡 Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries}) with model: {model_to_use}")
+
+            response = session.post(
+                OPENROUTER_BASE_URL,
+                headers=headers,
+                json=data,
+                timeout=(5, 45),
+                stream=use_streaming
+            )
+            response.raise_for_status()
+
+            result = response.json()
             
-            # Pobierz optymalne parametry dla tego modelu
-            model_params = get_optimal_params(model_to_try)
-            
-            headers = {
-                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://cv-optimizer-pro.replit.app",
-                "X-Title": "CV Optimizer Pro"
-            }
-
-            data = {
-                "model": model_to_try,
-                "messages": [{
-                    "role": "system", 
-                    "content": DEEP_REASONING_PROMPT
-                }, {
-                    "role": "user",
-                    "content": prompt
-                }],
-                **model_params  # Dodaj wszystkie zoptymalizowane parametry
-            }
-
-            # Spróbuj z tym modelem (z retry mechanism)
-            for attempt in range(max_retries):
-                try:
-                    logger.info(f"📡 Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries}) with model: {model_to_try}")
-
-                    response = session.post(
-                        OPENROUTER_BASE_URL,
-                        headers=headers,
-                        json=data,
-                        timeout=(5, 45),  # Dłuższe timeouty dla lepszych modeli
-                        stream=use_streaming
-                    )
-                    response.raise_for_status()
-
-                    result = response.json()
+            if 'choices' in result and len(result['choices']) > 0:
+                content = result['choices'][0]['message']['content']
+                logger.info(f"✅ Model {model_to_use} zwrócił odpowiedź (długość: {len(content)} znaków)")
+                
+                # 💾 ZAPISZ DO CACHE
+                if use_cache:
+                    save_to_cache(cache_key, content, model_to_use)
                     
-                    if 'choices' in result and len(result['choices']) > 0:
-                        content = result['choices'][0]['message']['content']
-                        logger.info(f"✅ Model {model_to_try} zwrócił odpowiedź (długość: {len(content)} znaków)")
+                return content
+            else:
+                logger.warning(f"⚠️ Nieoczekiwany format odpowiedzi: {result}")
                         
-                        # 💾 ZAPISZ DO CACHE z informacją o użytym modelu
-                        if use_cache:
-                            save_to_cache(cache_key, content, model_to_try)
-                            
-                        return content
-                    else:
-                        logger.warning(f"⚠️ Nieoczekiwany format odpowiedzi z modelu {model_to_try}: {result}")
-                        break  # Przejdź do następnego modelu
+        except requests.exceptions.Timeout:
+            logger.warning(f"⏰ Timeout na próbie {attempt + 1}")
                         
-                except requests.exceptions.Timeout:
-                    logger.warning(f"⏰ Timeout na próbie {attempt + 1} z modelem {model_to_try}")
-                    if attempt == max_retries - 1:
-                        break  # Przejdź do następnego modelu
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"🚫 Błąd zapytania na próbie {attempt + 1}: {str(e)}")
                         
-                except requests.exceptions.RequestException as e:
-                    logger.warning(f"🚫 Błąd zapytania z modelem {model_to_try} na próbie {attempt + 1}: {str(e)}")
-                    if "rate limit" in str(e).lower() or "quota" in str(e).lower():
-                        logger.info(f"💸 Model {model_to_try} przekroczył limit - przechodzę do następnego")
-                        break  # Przejdź do następnego modelu
-                    if attempt == max_retries - 1:
-                        break
-                        
-                except Exception as e:
-                    logger.warning(f"❌ Nieoczekiwany błąd z modelem {model_to_try}: {str(e)}")
-                    if attempt == max_retries - 1:
-                        break
-                
-                # Opóźnienie przed ponowną próbą z tym samym modelem
-                import time
-                time.sleep(1.5)
-                
         except Exception as e:
-            last_error = e
-            logger.warning(f"🔄 Model {model_to_try} nie działa, próbuję następny: {str(e)}")
-            continue
+            logger.warning(f"❌ Nieoczekiwany błąd: {str(e)}")
+        
+        # Opóźnienie przed ponowną próbą
+        if attempt < max_retries - 1:
+            import time
+            time.sleep(1.5)
     
-    # Jeśli wszystkie modele zawiodły
-    logger.error(f"❌ Wszystkie modele zawiodły. Ostatni błąd: {last_error}")
+    # Jeśli wszystkie próby zawiodły
+    logger.error(f"❌ Model {model_to_use} nie odpowiedział po {max_retries} próbach")
     return None
 
 
@@ -656,7 +477,7 @@ def generate_cover_letter(cv_text,
                 'cover_letter': cover_letter,
                 'job_title': job_title,
                 'company_name': company_name,
-                'model_used': PREMIUM_MODEL if is_premium else FALLBACK_MODEL
+                'model_used': SINGLE_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
@@ -737,7 +558,7 @@ def generate_interview_questions(cv_text, job_title, job_description="", is_prem
                 'success': True,
                 'questions': questions,
                 'job_title': job_title,
-                'model_used': PREMIUM_MODEL if is_premium else FALLBACK_MODEL
+                'model_used': SINGLE_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
@@ -818,7 +639,7 @@ def analyze_skills_gap(cv_text, job_title, job_description="", is_premium=False)
                 'success': True,
                 'analysis': analysis,
                 'job_title': job_title,
-                'model_used': PREMIUM_MODEL if is_premium else FALLBACK_MODEL
+                'model_used': SINGLE_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
