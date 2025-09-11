@@ -233,6 +233,7 @@ def split_experience_entries(content):
     
     # Wzorce które mogą oznaczać początek nowego doświadczenia
     job_title_patterns = [
+        r'^---\s*STANOWISKO\s*---',                                 # "--- STANOWISKO ---" (nowy separator)
         r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\|\s*[A-ZĄĆĘŁŃÓŚŹŻ]',  # "Kurier | DHL"
         r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\s-\s[A-ZĄĆĘŁŃÓŚŹŻ]',   # "Kurier - DHL" 
         r'^\*\*[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\*\*',              # "**Kurier**"
@@ -294,7 +295,9 @@ def split_experience_entries(content):
             experiences.append(current_experience[:])
             current_experience = []
         
-        current_experience.append(line)
+        # Nie dodawaj separatora do contentu (tylko używaj go do podziału)
+        if not re.match(r'^---\s*STANOWISKO\s*---', line):
+            current_experience.append(line)
     
     # Dodaj ostatnie doświadczenie
     if current_experience:
