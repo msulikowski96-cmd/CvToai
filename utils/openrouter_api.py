@@ -53,102 +53,181 @@ API_KEY_VALID = validate_api_key()
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "qwen/qwen-2.5-72b-instruct:free"
 
-# ZAAWANSOWANA KONFIGURACJA QWEN - MAKSYMALNA JAKOŚĆ
+# NAJLEPSZE MODELE 2025 - ZOPTYMALIZOWANE KONFIGURACJE
 DEFAULT_MODEL = "qwen/qwen-2.5-72b-instruct:free"
-PREMIUM_MODEL = "qwen/qwen-2.5-72b-instruct:free"
-PAID_MODEL = "qwen/qwen-2.5-72b-instruct:free"
-FREE_MODEL = "qwen/qwen-2.5-72b-instruct:free"
+PREMIUM_MODEL = "openai/gpt-4o"  # Najlepszy do CV - multimodal, szybki, lepszy w polskim
+FAST_MODEL = "mistralai/mistral-small-3.1"  # Bardzo szybki i tani, dobry do wstępnej analizy
+FALLBACK_MODEL = "qwen/qwen-2.5-72b-instruct:free"  # Backup gdy premium modele niedostępne
+BUDGET_MODEL = "openai/gpt-4o-mini"  # Bardzo tani, nadal dobrej jakości
 
-# OPTYMALIZOWANY PROMPT SYSTEMOWY DLA QWEN
-DEEP_REASONING_PROMPT = """Jesteś światowej klasy ekspertom w rekrutacji i optymalizacji CV z 15-letnim doświadczeniem w branży HR. Posiadasz głęboką wiedzę o polskim rynku pracy, trendach rekrutacyjnych i najlepszych praktykach w tworzeniu CV."""
+# HIERARCHIA MODELI (od najlepszego do fallback)
+MODEL_HIERARCHY = [
+    PREMIUM_MODEL,     # GPT-4o - najlepsza jakość
+    FAST_MODEL,        # Mistral Small - szybki i dobry
+    FALLBACK_MODEL,    # Qwen - darmowy backup
+    BUDGET_MODEL       # GPT-4o Mini - ostateczny fallback
+]
+
+# NAJNOWSZY PROMPT SYSTEMOWY 2025 - MAKSYMALNA JAKOŚĆ AI
+DEEP_REASONING_PROMPT = """Jesteś ekspertem świata w optymalizacji CV z 20-letnim doświadczeniem w rekrutacji oraz AI. Masz specjalistyczną wiedzę o:
+
+🎯 KOMPETENCJE GŁÓWNE:
+- Analiza CV pod kątem systemów ATS (Applicant Tracking Systems)
+- Optymalizacja pod konkretne stanowiska i branże w Polsce
+- Psychologia rekrutacji i co przyciąga uwagę HR-owców
+- Najnowsze trendy rynku pracy 2025 w Polsce i UE
+- Formatowanie CV zgodne z europejskimi standardami
+
+🧠 STRATEGIA MYŚLENIA:
+1. ANALIZUJ głęboko każde słowo w kontekście stanowiska
+2. DOPASUJ język i terminologię do branży
+3. OPTYMALIZUJ pod kątem słów kluczowych ATS
+4. ZACHOWAJ autentyczność i prawdę o kandydacie
+5. ZASTOSUJ najlepsze praktyki formatowania
+
+⚡ JAKOŚĆ ODPOWIEDZI:
+- Używaj precyzyjnego, profesjonalnego języka polskiego
+- Dawaj konkretne, actionable wskazówki
+- Uwzględniaj cultural fit dla polskiego rynku pracy
+- Bądź kreatywny ale faktualny w opisach doświadczenia
+
+Twoja misja: Stworzyć CV które przejdzie przez ATS i zachwyci rekruterów."""
 
 
-def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=2, max_tokens=None):
-    """Make a request to OpenRouter API with retry mechanism"""
+def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3, max_tokens=None, use_streaming=False):
+    """
+    Zaawansowana funkcja OpenRouter z hierarchią modeli i optymalnymi parametrami
+    """
     if not API_KEY_VALID:
         logger.error("API key is not valid")
         return None
 
+    # Inteligentny wybór modelu z hierarchią fallback
     if model is None:
-        model = PREMIUM_MODEL if is_premium else FREE_MODEL
+        if is_premium:
+            models_to_try = MODEL_HIERARCHY  # Spróbuj wszystkich od najlepszego
+        else:
+            models_to_try = [FALLBACK_MODEL, BUDGET_MODEL]  # Tylko darmowe/tanie
+    else:
+        models_to_try = [model]
 
-    # Set max_tokens based on user type if not specified
-    if max_tokens is None:
-        max_tokens = 4000 if is_premium else 1500
+    # Zoptymalizowane parametry dla każdego typu modelu
+    def get_optimal_params(model_name):
+        params = {
+            "temperature": 0.3,  # Niższa temperatura = bardziej precyzyjne odpowiedzi
+            "top_p": 0.9,        # Lepsze fokusowanie na najlepszych tokenach
+            "frequency_penalty": 0.1,  # Unikaj powtórzeń
+            "presence_penalty": 0.1,   # Zachęcaj do różnorodności
+        }
+        
+        if "gpt-4o" in model_name:
+            params.update({
+                "temperature": 0.2,      # GPT-4o jest bardzo dobry, może być konserwatywny
+                "top_p": 0.95,           # Wysokie top_p dla creativity
+                "max_tokens": 4000,      # Długie, szczegółowe odpowiedzi
+            })
+        elif "mistral" in model_name:
+            params.update({
+                "temperature": 0.4,      # Mistral lubi trochę więcej kreatywności
+                "top_p": 0.85,           
+                "max_tokens": 3000,      # Średnie odpowiedzi
+            })
+        elif "qwen" in model_name:
+            params.update({
+                "temperature": 0.3,      # Qwen jest stabilny przy niższej temp
+                "top_p": 0.9,            
+                "max_tokens": 3500,      # Dobre długie odpowiedzi
+            })
+        else:
+            params["max_tokens"] = 2500  # Domyślnie dla innych modeli
+            
+        if max_tokens:
+            params["max_tokens"] = max_tokens
+            
+        return params
 
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://cv-optimizer-pro.replit.app",
-        "X-Title": "CV Optimizer Pro"
-    }
-
-    data = {
-        "model": model,
-        "messages": [{
-            "role": "system",
-            "content": DEEP_REASONING_PROMPT
-        }, {
-            "role": "user",
-            "content": prompt
-        }],
-        "temperature": 0.3,
-        "max_tokens": max_tokens,
-        "top_p": 0.9,
-        "frequency_penalty": 0.1,
-        "presence_penalty": 0.1
-    }
-
-    for attempt in range(max_retries + 1):
+    # NOWA INTELIGENTNA HIERARCHIA MODELI Z FALLBACK
+    last_error = None
+    
+    for model_to_try in models_to_try:
         try:
-            logger.info(f"Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries + 1}) with model: {model}")
+            logger.info(f"🤖 Próbuję model: {model_to_try}")
+            
+            # Pobierz optymalne parametry dla tego modelu
+            model_params = get_optimal_params(model_to_try)
+            
+            headers = {
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://cv-optimizer-pro.replit.app",
+                "X-Title": "CV Optimizer Pro"
+            }
 
-            # Jeszcze krótszy timeout dla stabilności
-            response = session.post(
-                OPENROUTER_BASE_URL,
-                headers=headers,
-                json=data,
-                timeout=(3, 30),  # (connection timeout, read timeout)
-                stream=False
-            )
-            response.raise_for_status()
+            data = {
+                "model": model_to_try,
+                "messages": [{
+                    "role": "system", 
+                    "content": DEEP_REASONING_PROMPT
+                }, {
+                    "role": "user",
+                    "content": prompt
+                }],
+                **model_params  # Dodaj wszystkie zoptymalizowane parametry
+            }
 
-            result = response.json()
-            logger.debug(f"Raw API response: {result}")
+            # Spróbuj z tym modelem (z retry mechanism)
+            for attempt in range(max_retries):
+                try:
+                    logger.info(f"📡 Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries}) with model: {model_to_try}")
 
-            if 'choices' in result and len(result['choices']) > 0:
-                content = result['choices'][0]['message']['content']
-                logger.info(f"✅ OpenRouter API zwróciło odpowiedź (długość: {len(content)} znaków)")
-                return content
-            else:
-                logger.error(f"❌ Nieoczekiwany format odpowiedzi API: {result}")
-                if attempt == max_retries:
-                    raise ValueError("Nieoczekiwany format odpowiedzi API")
+                    response = session.post(
+                        OPENROUTER_BASE_URL,
+                        headers=headers,
+                        json=data,
+                        timeout=(5, 45),  # Dłuższe timeouty dla lepszych modeli
+                        stream=use_streaming
+                    )
+                    response.raise_for_status()
 
-        except requests.exceptions.Timeout as e:
-            logger.warning(f"Timeout na próbie {attempt + 1}: {str(e)}")
-            if attempt == max_retries:
-                logger.error("Przekroczono maksymalną liczbę prób - timeout")
-                return None
-        except requests.exceptions.ConnectionError as e:
-            logger.warning(f"Błąd połączenia na próbie {attempt + 1}: {str(e)}")
-            if attempt == max_retries:
-                logger.error("Przekroczono maksymalną liczbę prób - błąd połączenia")
-                return None
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Błąd zapytania API: {str(e)}")
-            if attempt == max_retries:
-                return None
-        except (KeyError, IndexError, json.JSONDecodeError) as e:
-            logger.error(f"Błąd parsowania odpowiedzi API: {str(e)}")
-            if attempt == max_retries:
-                return None
-
-        # Krótkie opóźnienie przed ponowną próbą
-        if attempt < max_retries:
-            import time
-            time.sleep(1)
-
+                    result = response.json()
+                    
+                    if 'choices' in result and len(result['choices']) > 0:
+                        content = result['choices'][0]['message']['content']
+                        logger.info(f"✅ Model {model_to_try} zwrócił odpowiedź (długość: {len(content)} znaków)")
+                        return content
+                    else:
+                        logger.warning(f"⚠️ Nieoczekiwany format odpowiedzi z modelu {model_to_try}: {result}")
+                        break  # Przejdź do następnego modelu
+                        
+                except requests.exceptions.Timeout:
+                    logger.warning(f"⏰ Timeout na próbie {attempt + 1} z modelem {model_to_try}")
+                    if attempt == max_retries - 1:
+                        break  # Przejdź do następnego modelu
+                        
+                except requests.exceptions.RequestException as e:
+                    logger.warning(f"🚫 Błąd zapytania z modelem {model_to_try} na próbie {attempt + 1}: {str(e)}")
+                    if "rate limit" in str(e).lower() or "quota" in str(e).lower():
+                        logger.info(f"💸 Model {model_to_try} przekroczył limit - przechodzę do następnego")
+                        break  # Przejdź do następnego modelu
+                    if attempt == max_retries - 1:
+                        break
+                        
+                except Exception as e:
+                    logger.warning(f"❌ Nieoczekiwany błąd z modelem {model_to_try}: {str(e)}")
+                    if attempt == max_retries - 1:
+                        break
+                
+                # Opóźnienie przed ponowną próbą z tym samym modelem
+                import time
+                time.sleep(1.5)
+                
+        except Exception as e:
+            last_error = e
+            logger.warning(f"🔄 Model {model_to_try} nie działa, próbuję następny: {str(e)}")
+            continue
+    
+    # Jeśli wszystkie modele zawiodły
+    logger.error(f"❌ Wszystkie modele zawiodły. Ostatni błąd: {last_error}")
     return None
 
 
