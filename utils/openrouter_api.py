@@ -172,10 +172,13 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False, paymen
     - Użyj tylko faktów z oryginalnego CV
 
     [DOŚWIADCZENIE ZAWODOWE]
+    - WAŻNE: Każde stanowisko musi być jasno oddzielone
+    - Format: **Stanowisko** następnie **Firma** następnie *Okres pracy*
     - Zachowaj wszystkie firmy, stanowiska i daty z oryginału
     - Przepisz opisy obowiązków używając lepszych czasowników akcji
     - Każde stanowisko: 3-4 punkty z konkretnymi obowiązkami
     - Różnicuj opisy podobnych stanowisk
+    - Używaj pustych linii między różnymi stanowiskami
 
     [WYKSZTAŁCENIE]
     - Przepisz dokładnie informacje z oryginalnego CV

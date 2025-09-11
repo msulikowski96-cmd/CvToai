@@ -236,7 +236,10 @@ def split_experience_entries(content):
         r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\|\s*[A-ZĄĆĘŁŃÓŚŹŻ]',  # "Kurier | DHL"
         r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\s-\s[A-ZĄĆĘŁŃÓŚŹŻ]',   # "Kurier - DHL" 
         r'^\*\*[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\*\*',              # "**Kurier**"
-        r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+$'                       # "Kurier" (samodzielnie)
+        r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+$',                       # "Kurier" (samodzielnie)
+        r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]*[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]*$',  # "Load Master"
+        r'^[A-Z][a-z]+\s+[A-Z][a-z]+',                              # "Load Master" (EN)
+        r'^\*\*[A-Z][a-z\s]+\*\*'                                   # "**Load Master**"
     ]
     
     # Wzorce dat które mogą oznaczać nowy okres pracy
@@ -276,7 +279,14 @@ def split_experience_entries(content):
                     any(resp_line.startswith(marker) for marker in responsibility_markers) 
                     for resp_line in current_experience
                 )
-                if has_responsibilities:
+                # Również sprawdź czy poprzednia grupa ma już firmę i datę (kompletne stanowisko)
+                has_company_or_date = any(
+                    any(re.search(pattern, resp_line.lower()) for pattern in date_patterns) or
+                    (len(resp_line.split()) >= 2 and not any(resp_line.startswith(marker) for marker in responsibility_markers))
+                    for resp_line in current_experience[1:]  # Pomiń pierwszą linię (stanowisko)
+                )
+                
+                if has_responsibilities or (has_company_or_date and len(current_experience) > 2):
                     is_new_job = True
         
         # Jeśli to nowe stanowisko i mamy już jakieś dane, zapisz poprzednie
