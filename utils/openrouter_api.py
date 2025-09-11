@@ -3,6 +3,8 @@ import json
 import logging
 import requests
 import urllib.parse
+import hashlib
+import time
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
@@ -12,6 +14,40 @@ session.headers.update({
     'User-Agent': 'CV-Optimizer-Pro/1.0',
     'Connection': 'keep-alive'
 })
+
+# 💾 INTELLIGENT CACHING SYSTEM - oszczędza koszty API
+_cache = {}
+CACHE_DURATION = 3600  # 1 godzina w sekundach
+
+def get_cache_key(prompt, model, is_premium):
+    """Generuje unikalny klucz cache dla zapytania"""
+    cache_data = f"{prompt[:500]}|{model}|{is_premium}"  # Tylko pierwsze 500 znaków prompta
+    return hashlib.md5(cache_data.encode()).hexdigest()
+
+def get_from_cache(cache_key):
+    """Pobiera odpowiedź z cache jeśli jest aktualna"""
+    if cache_key in _cache:
+        cached_response, timestamp = _cache[cache_key]
+        if time.time() - timestamp < CACHE_DURATION:
+            logger.info(f"💾 Cache hit! Zwracam odpowiedź z cache (oszczędności API)")
+            return cached_response
+        else:
+            # Usuń przestarzały cache
+            del _cache[cache_key]
+    return None
+
+def save_to_cache(cache_key, response):
+    """Zapisuje odpowiedź do cache"""
+    _cache[cache_key] = (response, time.time())
+    
+    # Czyść stary cache co jakiś czas (maksymalnie 100 wpisów)
+    if len(_cache) > 100:
+        # Usuń najstarsze wpisy
+        sorted_cache = sorted(_cache.items(), key=lambda x: x[1][1])
+        for key, _ in sorted_cache[:20]:  # Usuń 20 najstarszych
+            del _cache[key]
+    
+    logger.info(f"💾 Zapisano do cache (obecny rozmiar: {len(_cache)} wpisów)")
 
 # Load environment variables from .env file with override
 load_dotenv(override=True)
@@ -94,22 +130,123 @@ DEEP_REASONING_PROMPT = """Jesteś ekspertem świata w optymalizacji CV z 20-let
 Twoja misja: Stworzyć CV które przejdzie przez ATS i zachwyci rekruterów."""
 
 
-def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3, max_tokens=None, use_streaming=False):
+def analyze_task_complexity(prompt):
     """
-    Zaawansowana funkcja OpenRouter z hierarchią modeli i optymalnymi parametrami
+    🧠 INTELIGENTNA ANALIZA ZADANIA - wybiera najlepszy model do zadania
+    """
+    import re
+    
+    # Wskaźniki złożoności
+    complexity_indicators = {
+        'very_high': [
+            'strategic', 'strategy', 'complex analysis', 'detailed analysis',
+            'comprehensive', 'in-depth', 'advanced', 'sophisticated'
+        ],
+        'high': [
+            'optimize', 'rewrite', 'improve', 'enhance', 'professional',
+            'detailed', 'thorough', 'complete', 'comprehensive'
+        ],
+        'medium': [
+            'analyze', 'review', 'check', 'evaluate', 'assess',
+            'generate', 'create', 'write', 'format'
+        ],
+        'low': [
+            'extract', 'list', 'simple', 'basic', 'quick',
+            'short', 'brief', 'summary', 'count'
+        ]
+    }
+    
+    # Analizuj długość (dłuższe = bardziej złożone)
+    length_factor = min(len(prompt) / 1000, 2.0)  # 0-2.0
+    
+    # Analizuj słowa kluczowe
+    prompt_lower = prompt.lower()
+    complexity_score = 0
+    
+    for indicator in complexity_indicators['very_high']:
+        if indicator in prompt_lower:
+            complexity_score += 4
+    
+    for indicator in complexity_indicators['high']:
+        if indicator in prompt_lower:
+            complexity_score += 3
+            
+    for indicator in complexity_indicators['medium']:
+        if indicator in prompt_lower:
+            complexity_score += 2
+            
+    for indicator in complexity_indicators['low']:
+        if indicator in prompt_lower:
+            complexity_score += 1
+    
+    # Dodatkowo sprawdź specjalne przypadki
+    if 'cv' in prompt_lower and 'optimize' in prompt_lower:
+        complexity_score += 3  # CV optimization = zawsze ważne
+        
+    if 'cover letter' in prompt_lower:
+        complexity_score += 2  # Cover letter = średnio ważne
+        
+    total_complexity = complexity_score + length_factor
+    
+    # Zwróć kategorię złożoności
+    if total_complexity >= 8:
+        return 'very_high'
+    elif total_complexity >= 5:
+        return 'high'
+    elif total_complexity >= 3:
+        return 'medium'
+    else:
+        return 'low'
+
+
+def smart_model_selection(prompt, is_premium=False):
+    """
+    🎯 SMART MODEL SELECTION - wybiera najlepszy model dla zadania
+    """
+    complexity = analyze_task_complexity(prompt)
+    
+    logger.info(f"🧠 Zadanie ma złożoność: {complexity}")
+    
+    if is_premium:
+        if complexity == 'very_high':
+            return [PREMIUM_MODEL, FAST_MODEL, FALLBACK_MODEL]  # Najlepszy model
+        elif complexity == 'high':
+            return [FAST_MODEL, PREMIUM_MODEL, FALLBACK_MODEL]  # Szybki ale dobry
+        elif complexity == 'medium':
+            return [FAST_MODEL, BUDGET_MODEL, FALLBACK_MODEL]   # Szybki i tani
+        else:  # low
+            return [BUDGET_MODEL, FALLBACK_MODEL]               # Bardzo tani
+    else:
+        # Dla darmowych użytkowników - zawsze tanie modele
+        if complexity in ['very_high', 'high']:
+            return [FALLBACK_MODEL, BUDGET_MODEL]  # Qwen + backup
+        else:
+            return [BUDGET_MODEL, FALLBACK_MODEL]  # Najta sze
+
+
+def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3, max_tokens=None, use_streaming=False, use_cache=True):
+    """
+    🚀 NAJNOWSZA FUNKCJA OpenRouter z AI-powered model selection + caching
     """
     if not API_KEY_VALID:
         logger.error("API key is not valid")
         return None
 
-    # Inteligentny wybór modelu z hierarchią fallback
+    # 🧠 INTELIGENTNY WYBÓR MODELU BAZUJĄCY NA ZADANIU
     if model is None:
-        if is_premium:
-            models_to_try = MODEL_HIERARCHY  # Spróbuj wszystkich od najlepszego
-        else:
-            models_to_try = [FALLBACK_MODEL, BUDGET_MODEL]  # Tylko darmowe/tanie
+        models_to_try = smart_model_selection(prompt, is_premium)
+        logger.info(f"🎯 Smart model selection: {[m.split('/')[-1] for m in models_to_try]}")
     else:
         models_to_try = [model]
+
+    # 💾 SPRAWDŹ CACHE NAJPIERW (tylko dla częstych zapytań)
+    primary_model = models_to_try[0]
+    cache_key = get_cache_key(prompt, primary_model, is_premium)
+    
+    if use_cache:
+        cached_response = get_from_cache(cache_key)
+        if cached_response:
+            return cached_response
 
     # Zoptymalizowane parametry dla każdego typu modelu
     def get_optimal_params(model_name):
@@ -194,6 +331,11 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3,
                     if 'choices' in result and len(result['choices']) > 0:
                         content = result['choices'][0]['message']['content']
                         logger.info(f"✅ Model {model_to_try} zwrócił odpowiedź (długość: {len(content)} znaków)")
+                        
+                        # 💾 ZAPISZ DO CACHE
+                        if use_cache:
+                            save_to_cache(cache_key, content)
+                            
                         return content
                     else:
                         logger.warning(f"⚠️ Nieoczekiwany format odpowiedzi z modelu {model_to_try}: {result}")
@@ -485,7 +627,7 @@ def generate_cover_letter(cv_text,
                 'cover_letter': cover_letter,
                 'job_title': job_title,
                 'company_name': company_name,
-                'model_used': PREMIUM_MODEL if is_premium else FREE_MODEL
+                'model_used': PREMIUM_MODEL if is_premium else FALLBACK_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
@@ -566,7 +708,7 @@ def generate_interview_questions(cv_text, job_title, job_description="", is_prem
                 'success': True,
                 'questions': questions,
                 'job_title': job_title,
-                'model_used': PREMIUM_MODEL if is_premium else FREE_MODEL
+                'model_used': PREMIUM_MODEL if is_premium else FALLBACK_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
@@ -647,7 +789,7 @@ def analyze_skills_gap(cv_text, job_title, job_description="", is_premium=False)
                 'success': True,
                 'analysis': analysis,
                 'job_title': job_title,
-                'model_used': PREMIUM_MODEL if is_premium else FREE_MODEL
+                'model_used': PREMIUM_MODEL if is_premium else FALLBACK_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
