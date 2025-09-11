@@ -19,6 +19,7 @@ session.headers.update({
 _cache = {}
 CACHE_DURATION = 3600  # 1 godzina w sekundach
 
+
 def get_cache_key(prompt, models_to_try, is_premium):
     """Generuje unikalny klucz cache dla zapytania - POPRAWIONY"""
     # Używaj całej hierarchii modeli w kluczu
@@ -26,30 +27,37 @@ def get_cache_key(prompt, models_to_try, is_premium):
     cache_data = f"{prompt[:500]}|{models_str}|{is_premium}"
     return hashlib.md5(cache_data.encode()).hexdigest()
 
+
 def get_from_cache(cache_key):
     """Pobiera odpowiedź z cache jeśli jest aktualna"""
     if cache_key in _cache:
         cached_response, model_used, timestamp = _cache[cache_key]
         if time.time() - timestamp < CACHE_DURATION:
-            logger.info(f"💾 Cache hit! Zwracam odpowiedź z cache (model: {model_used}, oszczędności API)")
+            logger.info(
+                f"💾 Cache hit! Zwracam odpowiedź z cache (model: {model_used}, oszczędności API)"
+            )
             return cached_response
         else:
             # Usuń przestarzały cache
             del _cache[cache_key]
     return None
 
+
 def save_to_cache(cache_key, response, model_used):
     """Zapisuje odpowiedź do cache z informacją o użytym modelu"""
     _cache[cache_key] = (response, model_used, time.time())
-    
+
     # Czyść stary cache co jakiś czas (maksymalnie 100 wpisów)
     if len(_cache) > 100:
         # Usuń najstarsze wpisy
-        sorted_cache = sorted(_cache.items(), key=lambda x: x[1][2])  # Sortuj po timestamp (3rd element)
+        sorted_cache = sorted(
+            _cache.items(),
+            key=lambda x: x[1][2])  # Sortuj po timestamp (3rd element)
         for key, _ in sorted_cache[:20]:  # Usuń 20 najstarszych
             del _cache[key]
-    
+
     logger.info(f"💾 Zapisano do cache (obecny rozmiar: {len(_cache)} wpisów)")
+
 
 # Load environment variables from .env file with override
 load_dotenv(override=True)
@@ -67,9 +75,8 @@ def validate_api_key():
         logger.error("❌ OPENROUTER_API_KEY nie jest ustawiony w pliku .env")
         return False
 
-    if (OPENROUTER_API_KEY.startswith('TWÓJ_') or 
-        len(OPENROUTER_API_KEY) < 20 or 
-        OPENROUTER_API_KEY == "sk-or-v1-demo-key-for-testing"):
+    if (OPENROUTER_API_KEY.startswith('TWÓJ_') or len(OPENROUTER_API_KEY) < 20
+            or OPENROUTER_API_KEY == "sk-or-v1-demo-key-for-testing"):
         logger.error(
             "❌ OPENROUTER_API_KEY w .env zawiera przykładową wartość - ustaw prawdziwy klucz!"
         )
@@ -128,7 +135,13 @@ def get_single_model():
     return SINGLE_MODEL
 
 
-def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3, max_tokens=None, use_streaming=False, use_cache=True):
+def make_openrouter_request(prompt,
+                            model=None,
+                            is_premium=False,
+                            max_retries=3,
+                            max_tokens=None,
+                            use_streaming=False,
+                            use_cache=True):
     """
     🚀 UPROSZCZONA FUNKCJA - TYLKO JEDEN MODEL QWEN
     """
@@ -140,9 +153,9 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3,
     model_to_use = SINGLE_MODEL
     logger.info(f"🤖 Używam wyłącznie model: {model_to_use}")
 
-    # 💾 SPRAWDŹ CACHE NAJPIERW 
+    # 💾 SPRAWDŹ CACHE NAJPIERW
     cache_key = get_cache_key(prompt, [model_to_use], is_premium)
-    
+
     if use_cache:
         cached_response = get_from_cache(cache_key)
         if cached_response:
@@ -150,13 +163,13 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3,
 
     # Parametry zoptymalizowane dla Qwen
     params = {
-        "temperature": 0.3,          # Stabilna temperatura dla Qwen
-        "top_p": 0.9,               # Dobre fokusowanie na najlepszych tokenach
-        "frequency_penalty": 0.1,    # Unikaj powtórzeń
-        "presence_penalty": 0.1,     # Zachęcaj do różnorodności
+        "temperature": 0.3,  # Stabilna temperatura dla Qwen
+        "top_p": 0.9,  # Dobre fokusowanie na najlepszych tokenach
+        "frequency_penalty": 0.1,  # Unikaj powtórzeń
+        "presence_penalty": 0.1,  # Zachęcaj do różnorodności
         "max_tokens": max_tokens or 3500  # Dobre długie odpowiedzi
     }
-    
+
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
@@ -165,9 +178,10 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3,
     }
 
     data = {
-        "model": model_to_use,
+        "model":
+        model_to_use,
         "messages": [{
-            "role": "system", 
+            "role": "system",
             "content": DEEP_REASONING_PROMPT
         }, {
             "role": "user",
@@ -179,51 +193,59 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3,
     # Próbuj z retry mechanism
     for attempt in range(max_retries):
         try:
-            logger.info(f"📡 Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries}) with model: {model_to_use}")
-
-            response = session.post(
-                OPENROUTER_BASE_URL,
-                headers=headers,
-                json=data,
-                timeout=(5, 45),
-                stream=use_streaming
+            logger.info(
+                f"📡 Sending request to OpenRouter API (attempt {attempt + 1}/{max_retries}) with model: {model_to_use}"
             )
+
+            response = session.post(OPENROUTER_BASE_URL,
+                                    headers=headers,
+                                    json=data,
+                                    timeout=(5, 45),
+                                    stream=use_streaming)
             response.raise_for_status()
 
             result = response.json()
-            
+
             if 'choices' in result and len(result['choices']) > 0:
                 content = result['choices'][0]['message']['content']
-                logger.info(f"✅ Model {model_to_use} zwrócił odpowiedź (długość: {len(content)} znaków)")
-                
+                logger.info(
+                    f"✅ Model {model_to_use} zwrócił odpowiedź (długość: {len(content)} znaków)"
+                )
+
                 # 💾 ZAPISZ DO CACHE
                 if use_cache:
                     save_to_cache(cache_key, content, model_to_use)
-                    
+
                 return content
             else:
                 logger.warning(f"⚠️ Nieoczekiwany format odpowiedzi: {result}")
-                        
+
         except requests.exceptions.Timeout:
             logger.warning(f"⏰ Timeout na próbie {attempt + 1}")
-                        
+
         except requests.exceptions.RequestException as e:
-            logger.warning(f"🚫 Błąd zapytania na próbie {attempt + 1}: {str(e)}")
-                        
+            logger.warning(
+                f"🚫 Błąd zapytania na próbie {attempt + 1}: {str(e)}")
+
         except Exception as e:
             logger.warning(f"❌ Nieoczekiwany błąd: {str(e)}")
-        
+
         # Opóźnienie przed ponowną próbą
         if attempt < max_retries - 1:
             import time
             time.sleep(1.5)
-    
+
     # Jeśli wszystkie próby zawiodły
-    logger.error(f"❌ Model {model_to_use} nie odpowiedział po {max_retries} próbach")
+    logger.error(
+        f"❌ Model {model_to_use} nie odpowiedział po {max_retries} próbach")
     return None
 
 
-def optimize_cv(cv_text, job_title, job_description="", is_premium=False, payment_verified=False):
+def optimize_cv(cv_text,
+                job_title,
+                job_description="",
+                is_premium=False,
+                payment_verified=False):
     """
     Optymalizuje CV za pomocą OpenRouter AI (Claude 3.5 Sonnet) i formatuje w profesjonalnym szablonie HTML
     """
@@ -281,8 +303,8 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False, paymen
     # Rozszerzony limit tokenów dla płacących użytkowników
     if is_premium or payment_verified:
         max_tokens = 4000
-        prompt += f"""
-
+        prompt += """
+        
     DODATKOWE INSTRUKCJE DLA UŻYTKOWNIKÓW PREMIUM:
     - Stwórz bardziej szczegółowe opisy stanowisk (4-5 punktów zamiast 3-4)
     - Dodaj więcej słów kluczowych z branży
@@ -293,11 +315,10 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False, paymen
         max_tokens = 2500
 
     try:
-        response = make_openrouter_request(
-            prompt, 
-            is_premium=(is_premium or payment_verified),
-            max_tokens=max_tokens
-        )
+        response = make_openrouter_request(prompt,
+                                           is_premium=(is_premium
+                                                       or payment_verified),
+                                           max_tokens=max_tokens)
 
         if response:
             # Zwróć zoptymalizowane CV jako sformatowany tekst
@@ -312,7 +333,10 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False, paymen
         return None
 
 
-def analyze_cv_quality(cv_text, job_title, job_description="", is_premium=False):
+def analyze_cv_quality(cv_text,
+                       job_title,
+                       job_description="",
+                       is_premium=False):
     """
     Zaawansowana analiza jakości CV z oceną 0-100 punktów i szczegółowymi wskazówkami AI
     """
@@ -391,28 +415,31 @@ SZCZEGÓŁOWA PUNKTACJA:
 
         # Użyj lepszych parametrów dla premium użytkowników
         max_tokens = 3000 if is_premium else 2000
-        
+
         logger.info(f"🔍 Analizowanie jakości CV dla stanowiska: {job_title}")
-        
-        response = make_openrouter_request(
-            prompt, 
-            is_premium=is_premium,
-            max_tokens=max_tokens
-        )
-        
+
+        response = make_openrouter_request(prompt,
+                                           is_premium=is_premium,
+                                           max_tokens=max_tokens)
+
         if response:
-            logger.info(f"✅ Analiza CV ukończona pomyślnie (długość: {len(response)} znaków)")
+            logger.info(
+                f"✅ Analiza CV ukończona pomyślnie (długość: {len(response)} znaków)"
+            )
             return response.strip()
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
             return None
-            
+
     except Exception as e:
         logger.error(f"❌ Błąd podczas analizy CV: {str(e)}")
         return None
 
 
-def analyze_cv_with_score(cv_text, job_title, job_description="", is_premium=False):
+def analyze_cv_with_score(cv_text,
+                          job_title,
+                          job_description="",
+                          is_premium=False):
     """Zachowanie kompatybilności z istniejącym kodem - przekierowanie do nowej funkcji"""
     return analyze_cv_quality(cv_text, job_title, job_description, is_premium)
 
@@ -489,7 +516,10 @@ def generate_cover_letter(cv_text,
         return None
 
 
-def generate_interview_questions(cv_text, job_title, job_description="", is_premium=False):
+def generate_interview_questions(cv_text,
+                                 job_title,
+                                 job_description="",
+                                 is_premium=False):
     """
     Generuje personalizowane pytania na rozmowę kwalifikacyjną na podstawie CV i opisu stanowiska
     """
@@ -547,12 +577,15 @@ def generate_interview_questions(cv_text, job_title, job_description="", is_prem
     Wygeneruj teraz personalizowane pytania na rozmowę kwalifikacyjną:
             """
 
-        logger.info(f"🤔 Generowanie pytań na rozmowę dla stanowiska: {job_title}")
+        logger.info(
+            f"🤔 Generowanie pytań na rozmowę dla stanowiska: {job_title}")
 
         questions = make_openrouter_request(prompt, is_premium=is_premium)
 
         if questions:
-            logger.info(f"✅ Pytania na rozmowę wygenerowane pomyślnie (długość: {len(questions)} znaków)")
+            logger.info(
+                f"✅ Pytania na rozmowę wygenerowane pomyślnie (długość: {len(questions)} znaków)"
+            )
 
             return {
                 'success': True,
@@ -569,7 +602,10 @@ def generate_interview_questions(cv_text, job_title, job_description="", is_prem
         return None
 
 
-def analyze_skills_gap(cv_text, job_title, job_description="", is_premium=False):
+def analyze_skills_gap(cv_text,
+                       job_title,
+                       job_description="",
+                       is_premium=False):
     """
     Analizuje luki kompetencyjne między CV a wymaganiami stanowiska
     """
@@ -628,12 +664,15 @@ def analyze_skills_gap(cv_text, job_title, job_description="", is_premium=False)
     Przeprowadź teraz szczegółową analizę luk kompetencyjnych:
             """
 
-        logger.info(f"🔍 Analiza luk kompetencyjnych dla stanowiska: {job_title}")
+        logger.info(
+            f"🔍 Analiza luk kompetencyjnych dla stanowiska: {job_title}")
 
         analysis = make_openrouter_request(prompt, is_premium=is_premium)
 
         if analysis:
-            logger.info(f"✅ Analiza luk kompetencyjnych ukończona pomyślnie (długość: {len(analysis)} znaków)")
+            logger.info(
+                f"✅ Analiza luk kompetencyjnych ukończona pomyślnie (długość: {len(analysis)} znaków)"
+            )
 
             return {
                 'success': True,
