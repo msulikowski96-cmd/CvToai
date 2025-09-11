@@ -179,7 +179,7 @@ def make_openrouter_request(prompt,
         return None
 
     # UŻYJ WYBRANEGO MODELU LUB DOMYŚLNEGO
-    model_to_use = model if model else DEFAULT_MODEL
+    model_to_use = get_model_by_key(model) if model else DEFAULT_MODEL
     logger.info(f"🤖 Używam model: {model_to_use}")
 
     # 💾 SPRAWDŹ CACHE NAJPIERW
