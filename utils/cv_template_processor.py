@@ -221,6 +221,77 @@ def parse_cv_to_structured_data(cv_text):
         logger.error(f"Error parsing CV: {str(e)}")
         return get_default_cv_data()
 
+def split_experience_entries(content):
+    """
+    Inteligentnie dzieli zawartość doświadczenia zawodowego na osobne stanowiska
+    """
+    if not content:
+        return []
+    
+    experiences = []
+    current_experience = []
+    
+    # Wzorce które mogą oznaczać początek nowego doświadczenia
+    job_title_patterns = [
+        r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\|\s*[A-ZĄĆĘŁŃÓŚŹŻ]',  # "Kurier | DHL"
+        r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\s-\s[A-ZĄĆĘŁŃÓŚŹŻ]',   # "Kurier - DHL" 
+        r'^\*\*[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\*\*',              # "**Kurier**"
+        r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+$'                       # "Kurier" (samodzielnie)
+    ]
+    
+    # Wzorce dat które mogą oznaczać nowy okres pracy
+    date_patterns = [
+        r'\d{4}[\s\-–]*(?:\d{4}|obecnie|obecnie.*|present|current)',
+        r'\*\d{4}[\s\-–]*\d{4}\*',
+        r'^\d{4}\s*[\-–]\s*\d{4}',
+        r'^\d{4}\s*[\-–]\s*obecnie'
+    ]
+    
+    responsibility_markers = ['-', '•', '*', '▸', '→', '◦', '–', '‒', '✓', '+']
+    
+    for i, line in enumerate(content):
+        line = line.strip()
+        if not line:
+            continue
+            
+        # Sprawdź czy to początek nowego doświadczenia
+        is_new_job = False
+        
+        # 1. Sprawdź wzorce stanowisk pracy
+        for pattern in job_title_patterns:
+            if re.match(pattern, line):
+                is_new_job = True
+                break
+        
+        # 2. Sprawdź czy linia wygląda jak stanowisko (nie zaczyna się od markera)
+        if (not is_new_job and 
+            not any(line.startswith(marker) for marker in responsibility_markers) and
+            not any(re.search(pattern, line.lower()) for pattern in date_patterns) and
+            len(line) > 3 and len(line) < 80 and
+            any(c.isupper() for c in line[:3])):  # Zaczyna się dużą literą
+            
+            # Sprawdź czy poprzednia grupa ma już jakieś obowiązki (wtedy to prawdopodobnie nowe stanowisko)
+            if current_experience:
+                has_responsibilities = any(
+                    any(resp_line.startswith(marker) for marker in responsibility_markers) 
+                    for resp_line in current_experience
+                )
+                if has_responsibilities:
+                    is_new_job = True
+        
+        # Jeśli to nowe stanowisko i mamy już jakieś dane, zapisz poprzednie
+        if is_new_job and current_experience:
+            experiences.append(current_experience[:])
+            current_experience = []
+        
+        current_experience.append(line)
+    
+    # Dodaj ostatnie doświadczenie
+    if current_experience:
+        experiences.append(current_experience)
+    
+    return experiences
+
 def process_section_content(cv_data, section, content):
     """
     Przetwarza zawartość sekcji CV
@@ -256,16 +327,14 @@ def process_section_content(cv_data, section, content):
                 cv_data['skills'].append(line)
     
     elif section == 'experience':
-        # Grupuj linie w doświadczenia
-        current_exp = []
-        for line in content:
-            if line.strip():
-                current_exp.append(line.strip())
+        # Inteligentnie dziel doświadczenia na osobne stanowiska
+        experiences = split_experience_entries(content)
         
-        if current_exp:
-            exp_item = parse_experience_item(current_exp)
-            if exp_item:
-                cv_data['experience'].append(exp_item)
+        for exp_content in experiences:
+            if exp_content:
+                exp_item = parse_experience_item(exp_content)
+                if exp_item:
+                    cv_data['experience'].append(exp_item)
     
     elif section == 'education':
         # Grupuj linie w wykształcenie
