@@ -41,8 +41,8 @@ API_KEY_VALID = validate_api_key()
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # ZAAWANSOWANA KONFIGURACJA MODELI
-DEFAULT_MODEL = "deepseek/deepseek-chat-v3.1:free"
-PREMIUM_MODEL = "qwen/qwen3-235b-a22b:free"
+DEFAULT_MODEL = "qwen/qwen3-235b-a22b:free"
+PREMIUM_MODEL = "deepseek/deepseek-chat-v3.1:free"
 
 # OPTYMALIZOWANY PROMPT SYSTEMOWY DLA MAKSYMALNEJ JAKOŚCI
 ADVANCED_SYSTEM_PROMPT = """Jesteś światowej klasy ekspertem w rekrutacji i optymalizacji CV z 15-letnim doświadczeniem w branży HR. Posiadasz głęboką wiedzę o polskim rynku pracy, trendach rekrutacyjnych i wymaganiach pracodawców.
@@ -460,6 +460,21 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False):
     except Exception as e:
         logger.error(f"Błąd optymalizacji CV: {str(e)}")
         return None
+
+
+def get_model_performance_stats():
+    """
+    Zwróć informacje o używanych modelach AI
+    """
+    return {
+        "current_model": DEFAULT_MODEL,
+        "model_family": "Qwen 235B & DeepSeek Chat v3.1",
+        "model_provider": "Alibaba Cloud & DeepSeek",
+        "optimization_level": "Advanced",
+        "capabilities": [
+            "Zaawansowana analiza CV w języku polskim"
+        ]
+    }
 
 
 def get_model_performance_stats():

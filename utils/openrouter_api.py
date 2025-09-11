@@ -103,7 +103,7 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 AVAILABLE_MODELS = {
     "qwen": {
         "id": "qwen/qwen3-235b-a22b:free",
-        "name": "Qwen-2.5-72B", 
+        "name": "Qwen-235B", 
         "description": "Zaawansowany model Qwen dla profesjonalnej optymalizacji CV",
         "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
         "speed": "średnia",
