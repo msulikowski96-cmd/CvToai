@@ -19,31 +19,33 @@ session.headers.update({
 _cache = {}
 CACHE_DURATION = 3600  # 1 godzina w sekundach
 
-def get_cache_key(prompt, model, is_premium):
-    """Generuje unikalny klucz cache dla zapytania"""
-    cache_data = f"{prompt[:500]}|{model}|{is_premium}"  # Tylko pierwsze 500 znaków prompta
+def get_cache_key(prompt, models_to_try, is_premium):
+    """Generuje unikalny klucz cache dla zapytania - POPRAWIONY"""
+    # Używaj całej hierarchii modeli w kluczu
+    models_str = "|".join(models_to_try)
+    cache_data = f"{prompt[:500]}|{models_str}|{is_premium}"
     return hashlib.md5(cache_data.encode()).hexdigest()
 
 def get_from_cache(cache_key):
     """Pobiera odpowiedź z cache jeśli jest aktualna"""
     if cache_key in _cache:
-        cached_response, timestamp = _cache[cache_key]
+        cached_response, model_used, timestamp = _cache[cache_key]
         if time.time() - timestamp < CACHE_DURATION:
-            logger.info(f"💾 Cache hit! Zwracam odpowiedź z cache (oszczędności API)")
+            logger.info(f"💾 Cache hit! Zwracam odpowiedź z cache (model: {model_used}, oszczędności API)")
             return cached_response
         else:
             # Usuń przestarzały cache
             del _cache[cache_key]
     return None
 
-def save_to_cache(cache_key, response):
-    """Zapisuje odpowiedź do cache"""
-    _cache[cache_key] = (response, time.time())
+def save_to_cache(cache_key, response, model_used):
+    """Zapisuje odpowiedź do cache z informacją o użytym modelu"""
+    _cache[cache_key] = (response, model_used, time.time())
     
     # Czyść stary cache co jakiś czas (maksymalnie 100 wpisów)
     if len(_cache) > 100:
         # Usuń najstarsze wpisy
-        sorted_cache = sorted(_cache.items(), key=lambda x: x[1][1])
+        sorted_cache = sorted(_cache.items(), key=lambda x: x[1][2])  # Sortuj po timestamp (3rd element)
         for key, _ in sorted_cache[:20]:  # Usuń 20 najstarszych
             del _cache[key]
     
@@ -65,7 +67,9 @@ def validate_api_key():
         logger.error("❌ OPENROUTER_API_KEY nie jest ustawiony w pliku .env")
         return False
 
-    if OPENROUTER_API_KEY.startswith('TWÓJ_') or len(OPENROUTER_API_KEY) < 20:
+    if (OPENROUTER_API_KEY.startswith('TWÓJ_') or 
+        len(OPENROUTER_API_KEY) < 20 or 
+        OPENROUTER_API_KEY == "sk-or-v1-demo-key-for-testing"):
         logger.error(
             "❌ OPENROUTER_API_KEY w .env zawiera przykładową wartość - ustaw prawdziwy klucz!"
         )
@@ -92,7 +96,7 @@ MODEL = "qwen/qwen-2.5-72b-instruct:free"
 # NAJLEPSZE MODELE 2025 - ZOPTYMALIZOWANE KONFIGURACJE
 DEFAULT_MODEL = "qwen/qwen-2.5-72b-instruct:free"
 PREMIUM_MODEL = "openai/gpt-4o"  # Najlepszy do CV - multimodal, szybki, lepszy w polskim
-FAST_MODEL = "mistralai/mistral-small-3.1"  # Bardzo szybki i tani, dobry do wstępnej analizy
+FAST_MODEL = "mistralai/mistral-small-3.2-24b-instruct"  # Najnowszy Mistral Small 3.2 24B
 FALLBACK_MODEL = "qwen/qwen-2.5-72b-instruct:free"  # Backup gdy premium modele niedostępne
 BUDGET_MODEL = "openai/gpt-4o-mini"  # Bardzo tani, nadal dobrej jakości
 
@@ -136,21 +140,37 @@ def analyze_task_complexity(prompt):
     """
     import re
     
-    # Wskaźniki złożoności
+    # Wskaźniki złożoności - POLSKI + ANGIELSKI
     complexity_indicators = {
         'very_high': [
+            # Polski
+            'strategiczny', 'strategia', 'kompleksowa analiza', 'szczegółowa analiza',
+            'kompleksowy', 'pogłębiony', 'zaawansowany', 'wyrafinowany', 'profesjonalny',
+            # Angielski
             'strategic', 'strategy', 'complex analysis', 'detailed analysis',
             'comprehensive', 'in-depth', 'advanced', 'sophisticated'
         ],
         'high': [
+            # Polski
+            'optymalizuj', 'optymalizacja', 'przepisz', 'popraw', 'ulepszy', 'wzbogać',
+            'szczegółowy', 'dokładny', 'kompletny', 'profesjonalny', 'jakościowy',
+            # Angielski  
             'optimize', 'rewrite', 'improve', 'enhance', 'professional',
             'detailed', 'thorough', 'complete', 'comprehensive'
         ],
         'medium': [
+            # Polski
+            'analizuj', 'analiza', 'przegląd', 'sprawdź', 'oceń', 'ocena',
+            'generuj', 'stwórz', 'napisz', 'formatuj', 'przetwórz',
+            # Angielski
             'analyze', 'review', 'check', 'evaluate', 'assess',
             'generate', 'create', 'write', 'format'
         ],
         'low': [
+            # Polski
+            'wyciągnij', 'lista', 'prosty', 'podstawowy', 'szybki',
+            'krótki', 'skrócony', 'podsumowanie', 'policz', 'wylistuj',
+            # Angielski
             'extract', 'list', 'simple', 'basic', 'quick',
             'short', 'brief', 'summary', 'count'
         ]
@@ -179,12 +199,22 @@ def analyze_task_complexity(prompt):
         if indicator in prompt_lower:
             complexity_score += 1
     
-    # Dodatkowo sprawdź specjalne przypadki
-    if 'cv' in prompt_lower and 'optimize' in prompt_lower:
-        complexity_score += 3  # CV optimization = zawsze ważne
+    # Dodatkowo sprawdź specjalne przypadki - POLSKI + ANGIELSKI
+    cv_keywords = ['cv', 'życiorys', 'curriculum vitae']
+    optimize_keywords = ['optimize', 'optymalizuj', 'optymalizacja', 'popraw', 'ulepszy']
+    
+    has_cv = any(keyword in prompt_lower for keyword in cv_keywords)
+    has_optimize = any(keyword in prompt_lower for keyword in optimize_keywords)
+    
+    if has_cv and has_optimize:
+        complexity_score += 4  # CV optimization = zawsze bardzo ważne
         
-    if 'cover letter' in prompt_lower:
-        complexity_score += 2  # Cover letter = średnio ważne
+    if any(keyword in prompt_lower for keyword in ['cover letter', 'list motywacyjny', 'list przewodni']):
+        complexity_score += 3  # Cover letter = ważne
+        
+    # Funkcje aplikacji = zawsze wysokie priorytety
+    if any(func in prompt_lower for func in ['analyze_cv', 'optimize_cv', 'generate_cover_letter', 'analyze_skills_gap']):
+        complexity_score += 3
         
     total_complexity = complexity_score + length_factor
     
@@ -211,7 +241,7 @@ def smart_model_selection(prompt, is_premium=False):
         if complexity == 'very_high':
             return [PREMIUM_MODEL, FAST_MODEL, FALLBACK_MODEL]  # Najlepszy model
         elif complexity == 'high':
-            return [FAST_MODEL, PREMIUM_MODEL, FALLBACK_MODEL]  # Szybki ale dobry
+            return [PREMIUM_MODEL, FAST_MODEL, FALLBACK_MODEL]  # Premium najpierw dla high
         elif complexity == 'medium':
             return [FAST_MODEL, BUDGET_MODEL, FALLBACK_MODEL]   # Szybki i tani
         else:  # low
@@ -239,9 +269,8 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3,
     else:
         models_to_try = [model]
 
-    # 💾 SPRAWDŹ CACHE NAJPIERW (tylko dla częstych zapytań)
-    primary_model = models_to_try[0]
-    cache_key = get_cache_key(prompt, primary_model, is_premium)
+    # 💾 SPRAWDŹ CACHE NAJPIERW (używa pełnej hierarchii modeli)
+    cache_key = get_cache_key(prompt, models_to_try, is_premium)
     
     if use_cache:
         cached_response = get_from_cache(cache_key)
@@ -332,9 +361,9 @@ def make_openrouter_request(prompt, model=None, is_premium=False, max_retries=3,
                         content = result['choices'][0]['message']['content']
                         logger.info(f"✅ Model {model_to_try} zwrócił odpowiedź (długość: {len(content)} znaków)")
                         
-                        # 💾 ZAPISZ DO CACHE
+                        # 💾 ZAPISZ DO CACHE z informacją o użytym modelu
                         if use_cache:
-                            save_to_cache(cache_key, content)
+                            save_to_cache(cache_key, content, model_to_try)
                             
                         return content
                     else:
