@@ -1259,7 +1259,7 @@ def create_checkout_session():
                 # Subskrypcja miesięczna
                 checkout_session = stripe.checkout.Session.create(
                     customer=current_user.stripe_customer_id,
-                    payment_method_types=['card', 'blik'],
+                    payment_method_types=['card'],
                     line_items=[{
                         'price_data': {
                             'currency': price_info['currency'].lower(),
@@ -1445,10 +1445,10 @@ def process_subscription_payment(checkout_session):
         subscription.stripe_customer_id = stripe_subscription.customer
         subscription.status = stripe_subscription.status
         subscription.plan_type = 'monthly_package'
-        subscription.amount = stripe_subscription.items.data[
-            0].price.unit_amount
-        subscription.currency = stripe_subscription.items.data[
-            0].price.currency.upper()
+        subscription.amount = stripe_subscription['items']['data'][
+            0]['price']['unit_amount']
+        subscription.currency = stripe_subscription['items']['data'][
+            0]['price']['currency'].upper()
         subscription.current_period_start = datetime.fromtimestamp(
             stripe_subscription.current_period_start)
         subscription.current_period_end = datetime.fromtimestamp(
