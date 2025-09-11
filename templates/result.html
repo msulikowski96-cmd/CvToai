@@ -759,10 +759,8 @@ function fallbackCopyToClipboard(text) {
 document.addEventListener('DOMContentLoaded', function() {
     parseAndDisplayCVAnalysis();
 });
-</script>
 
-{% block scripts %}
-<script>
+// Copy to clipboard functionality
 function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
     const text = element.textContent;
