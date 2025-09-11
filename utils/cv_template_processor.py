@@ -233,7 +233,7 @@ def split_experience_entries(content):
     
     # Wzorce które mogą oznaczać początek nowego doświadczenia
     job_title_patterns = [
-        r'^---\s*STANOWISKO\s*---',                                 # "--- STANOWISKO ---" (nowy separator)
+        r'^[-–—]{3}\s*stanowisko\s*[-–—]{3}',                       # "--- STANOWISKO ---" (odporny separator)
         r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\|\s*[A-ZĄĆĘŁŃÓŚŹŻ]',  # "Kurier | DHL"
         r'^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\s-\s[A-ZĄĆĘŁŃÓŚŹŻ]',   # "Kurier - DHL" 
         r'^\*\*[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż\s]+\*\*',              # "**Kurier**"
@@ -263,7 +263,12 @@ def split_experience_entries(content):
         
         # 1. Sprawdź wzorce stanowisk pracy
         for pattern in job_title_patterns:
-            if re.match(pattern, line):
+            # Pierwszy wzorzec (separator) używa case-insensitive matching
+            if pattern.startswith(r'^[-–—]{3}'):
+                if re.match(pattern, line, re.IGNORECASE):
+                    is_new_job = True
+                    break
+            elif re.match(pattern, line):
                 is_new_job = True
                 break
         
@@ -296,7 +301,7 @@ def split_experience_entries(content):
             current_experience = []
         
         # Nie dodawaj separatora do contentu (tylko używaj go do podziału)
-        if not re.match(r'^---\s*STANOWISKO\s*---', line):
+        if not re.match(r'^[-–—]{3}\s*stanowisko\s*[-–—]{3}', line, re.IGNORECASE):
             current_experience.append(line)
     
     # Dodaj ostatnie doświadczenie
