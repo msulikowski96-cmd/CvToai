@@ -42,11 +42,18 @@
             <!-- CV w formacie HTML -->
             {{ formatted_cv|safe }}
         {% else %}
-            <!-- Fallback - CV w formacie tekstowym -->
+            <!-- Fallback - CV w formacie tekstowym z lepszym formatowaniem -->
             <div class="container my-4">
-                <div class="card shadow">
-                    <div class="card-body" style="font-family: 'Times New Roman', serif; line-height: 1.6;">
-                        <pre style="white-space: pre-wrap; font-family: inherit;">{{ cv_upload.optimized_cv }}</pre>
+                <div class="cv-fallback-container">
+                    <div class="cv-fallback-header">
+                        <h2 class="cv-fallback-title">
+                            <i class="bi bi-file-earmark-text me-2"></i>
+                            Zoptymalizowane CV
+                        </h2>
+                        <p class="cv-fallback-subtitle">Sformatowanie tekstowe</p>
+                    </div>
+                    <div class="cv-fallback-body">
+                        <pre class="cv-text-content">{{ cv_upload.optimized_cv }}</pre>
                     </div>
                 </div>
             </div>
@@ -83,9 +90,21 @@
         background: white !important;
     }
     
-    .card {
+    .card, .cv-fallback-container {
         box-shadow: none !important;
         border: none !important;
+    }
+    
+    .cv-fallback-header {
+        background: #0066FF !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    .cv-text-content {
+        background: white !important;
+        border: 1px solid #e2e8f0 !important;
+        font-size: 11px;
     }
 }
 
@@ -102,6 +121,83 @@
 .cv-display .card {
     border-radius: 10px;
     border: none;
+}
+
+/* Enhanced Fallback Styling */
+.cv-fallback-container {
+    max-width: 850px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.cv-fallback-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0066FF 0%, #3385FF 50%, #0891B2 100%);
+}
+
+.cv-fallback-header {
+    background: linear-gradient(135deg, #0066FF 0%, #3385FF 100%);
+    color: white;
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cv-fallback-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 40%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(15deg);
+    border-radius: 50%;
+}
+
+.cv-fallback-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 2;
+}
+
+.cv-fallback-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.cv-fallback-body {
+    padding: 3rem 2.5rem;
+}
+
+.cv-text-content {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: #334155;
+    margin: 0;
+    white-space: pre-wrap;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 2rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 </style>
 
