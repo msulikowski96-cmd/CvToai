@@ -3,6 +3,10 @@ import sys
 import logging
 import uuid
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -31,8 +35,8 @@ try:
 except (AttributeError, OSError):
     pass
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+# Configure logging (INFO level for production safety)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
