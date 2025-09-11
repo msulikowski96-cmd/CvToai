@@ -512,6 +512,25 @@ def dashboard():
     return render_template('dashboard.html')
 
 
+@app.route('/api/models', methods=['GET'])
+@login_required
+def get_available_models():
+    """Returns list of available AI models for selection"""
+    try:
+        from utils.openrouter_api import get_available_models
+        models = get_available_models()
+        return jsonify({
+            'success': True,
+            'models': models
+        })
+    except Exception as e:
+        logger.error(f"Error getting available models: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Nie udało się pobrać listy modeli AI'
+        })
+
+
 @app.route('/profile')
 @login_required
 def profile():
@@ -655,6 +674,7 @@ def generate_cover_letter_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
+        selected_model = data.get('selected_model')
         job_title = data.get('job_title', '').strip()
         job_description = data.get('job_description', '').strip()
         company_name = data.get('company_name', '').strip()
@@ -695,7 +715,8 @@ def generate_cover_letter_route():
                                        job_title=job_title,
                                        job_description=job_description,
                                        company_name=company_name,
-                                       is_premium=is_premium)
+                                       is_premium=is_premium,
+                                       selected_model=selected_model)
 
         if not result or not result.get('success'):
             return jsonify({
@@ -749,6 +770,7 @@ def generate_interview_questions_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
+        selected_model = data.get('selected_model')
         job_title = data.get('job_title', '').strip()
         job_description = data.get('job_description', '').strip()
 
@@ -787,7 +809,8 @@ def generate_interview_questions_route():
         result = generate_interview_questions(cv_text=cv_upload.original_text,
                                               job_title=job_title,
                                               job_description=job_description,
-                                              is_premium=is_premium)
+                                              is_premium=is_premium,
+                                              selected_model=selected_model)
 
         if not result or not result.get('success'):
             return jsonify({
@@ -840,6 +863,7 @@ def analyze_skills_gap_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
+        selected_model = data.get('selected_model')
         job_title = data.get('job_title', '').strip()
         job_description = data.get('job_description', '').strip()
 
@@ -878,7 +902,8 @@ def analyze_skills_gap_route():
         result = analyze_skills_gap(cv_text=cv_upload.original_text,
                                     job_title=job_title,
                                     job_description=job_description,
-                                    is_premium=is_premium)
+                                    is_premium=is_premium,
+                                    selected_model=selected_model)
 
         if not result or not result.get('success'):
             return jsonify({
@@ -930,6 +955,7 @@ def optimize_cv_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
+        selected_model = data.get('selected_model')
 
         cv_upload = CVUpload.query.filter_by(session_id=session_id,
                                              user_id=current_user.id).first()
@@ -972,7 +998,8 @@ def optimize_cv_route():
         optimized_cv = optimize_cv(cv_text,
                                    job_title,
                                    job_description,
-                                   is_premium=is_premium)
+                                   is_premium=is_premium,
+                                   selected_model=selected_model)
 
         if not optimized_cv:
             return jsonify({
@@ -1014,6 +1041,7 @@ def analyze_cv_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
+        selected_model = data.get('selected_model')
 
         # Validate session ownership (IDOR protection)
         cv_upload = CVUpload.query.filter_by(session_id=session_id,
@@ -1047,7 +1075,8 @@ def analyze_cv_route():
         cv_analysis = analyze_cv_with_score(cv_text,
                                             job_title,
                                             job_description,
-                                            is_premium=is_premium)
+                                            is_premium=is_premium,
+                                            selected_model=selected_model)
 
         if not cv_analysis:
             return jsonify({

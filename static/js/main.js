@@ -103,7 +103,8 @@ function optimizeCV(sessionId) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                session_id: sessionId
+                session_id: sessionId,
+                selected_model: getSelectedModel()
             })
         })
         .then(response => response.json())
@@ -154,7 +155,8 @@ function analyzeCV(sessionId, buttonElement = null) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                session_id: sessionId
+                session_id: sessionId,
+                selected_model: getSelectedModel()
             })
         })
         .then(response => {
@@ -195,7 +197,68 @@ function analyzeCV(sessionId, buttonElement = null) {
 }
 
 // Placeholder for potential future button logic related to Stripe integration
+// AI Model Selection functionality
+let selectedModel = localStorage.getItem('selectedAIModel') || 'qwen';
+
+function initializeModelSelection() {
+    const modelCards = document.querySelectorAll('.model-card');
+    const selectedModelInfo = document.getElementById('selected-model-info');
+    const selectedModelText = document.getElementById('selected-model-text');
+    
+    // Set initial selection
+    updateModelSelection(selectedModel);
+    
+    modelCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const modelKey = this.dataset.model;
+            if (modelKey !== selectedModel) {
+                selectedModel = modelKey;
+                localStorage.setItem('selectedAIModel', selectedModel);
+                updateModelSelection(selectedModel);
+                showToast('success', `Wybrano model AI: ${getModelName(selectedModel)}`);
+            }
+        });
+    });
+
+    function updateModelSelection(modelKey) {
+        // Update visual selection
+        modelCards.forEach(card => {
+            if (card.dataset.model === modelKey) {
+                card.style.border = '2px solid var(--primary)';
+                card.style.background = 'rgba(99, 102, 241, 0.05)';
+            } else {
+                card.style.border = '2px solid var(--border-primary)';
+                card.style.background = 'var(--bg-card)';
+            }
+        });
+        
+        // Update info text
+        if (selectedModelInfo && selectedModelText) {
+            selectedModelText.textContent = `Wybrano model: ${getModelName(modelKey)}`;
+            selectedModelInfo.classList.remove('d-none');
+        }
+    }
+
+    function getModelName(modelKey) {
+        const modelNames = {
+            'qwen': 'Qwen-2.5-72B',
+            'deepseek': 'DeepSeek Chat v3.1'
+        };
+        return modelNames[modelKey] || 'Qwen-2.5-72B';
+    }
+}
+
+// Get selected AI model for requests
+function getSelectedModel() {
+    return selectedModel;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize model selection if on dashboard
+    if (document.getElementById('ai-model-selection')) {
+        initializeModelSelection();
+    }
+    
     const paymentButtons = document.querySelectorAll('[data-stripe-price-id]');
     paymentButtons.forEach(button => {
         button.addEventListener('click', function() {

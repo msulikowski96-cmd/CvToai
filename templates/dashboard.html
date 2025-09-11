@@ -198,6 +198,123 @@
         </div>
     </div>
 
+    <!-- AI Model Selection Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="padding: 2rem 2rem 1rem 2rem;">
+                    <div class="d-flex align-items-center">
+                        <div class="feature-icon bg-success me-3">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <div>
+                            <h3 class="card-title font-weight-semibold mb-1">Wybierz Model AI</h3>
+                            <p class="text-secondary mb-0">Wybierz zaawansowany model sztucznej inteligencji do optymalizacji</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+                    <div class="row g-4" id="ai-model-selection">
+                        <!-- Qwen Model -->
+                        <div class="col-md-6">
+                            <div class="model-card card h-100" data-model="qwen" style="cursor: pointer; border: 2px solid var(--border-primary); transition: all 0.3s ease;">
+                                <div class="card-body" style="padding: 2rem;">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="feature-icon bg-primary me-3">
+                                            <i class="bi bi-lightning-charge"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-weight-bold mb-1">Qwen-2.5-72B</h5>
+                                            <span class="badge bg-primary">Zalecany</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-secondary mb-3">
+                                        Zaawansowany model Qwen dla profesjonalnej optymalizacji CV
+                                    </p>
+                                    
+                                    <div class="mb-3">
+                                        <h6 class="font-weight-semibold mb-2">Możliwości:</h6>
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Optymalizacja CV</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Analiza jakości</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Listy motywacyjne</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Pytania rekrutacyjne</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between text-sm">
+                                        <div>
+                                            <span class="text-muted">Prędkość:</span>
+                                            <strong class="text-warning">Średnia</strong>
+                                        </div>
+                                        <div>
+                                            <span class="text-muted">Jakość:</span>
+                                            <strong class="text-success">Bardzo wysoka</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DeepSeek Model -->
+                        <div class="col-md-6">
+                            <div class="model-card card h-100" data-model="deepseek" style="cursor: pointer; border: 2px solid var(--border-primary); transition: all 0.3s ease;">
+                                <div class="card-body" style="padding: 2rem;">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="feature-icon bg-info me-3">
+                                            <i class="bi bi-rocket"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-weight-bold mb-1">DeepSeek Chat v3.1</h5>
+                                            <span class="badge bg-info">Nowy</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-secondary mb-3">
+                                        Nowy model DeepSeek z zaawansowanym rozumowaniem
+                                    </p>
+                                    
+                                    <div class="mb-3">
+                                        <h6 class="font-weight-semibold mb-2">Możliwości:</h6>
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Optymalizacja CV</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Analiza jakości</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Listy motywacyjne</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Pytania rekrutacyjne</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between text-sm">
+                                        <div>
+                                            <span class="text-muted">Prędkość:</span>
+                                            <strong class="text-success">Szybka</strong>
+                                        </div>
+                                        <div>
+                                            <span class="text-muted">Jakość:</span>
+                                            <strong class="text-primary">Wysoka</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="text-muted text-sm mb-2">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Wybrany model będzie używany do wszystkich funkcji AI (optymalizacja, analiza, listy motywacyjne)
+                        </p>
+                        <div id="selected-model-info" class="alert alert-info d-none">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <span id="selected-model-text">Wybrano model: Qwen-2.5-72B</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modern Loading Section -->
     <div class="row mb-5">
         <div class="col-12">

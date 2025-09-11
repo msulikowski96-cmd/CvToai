@@ -100,8 +100,28 @@ API_KEY_VALID = validate_api_key()
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "qwen/qwen-2.5-72b-instruct:free"
 
-# WYŁĄCZNIE JEDEN MODEL QWEN ZGODNIE Z ŻYCZENIEM UŻYTKOWNIKA
-SINGLE_MODEL = "qwen/qwen3-235b-a22b:free"
+# DOSTĘPNE MODELE AI DO WYBORU
+AVAILABLE_MODELS = {
+    "qwen": {
+        "id": "qwen/qwen3-235b-a22b:free",
+        "name": "Qwen-2.5-72B", 
+        "description": "Zaawansowany model Qwen dla profesjonalnej optymalizacji CV",
+        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
+        "speed": "średnia",
+        "quality": "bardzo wysoka"
+    },
+    "deepseek": {
+        "id": "deepseek/deepseek-chat-v3.1:free",
+        "name": "DeepSeek Chat v3.1",
+        "description": "Nowy model DeepSeek z zaawansowanym rozumowaniem",
+        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
+        "speed": "szybka", 
+        "quality": "wysoka"
+    }
+}
+
+# DOMYŚLNY MODEL
+DEFAULT_MODEL = "qwen/qwen3-235b-a22b:free"
 
 # NAJNOWSZY PROMPT SYSTEMOWY 2025 - MAKSYMALNA JAKOŚĆ AI
 DEEP_REASONING_PROMPT = """Jesteś ekspertem świata w optymalizacji CV z 20-letnim doświadczeniem w rekrutacji oraz AI. Masz specjalistyczną wiedzę o:
@@ -129,10 +149,20 @@ DEEP_REASONING_PROMPT = """Jesteś ekspertem świata w optymalizacji CV z 20-let
 Twoja misja: Stworzyć CV które przejdzie przez ATS i zachwyci rekruterów."""
 
 
-# UPROSZCZONA FUNKCJA - TYLKO JEDEN MODEL
-def get_single_model():
-    """Zwraca jedyny dozwolony model"""
-    return SINGLE_MODEL
+# FUNKCJE DO ZARZĄDZANIA MODELAMI
+def get_available_models():
+    """Zwraca listę dostępnych modeli AI"""
+    return AVAILABLE_MODELS
+
+def get_model_by_key(model_key):
+    """Zwraca ID modelu na podstawie klucza"""
+    if model_key in AVAILABLE_MODELS:
+        return AVAILABLE_MODELS[model_key]["id"]
+    return DEFAULT_MODEL
+
+def get_default_model():
+    """Zwraca domyślny model"""
+    return DEFAULT_MODEL
 
 
 def make_openrouter_request(prompt,
@@ -143,15 +173,15 @@ def make_openrouter_request(prompt,
                             use_streaming=False,
                             use_cache=True):
     """
-    🚀 UPROSZCZONA FUNKCJA - TYLKO JEDEN MODEL QWEN
+    🚀 FUNKCJA OBSŁUGUJĄCA WYBÓR MODELI AI
     """
     if not API_KEY_VALID:
         logger.error("API key is not valid")
         return None
 
-    # UŻYWAMY TYLKO JEDNEGO MODELU
-    model_to_use = SINGLE_MODEL
-    logger.info(f"🤖 Używam wyłącznie model: {model_to_use}")
+    # UŻYJ WYBRANEGO MODELU LUB DOMYŚLNEGO
+    model_to_use = model if model else DEFAULT_MODEL
+    logger.info(f"🤖 Używam model: {model_to_use}")
 
     # 💾 SPRAWDŹ CACHE NAJPIERW
     cache_key = get_cache_key(prompt, [model_to_use], is_premium)
@@ -245,7 +275,8 @@ def optimize_cv(cv_text,
                 job_title,
                 job_description="",
                 is_premium=False,
-                payment_verified=False):
+                payment_verified=False,
+                selected_model=None):
     """
     Optymalizuje CV za pomocą OpenRouter AI (Claude 3.5 Sonnet) i formatuje w profesjonalnym szablonie HTML
     """
@@ -316,6 +347,7 @@ def optimize_cv(cv_text,
 
     try:
         response = make_openrouter_request(prompt,
+                                           model=selected_model,
                                            is_premium=(is_premium
                                                        or payment_verified),
                                            max_tokens=max_tokens)
@@ -336,7 +368,8 @@ def optimize_cv(cv_text,
 def analyze_cv_quality(cv_text,
                        job_title,
                        job_description="",
-                       is_premium=False):
+                       is_premium=False,
+                       selected_model=None):
     """
     Zaawansowana analiza jakości CV z oceną 0-100 punktów i szczegółowymi wskazówkami AI
     """
@@ -419,6 +452,7 @@ SZCZEGÓŁOWA PUNKTACJA:
         logger.info(f"🔍 Analizowanie jakości CV dla stanowiska: {job_title}")
 
         response = make_openrouter_request(prompt,
+                                           model=selected_model,
                                            is_premium=is_premium,
                                            max_tokens=max_tokens)
 
@@ -439,16 +473,18 @@ SZCZEGÓŁOWA PUNKTACJA:
 def analyze_cv_with_score(cv_text,
                           job_title,
                           job_description="",
-                          is_premium=False):
+                          is_premium=False,
+                          selected_model=None):
     """Zachowanie kompatybilności z istniejącym kodem - przekierowanie do nowej funkcji"""
-    return analyze_cv_quality(cv_text, job_title, job_description, is_premium)
+    return analyze_cv_quality(cv_text, job_title, job_description, is_premium, selected_model)
 
 
 def generate_cover_letter(cv_text,
                           job_title,
                           job_description="",
                           company_name="",
-                          is_premium=False):
+                          is_premium=False,
+                          selected_model=None):
     """
     Generuje profesjonalny list motywacyjny na podstawie CV i opisu stanowiska używając AI
     """
@@ -492,7 +528,7 @@ def generate_cover_letter(cv_text,
         logger.info(
             f"📧 Generowanie listu motywacyjnego dla stanowiska: {job_title}")
 
-        cover_letter = make_openrouter_request(prompt, is_premium=is_premium)
+        cover_letter = make_openrouter_request(prompt, model=selected_model, is_premium=is_premium)
 
         if cover_letter:
             logger.info(
@@ -504,7 +540,7 @@ def generate_cover_letter(cv_text,
                 'cover_letter': cover_letter,
                 'job_title': job_title,
                 'company_name': company_name,
-                'model_used': SINGLE_MODEL
+                'model_used': selected_model or DEFAULT_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
@@ -519,7 +555,8 @@ def generate_cover_letter(cv_text,
 def generate_interview_questions(cv_text,
                                  job_title,
                                  job_description="",
-                                 is_premium=False):
+                                 is_premium=False,
+                                 selected_model=None):
     """
     Generuje personalizowane pytania na rozmowę kwalifikacyjną na podstawie CV i opisu stanowiska
     """
@@ -580,7 +617,7 @@ def generate_interview_questions(cv_text,
         logger.info(
             f"🤔 Generowanie pytań na rozmowę dla stanowiska: {job_title}")
 
-        questions = make_openrouter_request(prompt, is_premium=is_premium)
+        questions = make_openrouter_request(prompt, model=selected_model, is_premium=is_premium)
 
         if questions:
             logger.info(
@@ -591,7 +628,7 @@ def generate_interview_questions(cv_text,
                 'success': True,
                 'questions': questions,
                 'job_title': job_title,
-                'model_used': SINGLE_MODEL
+                'model_used': selected_model or DEFAULT_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
@@ -605,7 +642,8 @@ def generate_interview_questions(cv_text,
 def analyze_skills_gap(cv_text,
                        job_title,
                        job_description="",
-                       is_premium=False):
+                       is_premium=False,
+                       selected_model=None):
     """
     Analizuje luki kompetencyjne między CV a wymaganiami stanowiska
     """
@@ -667,7 +705,7 @@ def analyze_skills_gap(cv_text,
         logger.info(
             f"🔍 Analiza luk kompetencyjnych dla stanowiska: {job_title}")
 
-        analysis = make_openrouter_request(prompt, is_premium=is_premium)
+        analysis = make_openrouter_request(prompt, model=selected_model, is_premium=is_premium)
 
         if analysis:
             logger.info(
@@ -678,7 +716,7 @@ def analyze_skills_gap(cv_text,
                 'success': True,
                 'analysis': analysis,
                 'job_title': job_title,
-                'model_used': SINGLE_MODEL
+                'model_used': selected_model or DEFAULT_MODEL
             }
         else:
             logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
