@@ -477,16 +477,3 @@ def get_model_performance_stats():
     }
 
 
-def get_model_performance_stats():
-    """
-    Zwróć informacje o używanych modelach AI - Qwen i DeepSeek
-    """
-    return {
-        "current_model": DEFAULT_MODEL,
-        "model_family": "Qwen 235B & DeepSeek Chat v3.1",
-        "model_provider": "Alibaba Cloud & DeepSeek",
-        "optimization_level": "Advanced",
-        "capabilities": [
-            "Zaawansowana analiza CV w języku polskim"
-        ]
-    }
