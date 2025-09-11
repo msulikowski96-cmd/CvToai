@@ -139,7 +139,7 @@ function analyzeCV(sessionId, buttonElement = null) {
             buttonElement.disabled = true;
             const originalText = buttonElement.innerHTML;
             buttonElement.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analizowanie...';
-
+            
             // Re-enable button after timeout as fallback
             setTimeout(() => {
                 if (buttonElement.disabled) {
@@ -204,10 +204,10 @@ function initializeModelSelection() {
     const modelCards = document.querySelectorAll('.model-card');
     const selectedModelInfo = document.getElementById('selected-model-info');
     const selectedModelText = document.getElementById('selected-model-text');
-
+    
     // Set initial selection
     updateModelSelection(selectedModel);
-
+    
     modelCards.forEach(card => {
         card.addEventListener('click', function() {
             const modelKey = this.dataset.model;
@@ -231,7 +231,7 @@ function initializeModelSelection() {
                 card.style.background = 'var(--bg-card)';
             }
         });
-
+        
         // Update info text
         if (selectedModelInfo && selectedModelText) {
             selectedModelText.textContent = `Wybrano model: ${getModelName(modelKey)}`;
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('ai-model-selection')) {
         initializeModelSelection();
     }
-
+    
     const paymentButtons = document.querySelectorAll('[data-stripe-price-id]');
     paymentButtons.forEach(button => {
         button.addEventListener('click', function() {

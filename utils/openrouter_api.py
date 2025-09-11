@@ -179,15 +179,7 @@ def make_openrouter_request(prompt,
         return None
 
     # UŻYJ WYBRANEGO MODELU LUB DOMYŚLNEGO
-    if model:
-        # Sprawdź czy przekazany model to klucz (np. 'deepseek') czy pełny ID
-        if model in AVAILABLE_MODELS:
-            model_to_use = AVAILABLE_MODELS[model]["id"]
-        else:
-            model_to_use = model
-    else:
-        model_to_use = DEFAULT_MODEL
-    
+    model_to_use = model if model else DEFAULT_MODEL
     logger.info(f"🤖 Używam model: {model_to_use}")
 
     # 💾 SPRAWDŹ CACHE NAJPIERW
