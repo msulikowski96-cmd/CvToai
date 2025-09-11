@@ -303,7 +303,7 @@ def optimize_cv(cv_text,
     # Rozszerzony limit tokenów dla płacących użytkowników
     if is_premium or payment_verified:
         max_tokens = 4000
-        prompt += """
+        prompt += f"""
         
     DODATKOWE INSTRUKCJE DLA UŻYTKOWNIKÓW PREMIUM:
     - Stwórz bardziej szczegółowe opisy stanowisk (4-5 punktów zamiast 3-4)
