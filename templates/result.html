@@ -152,31 +152,65 @@
 
                 <!-- CV Analysis -->
                 {% if cv_upload.cv_analysis %}
-                    <div class="card mb-4 result-box">
+                    <div class="card mb-4 result-box cv-analysis-card">
                         <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0 pb-0">
                             <h3 class="card-title mb-0 text-primary d-flex align-items-center">
                                 <div class="feature-icon-medium bg-primary bg-gradient me-3">
                                     <i class="bi bi-graph-up"></i>
                                 </div>
                                 <div>
-                                    <div class="fs-4 fw-bold">Analiza CV</div>
-                                    <div class="text-primary fs-6 opacity-75">Szczegółowa ocena</div>
+                                    <div class="fs-4 fw-bold">Inteligentna Analiza CV</div>
+                                    <div class="text-primary fs-6 opacity-75">Ocena jakości i rekomendacje AI</div>
                                 </div>
                             </h3>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-outline-primary ripple" onclick="copyToClipboard('cv-analysis')">
+                                <button class="btn btn-outline-primary ripple" onclick="copyToClipboard('cv-analysis-raw')">
                                     <i class="bi bi-clipboard me-1"></i>Kopiuj
                                 </button>
-                                <button class="btn btn-primary" onclick="downloadText(document.getElementById('cv-analysis').textContent, 'cv-analysis.txt')">
+                                <button class="btn btn-primary" onclick="downloadText(document.getElementById('cv-analysis-raw').textContent, 'cv-analysis.txt')">
                                     <i class="bi bi-download me-1"></i>Pobierz
                                 </button>
                             </div>
                         </div>
                         <div class="card-body pt-3">
-                            <div class="progress mb-3" style="height: 4px;">
-                                <div class="progress-bar bg-primary" style="width: 100%"></div>
+                            <!-- Overall Score Gauge -->
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="score-gauge mx-auto mb-3" id="score-gauge">
+                                            <div class="gauge-inner">
+                                                <div class="gauge-score" id="gauge-score">--</div>
+                                                <div class="gauge-label">/ 100</div>
+                                            </div>
+                                        </div>
+                                        <h5 class="fw-bold">Ocena końcowa</h5>
+                                        <p class="text-muted mb-0">Inteligentna analiza AI</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div id="detailed-scores">
+                                        <!-- Detailed scores will be populated by JavaScript -->
+                                    </div>
+                                </div>
                             </div>
-                            <div id="cv-analysis" class="bg-light p-4 rounded-3" style="white-space: pre-wrap; max-height: 600px; overflow-y: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">{{ cv_upload.cv_analysis }}</div>
+
+                            <!-- Analysis Sections -->
+                            <div class="cv-analysis-sections" id="cv-analysis-sections">
+                                <!-- This will be populated by JavaScript parsing the AI response -->
+                            </div>
+
+                            <!-- Raw Analysis (Hidden) -->
+                            <div id="cv-analysis-raw" class="d-none">{{ cv_upload.cv_analysis }}</div>
+                            
+                            <!-- Formatted Analysis Display -->
+                            <div class="mt-4">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="toggleRawAnalysis()">
+                                    <i class="bi bi-code me-1"></i>Pokaż pełną analizę AI
+                                </button>
+                                <div id="raw-analysis-display" class="d-none mt-3 p-3 bg-light rounded-3" style="white-space: pre-wrap; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 0.9em;">
+                                    {{ cv_upload.cv_analysis }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 {% endif %}
@@ -227,7 +261,7 @@
 
                             {% if not cv_upload.cv_analysis %}
                                 <div class="col-md-6">
-                                    <button id="analyze-btn" class="btn btn-success w-100 py-3 ripple" onclick="analyzeCV('{{ session_id }}')">
+                                    <button id="analyze-btn" class="btn btn-success w-100 py-3 ripple" onclick="analyzeCV('{{ session_id }}', this)" data-original-text="<div class='d-flex align-items-center justify-content-center'><i class='bi bi-graph-up me-2 fs-5'></i><div><div class='fw-bold'>Analizuj CV</div><div class='small opacity-75'>Otrzymaj szczegółową ocenę</div></div></div>">
                                         <div class="d-flex align-items-center justify-content-center">
                                             <i class="bi bi-graph-up me-2 fs-5"></i>
                                             <div>
@@ -494,6 +528,241 @@
 
 {% block scripts %}
 <script>
+// Secure CV Analysis Parser - XSS Safe
+function parseAndDisplayCVAnalysis() {
+    try {
+        const rawAnalysisElement = document.getElementById('cv-analysis-raw');
+        if (!rawAnalysisElement || !rawAnalysisElement.textContent.trim()) {
+            console.log('No CV analysis data found');
+            return;
+        }
+        
+        // Safely get the analysis text using textContent (XSS Safe)
+        const analysisText = rawAnalysisElement.textContent.trim();
+        
+        // Parse the score from the analysis
+        const scoreMatch = analysisText.match(/OCENA\s+KO.COWA:\s+(\d+)[\/\s]100/);
+        const overallScore = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+        
+        // Update the gauge with XSS-safe methods
+        const gaugeElement = document.getElementById('gauge-score');
+        if (gaugeElement) {
+            gaugeElement.textContent = overallScore; // XSS Safe - textContent only
+        }
+        
+        // Set CSS variables for visual gauge
+        const scoreGauge = document.getElementById('score-gauge');
+        if (scoreGauge) {
+            scoreGauge.style.setProperty('--score', overallScore);
+            
+            // Safe color determination
+            let gaugeColor;
+            if (overallScore >= 80) gaugeColor = '#10b981'; // green
+            else if (overallScore >= 60) gaugeColor = '#f59e0b'; // orange  
+            else if (overallScore >= 40) gaugeColor = '#ef4444'; // red
+            else gaugeColor = '#6b7280'; // gray
+            
+            scoreGauge.style.setProperty('--gauge-color', gaugeColor);
+        }
+        
+        // Parse detailed scores safely
+        const detailedScoresContainer = document.getElementById('detailed-scores');
+        if (detailedScoresContainer) {
+            const categories = [
+                { name: 'Struktura i formatowanie', pattern: /Struktura\s+i\s+formatowanie:\s+(\d+)[\/\s]20/ },
+                { name: 'Jakość treści', pattern: /Jako.\w+\s+tre.ci:\s+(\d+)[\/\s]20/ },
+                { name: 'Dopasowanie do stanowiska', pattern: /Dopasowanie\s+do\s+stanowiska:\s+(\d+)[\/\s]20/ },
+                { name: 'Doświadczenie', pattern: /Do.wiadczenie\s+i\s+umiej\w+no.ci:\s+(\d+)[\/\s]20/ },
+                { name: 'Kompletność', pattern: /Kompletno.\w+\s+i\s+szczeg\w+.y:\s+(\d+)[\/\s]20/ }
+            ];
+            
+            let detailedHtml = '';
+            categories.forEach(category => {
+                const match = analysisText.match(category.pattern);
+                const score = match ? parseInt(match[1]) : 0;
+                const percentage = (score / 20) * 100;
+                
+                // Build HTML safely
+                detailedHtml += `
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="font-weight-medium">${category.name}</span>
+                            <span class="text-primary font-weight-bold">${score}/20</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 4px;">
+                            <div class="progress-bar bg-primary" style="width: ${percentage}%;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            detailedScoresContainer.innerHTML = detailedHtml;
+        }
+        
+        // Parse and display analysis sections safely
+        const sectionsContainer = document.getElementById('cv-analysis-sections');
+        if (sectionsContainer) {
+            const sections = [
+                { title: 'Mocne strony', emoji: '🟢', pattern: /🟢\s+MOCNE\s+STRONY:([\s\S]*?)(?=🟡|$)/ },
+                { title: 'Obszary do poprawy', emoji: '🟡', pattern: /🟡\s+OBSZARY\s+DO\s+POPRAWY:([\s\S]*?)(?=🔥|$)/ },
+                { title: 'Kluczowe rekomendacje', emoji: '🔥', pattern: /🔥\s+KLUCZOWE\s+REKOMENDACJE:([\s\S]*?)(?=💡|$)/ },
+                { title: 'Słowa kluczowe do dodania', emoji: '💡', pattern: /💡\s+S.OWA\s+KLUCZOWE\s+DO\s+DODANIA:([\s\S]*?)(?=🎯|$)/ },
+                { title: 'Wskazówki branżowe', emoji: '🎯', pattern: /🎯\s+WSKAZÓWKI\s+BRANŻOWE:([\s\S]*?)$/ }
+            ];
+            
+            let sectionsHtml = '';
+            sections.forEach(section => {
+                const match = analysisText.match(section.pattern);
+                if (match && match[1]) {
+                    const content = match[1].trim();
+                    // Parse list items safely
+                    const listItems = content.split(/\n\s*[-•]/).filter(item => item.trim());
+                    
+                    sectionsHtml += `
+                        <div class="card mb-4">
+                            <div class="card-header bg-transparent border-0 pb-2">
+                                <h5 class="mb-0 d-flex align-items-center">
+                                    <span class="me-2">${section.emoji}</span>
+                                    ${section.title}
+                                </h5>
+                            </div>
+                            <div class="card-body pt-2">
+                                <ul class="list-unstyled mb-0">
+                    `;
+                    
+                    listItems.forEach(item => {
+                        if (item.trim()) {
+                            // Create safe list item element
+                            const li = document.createElement('li');
+                            li.className = 'mb-2 d-flex align-items-start';
+                            
+                            const icon = document.createElement('i');
+                            icon.className = 'bi bi-check-circle-fill text-success me-2 mt-1 flex-shrink-0';
+                            
+                            const text = document.createElement('span');
+                            text.textContent = item.replace(/^[-•]\s*/, '').trim(); // XSS Safe
+                            
+                            li.appendChild(icon);
+                            li.appendChild(text);
+                            
+                            sectionsHtml += li.outerHTML;
+                        }
+                    });
+                    
+                    sectionsHtml += `
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (sectionsHtml) {
+                sectionsContainer.innerHTML = sectionsHtml;
+            } else {
+                // Fallback display - still XSS safe
+                const fallbackElement = document.createElement('div');
+                fallbackElement.className = 'alert alert-info';
+                fallbackElement.innerHTML = `
+                    <h6><i class="bi bi-info-circle me-2"></i>Analiza CV</h6>
+                    <div style="white-space: pre-wrap; font-family: monospace; font-size: 0.9em;"></div>
+                `;
+                const textDiv = fallbackElement.querySelector('div');
+                textDiv.textContent = analysisText; // XSS Safe
+                
+                sectionsContainer.appendChild(fallbackElement);
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error parsing CV analysis:', error);
+        
+        // Safe fallback error display
+        const sectionsContainer = document.getElementById('cv-analysis-sections');
+        if (sectionsContainer) {
+            const errorElement = document.createElement('div');
+            errorElement.className = 'alert alert-warning';
+            errorElement.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Nie udało się przetworzyć analizy CV</strong>
+            `;
+            sectionsContainer.appendChild(errorElement);
+        }
+    }
+}
+
+// Toggle functions for raw analysis display
+function toggleRawAnalysis() {
+    const rawDisplay = document.getElementById('raw-analysis-display');
+    if (rawDisplay) {
+        rawDisplay.classList.toggle('d-none');
+    }
+}
+
+function toggleOriginal() {
+    const originalContent = document.getElementById('original-cv-content');
+    if (originalContent) {
+        originalContent.classList.toggle('d-none');
+    }
+}
+
+// Copy to clipboard function (XSS safe)
+function copyToClipboard(elementId) {
+    try {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const text = element.textContent || element.innerText;
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert('Skopiowano do schowka!', 'success');
+            }).catch(err => {
+                console.error('Error copying to clipboard:', err);
+                fallbackCopyToClipboard(text);
+            });
+        } else {
+            fallbackCopyToClipboard(text);
+        }
+    } catch (error) {
+        console.error('Error in copyToClipboard:', error);
+        showAlert('Nie udało się skopiować tekstu', 'error');
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showAlert('Skopiowano do schowka!', 'success');
+        } else {
+            showAlert('Nie udało się skopiować tekstu', 'error');
+        }
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
+        showAlert('Nie udało się skopiować tekstu', 'error');
+    } finally {
+        document.body.removeChild(textArea);
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    parseAndDisplayCVAnalysis();
+});
+</script>
+
+{% block scripts %}
+<script>
 function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
     const text = element.textContent;
@@ -677,7 +946,7 @@ function generateCoverLetter() {
     button.innerHTML = '<i class="bi bi-hourglass-split"></i> Generowanie...';
 
     const sessionId = '{{ session_id }}';
-    const jobTitle = '{{ cv_upload.job_title|replace("'", "\\'") }}';
+    const jobTitle = {{ cv_upload.job_title|tojson }};
     const jobDescription = {{ (cv_upload.job_description or "")|tojson }};
 
     const data = {
@@ -840,5 +1109,295 @@ function analyzeSkillsGap() {
         button.innerHTML = '<i class="bi bi-search"></i> Analizuj luki';
     });
 }
+
+// Function to toggle raw analysis view
+function toggleRawAnalysis() {
+    const display = document.getElementById('raw-analysis-display');
+    display.classList.toggle('d-none');
+}
+
+// Function to parse AI analysis and extract scores
+function parseAnalysisResponse(analysisText) {
+    const result = {
+        overallScore: 0,
+        detailedScores: {},
+        strengths: [],
+        improvements: [],
+        recommendations: [],
+        keywords: [],
+        industryTips: []
+    };
+
+    if (!analysisText) return result;
+
+    // Extract overall score
+    const overallMatch = analysisText.match(/OCENA KOŃCOWA:\s*(\d+)\/100/i);
+    if (overallMatch) {
+        result.overallScore = parseInt(overallMatch[1]);
+    }
+
+    // Extract detailed scores
+    const scoreMatches = analysisText.match(/• ([^:]+):\s*(\d+)\/20/g);
+    if (scoreMatches) {
+        scoreMatches.forEach(match => {
+            const [, category, score] = match.match(/• ([^:]+):\s*(\d+)\/20/);
+            result.detailedScores[category.trim()] = parseInt(score);
+        });
+    }
+
+    // Extract strengths
+    const strengthsMatch = analysisText.match(/🟢 MOCNE STRONY:(.*?)(?=🟡|$)/s);
+    if (strengthsMatch) {
+        result.strengths = strengthsMatch[1]
+            .split('-')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+    }
+
+    // Extract improvements
+    const improvementsMatch = analysisText.match(/🟡 OBSZARY DO POPRAWY:(.*?)(?=🔥|$)/s);
+    if (improvementsMatch) {
+        result.improvements = improvementsMatch[1]
+            .split('-')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+    }
+
+    // Extract recommendations
+    const recommendationsMatch = analysisText.match(/🔥 KLUCZOWE REKOMENDACJE:(.*?)(?=💡|$)/s);
+    if (recommendationsMatch) {
+        result.recommendations = recommendationsMatch[1]
+            .split('-')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+    }
+
+    // Extract keywords
+    const keywordsMatch = analysisText.match(/💡 SŁOWA KLUCZOWE DO DODANIA:(.*?)(?=🎯|$)/s);
+    if (keywordsMatch) {
+        result.keywords = keywordsMatch[1]
+            .split('-')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+    }
+
+    // Extract industry tips
+    const tipsMatch = analysisText.match(/🎯 WSKAZÓWKI BRANŻOWE:(.*?)$/s);
+    if (tipsMatch) {
+        result.industryTips = tipsMatch[1]
+            .split('-')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+    }
+
+    return result;
+}
+
+// Function to create score gauge
+function createScoreGauge(score) {
+    const gauge = document.getElementById('score-gauge');
+    const scoreElement = document.getElementById('gauge-score');
+    
+    if (!gauge || !scoreElement) return;
+
+    // Determine color based on score
+    let color, bgColor;
+    if (score >= 80) {
+        color = '#059669'; // Green
+        bgColor = 'rgba(5, 150, 105, 0.1)';
+    } else if (score >= 60) {
+        color = '#D97706'; // Orange
+        bgColor = 'rgba(217, 119, 6, 0.1)';
+    } else {
+        color = '#DC2626'; // Red
+        bgColor = 'rgba(220, 38, 38, 0.1)';
+    }
+
+    // Update gauge color
+    gauge.style.setProperty('--gauge-color', color);
+    gauge.style.setProperty('--gauge-bg', bgColor);
+    
+    // Animate score
+    let currentScore = 0;
+    const increment = score / 50;
+    const timer = setInterval(() => {
+        currentScore += increment;
+        if (currentScore >= score) {
+            scoreElement.textContent = score;
+            clearInterval(timer);
+        } else {
+            scoreElement.textContent = Math.floor(currentScore);
+        }
+    }, 40);
+}
+
+// Function to create detailed scores
+function createDetailedScores(detailedScores) {
+    const container = document.getElementById('detailed-scores');
+    if (!container) return;
+
+    let html = '<h6 class="fw-bold mb-3">Szczegółowa punktacja:</h6>';
+    
+    Object.entries(detailedScores).forEach(([category, score]) => {
+        const percentage = (score / 20) * 100;
+        let colorClass = 'success';
+        if (percentage < 60) colorClass = 'danger';
+        else if (percentage < 80) colorClass = 'warning';
+
+        html += `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-sm fw-medium">${category}</span>
+                    <span class="text-sm fw-bold text-${colorClass}">${score}/20</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-${colorClass}" 
+                         style="width: ${percentage}%"
+                         data-score="${score}"></div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    // Animate progress bars
+    setTimeout(() => {
+        const progressBars = container.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const targetWidth = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = targetWidth;
+                bar.style.transition = 'width 1s ease-out';
+            }, 100);
+        });
+    }, 500);
+}
+
+// Function to create analysis sections
+function createAnalysisSections(analysisData) {
+    const container = document.getElementById('cv-analysis-sections');
+    if (!container) return;
+
+    let html = '';
+
+    // Strengths section
+    if (analysisData.strengths.length > 0) {
+        html += `
+            <div class="analysis-section strengths-section mb-4">
+                <div class="section-header">
+                    <h5 class="fw-bold text-success mb-3">
+                        <i class="bi bi-check-circle-fill me-2"></i>🟢 Mocne strony
+                    </h5>
+                </div>
+                <div class="section-content">
+                    ${analysisData.strengths.map(strength => `
+                        <div class="strength-item p-3 mb-2 rounded-3" style="background: rgba(5, 150, 105, 0.05); border-left: 4px solid #059669;">
+                            <i class="bi bi-check-circle text-success me-2"></i>${strength}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Improvements section
+    if (analysisData.improvements.length > 0) {
+        html += `
+            <div class="analysis-section improvements-section mb-4">
+                <div class="section-header">
+                    <h5 class="fw-bold text-warning mb-3">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>🟡 Obszary do poprawy
+                    </h5>
+                </div>
+                <div class="section-content">
+                    ${analysisData.improvements.map(improvement => `
+                        <div class="improvement-item p-3 mb-2 rounded-3" style="background: rgba(217, 119, 6, 0.05); border-left: 4px solid #D97706;">
+                            <i class="bi bi-exclamation-circle text-warning me-2"></i>${improvement}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Recommendations section
+    if (analysisData.recommendations.length > 0) {
+        html += `
+            <div class="analysis-section recommendations-section mb-4">
+                <div class="section-header">
+                    <h5 class="fw-bold text-danger mb-3">
+                        <i class="bi bi-fire me-2"></i>🔥 Kluczowe rekomendacje
+                    </h5>
+                </div>
+                <div class="section-content">
+                    ${analysisData.recommendations.map(recommendation => `
+                        <div class="recommendation-item p-3 mb-2 rounded-3" style="background: rgba(220, 38, 38, 0.05); border-left: 4px solid #DC2626;">
+                            <i class="bi bi-lightbulb text-danger me-2"></i>${recommendation}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Keywords section
+    if (analysisData.keywords.length > 0) {
+        html += `
+            <div class="analysis-section keywords-section mb-4">
+                <div class="section-header">
+                    <h5 class="fw-bold text-info mb-3">
+                        <i class="bi bi-tags-fill me-2"></i>💡 Słowa kluczowe do dodania
+                    </h5>
+                </div>
+                <div class="section-content">
+                    <div class="keywords-container">
+                        ${analysisData.keywords.map(keyword => `
+                            <span class="badge keyword-badge me-2 mb-2" style="background: rgba(8, 145, 178, 0.1); color: #0891B2; border: 1px solid rgba(8, 145, 178, 0.2); padding: 0.5rem 0.75rem; border-radius: 20px;">
+                                ${keyword}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Industry tips section
+    if (analysisData.industryTips.length > 0) {
+        html += `
+            <div class="analysis-section tips-section mb-4">
+                <div class="section-header">
+                    <h5 class="fw-bold text-primary mb-3">
+                        <i class="bi bi-target me-2"></i>🎯 Wskazówki branżowe
+                    </h5>
+                </div>
+                <div class="section-content">
+                    ${analysisData.industryTips.map(tip => `
+                        <div class="tip-item p-3 mb-2 rounded-3" style="background: rgba(0, 102, 255, 0.05); border-left: 4px solid #0066FF;">
+                            <i class="bi bi-bullseye text-primary me-2"></i>${tip}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+// Initialize analysis parsing when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const rawAnalysis = document.getElementById('cv-analysis-raw');
+    if (rawAnalysis && rawAnalysis.textContent.trim()) {
+        const analysisData = parseAnalysisResponse(rawAnalysis.textContent);
+        
+        // Create gauge and detailed scores
+        createScoreGauge(analysisData.overallScore);
+        createDetailedScores(analysisData.detailedScores);
+        createAnalysisSections(analysisData);
+    }
+});
 </script>
 {% endblock %}

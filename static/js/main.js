@@ -131,7 +131,23 @@ function optimizeCV(sessionId) {
         });
     }
 
-function analyzeCV(sessionId) {
+function analyzeCV(sessionId, buttonElement = null) {
+    try {
+        // Disable button to prevent double clicks
+        if (buttonElement) {
+            buttonElement.disabled = true;
+            const originalText = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analizowanie...';
+            
+            // Re-enable button after timeout as fallback
+            setTimeout(() => {
+                if (buttonElement.disabled) {
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = originalText;
+                }
+            }, 30000);
+        }
+
         fetch('/analyze-cv', {
             method: 'POST',
             headers: {
@@ -141,19 +157,17 @@ function analyzeCV(sessionId) {
                 session_id: sessionId
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 showAlert(data.message, 'success');
-                document.getElementById('cv-analysis').innerHTML = 
-                    `<div class="card">
-                        <div class="card-header">
-                            <h5><i class="fas fa-chart-line text-info"></i> Analiza CV</h5>
-                        </div>
-                        <div class="card-body">
-                            <pre class="analysis-text">${data.cv_analysis}</pre>
-                        </div>
-                    </div>`;
+                // Reload page to show the analysis results
+                window.location.reload();
             } else {
                 if (!handlePaymentRedirect(data)) {
                     showAlert(data.message, 'error');
@@ -162,9 +176,23 @@ function analyzeCV(sessionId) {
         })
         .catch(error => {
             console.error('Błąd:', error);
-            showAlert('Wystąpił błąd podczas analizy CV.', 'error');
+            showAlert('Wystąpił błąd podczas analizy CV. Spróbuj ponownie.', 'error');
+        })
+        .finally(() => {
+            // Re-enable button
+            if (buttonElement) {
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = buttonElement.getAttribute('data-original-text') || 'Analizuj CV';
+            }
         });
+    } catch (error) {
+        console.error('Błąd w analyzeCV:', error);
+        showAlert('Wystąpił nieoczekiwany błąd.', 'error');
+        if (buttonElement) {
+            buttonElement.disabled = false;
+        }
     }
+}
 
 // Placeholder for potential future button logic related to Stripe integration
 document.addEventListener('DOMContentLoaded', function() {

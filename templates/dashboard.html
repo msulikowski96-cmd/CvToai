@@ -274,10 +274,17 @@
                                         </div>
                                     </div>
 
-                                    <div class="d-grid">
-                                        <a href="{{ url_for('result', session_id=cv.session_id) }}" class="btn btn-primary">
-                                            <i class="bi bi-eye me-2"></i> Zobacz rezultaty
-                                        </a>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <a href="{{ url_for('result', session_id=cv.session_id) }}" class="btn btn-primary w-100 btn-sm">
+                                                <i class="bi bi-eye me-1"></i> Rezultaty
+                                            </a>
+                                        </div>
+                                        <div class="col-6">
+                                            <button class="btn btn-success w-100 btn-sm" onclick="analyzeCV('{{ cv.session_id }}', this)" data-original-text="<i class='bi bi-graph-up me-1'></i> Analizuj CV">
+                                                <i class="bi bi-graph-up me-1"></i> Analizuj CV
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -456,5 +463,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 50);
     }
 });
+
+// Function to analyze CV
+function analyzeCV(sessionId, buttonElement) {
+    // Get button element - either passed or find by event
+    const button = buttonElement || event.target;
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<div class="spinner-border spinner-border-sm me-1" role="status"></div> Analizuję...';
+
+    fetch('/analyze-cv', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            session_id: sessionId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            button.innerHTML = '<i class="bi bi-check-circle me-1"></i> Gotowe!';
+            button.classList.remove('btn-success');
+            button.classList.add('btn-success');
+            
+            // Redirect to results after short delay
+            setTimeout(() => {
+                window.location.href = `/result/${sessionId}`;
+            }, 1000);
+        } else {
+            // Handle payment redirect
+            if (data.redirect_to_pricing) {
+                if (confirm(data.message + '\n\nCzy chcesz przejść do cennika?')) {
+                    window.location.href = '/pricing';
+                }
+            } else {
+                // Show error message
+                alert(data.message || 'Wystąpił błąd podczas analizy CV.');
+            }
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Wystąpił błąd sieci. Spróbuj ponownie.');
+        button.disabled = false;
+        button.innerHTML = originalText;
+    });
+}
 </script>
 {% endblock %}

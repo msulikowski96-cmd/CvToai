@@ -1011,6 +1011,7 @@ def analyze_cv_route():
         data = request.get_json()
         session_id = data.get('session_id')
 
+        # Validate session ownership (IDOR protection)
         cv_upload = CVUpload.query.filter_by(session_id=session_id,
                                              user_id=current_user.id).first()
 
@@ -1020,6 +1021,14 @@ def analyze_cv_route():
                 False,
                 'message':
                 'Sesja wygasła. Proszę przesłać CV ponownie.'
+            })
+
+        # Check if user has access to full features (premium/subscription required)
+        if not current_user.can_use_full_features():
+            return jsonify({
+                'success': False,
+                'redirect_to_pricing': True,
+                'message': 'Analiza CV jest dostępna w ramach pełnego pakietu miesięcznego.'
             })
 
         cv_text = cv_upload.original_text

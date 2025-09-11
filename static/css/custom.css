@@ -347,6 +347,207 @@ body {
     margin-bottom: var(--space-md);
 }
 
+/* CV Analysis Styles */
+
+/* Score Gauge */
+.score-gauge {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    background: conic-gradient(
+        from 0deg,
+        var(--gauge-color, var(--primary)) 0%,
+        var(--gauge-color, var(--primary)) calc(var(--score, 0) * 3.6deg),
+        var(--border-secondary) calc(var(--score, 0) * 3.6deg),
+        var(--border-secondary) 360deg
+    );
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-slow);
+}
+
+.score-gauge::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    background: var(--gauge-bg, var(--bg-card));
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.gauge-inner {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.gauge-score {
+    font-size: 1.75rem;
+    font-weight: var(--font-weight-extrabold);
+    line-height: 1;
+    color: var(--gauge-color, var(--primary));
+}
+
+.gauge-label {
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+    margin-top: -2px;
+}
+
+/* CV Analysis Card */
+.cv-analysis-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-normal);
+}
+
+.cv-analysis-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* Analysis Sections */
+.cv-analysis-sections {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.analysis-section {
+    margin-bottom: var(--space-lg);
+    animation: slideInLeft 0.4s ease-out;
+}
+
+.analysis-section .section-header h5 {
+    font-size: 1.125rem;
+    margin-bottom: var(--space-md);
+}
+
+/* Strength Items */
+.strength-item {
+    background: rgba(5, 150, 105, 0.05) !important;
+    border-left: 4px solid #059669 !important;
+    transition: all var(--transition-fast);
+    animation: slideInLeft 0.3s ease-out;
+}
+
+.strength-item:hover {
+    background: rgba(5, 150, 105, 0.1) !important;
+    transform: translateX(4px);
+}
+
+/* Improvement Items */
+.improvement-item {
+    background: rgba(217, 119, 6, 0.05) !important;
+    border-left: 4px solid #D97706 !important;
+    transition: all var(--transition-fast);
+    animation: slideInLeft 0.3s ease-out;
+}
+
+.improvement-item:hover {
+    background: rgba(217, 119, 6, 0.1) !important;
+    transform: translateX(4px);
+}
+
+/* Recommendation Items */
+.recommendation-item {
+    background: rgba(220, 38, 38, 0.05) !important;
+    border-left: 4px solid #DC2626 !important;
+    transition: all var(--transition-fast);
+    animation: slideInLeft 0.3s ease-out;
+}
+
+.recommendation-item:hover {
+    background: rgba(220, 38, 38, 0.1) !important;
+    transform: translateX(4px);
+}
+
+/* Tip Items */
+.tip-item {
+    background: rgba(0, 102, 255, 0.05) !important;
+    border-left: 4px solid #0066FF !important;
+    transition: all var(--transition-fast);
+    animation: slideInLeft 0.3s ease-out;
+}
+
+.tip-item:hover {
+    background: rgba(0, 102, 255, 0.1) !important;
+    transform: translateX(4px);
+}
+
+/* Keywords Container */
+.keywords-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.keyword-badge {
+    background: rgba(8, 145, 178, 0.1) !important;
+    color: #0891B2 !important;
+    border: 1px solid rgba(8, 145, 178, 0.2) !important;
+    padding: var(--space-sm) var(--space-md) !important;
+    border-radius: var(--radius-full) !important;
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.keyword-badge:hover {
+    background: rgba(8, 145, 178, 0.2) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Progress Bars in Detailed Scores */
+.progress {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
+}
+
+/* Animations for CV Analysis */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Design for Analysis */
+@media (max-width: 768px) {
+    .score-gauge {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .gauge-score {
+        font-size: 1.5rem;
+    }
+    
+    .analysis-section {
+        margin-bottom: var(--space-md);
+    }
+    
+    .keywords-container {
+        justify-content: center;
+    }
+}
+
 /* Modern Form System */
 .form-control {
     background: var(--bg-card);

@@ -233,45 +233,109 @@ def optimize_cv(cv_text, job_title, job_description="", is_premium=False, paymen
         return None
 
 
-def analyze_cv_with_score(cv_text,
-                          job_title,
-                          job_description="",
-                          is_premium=False):
-    """Analyze CV and provide detailed feedback with score"""
-    prompt = f"""
-    ZADANIE: Przeanalizuj poniższe CV pod kątem stanowiska "{job_title}" i oceń je
-
-    OPIS STANOWISKA:
-    {job_description}
-
-    CV DO ANALIZY:
-    {cv_text}
-
-    INSTRUKCJE:
-    1. Oceń CV w skali 1-100 punktów
-    2. Podaj szczegółową analizę mocnych stron
-    3. Wskaż obszary do poprawy
-    4. Zasugeruj konkretne zmiany
-    5. Oceń dopasowanie do stanowiska
-    6. Napisz w języku polskim
-
-    FORMAT ODPOWIEDZI:
-    OCENA: [liczba]/100
-
-    MOCNE STRONY:
-    - [punkt 1]
-    - [punkt 2]
-
-    OBSZARY DO POPRAWY:
-    - [punkt 1]
-    - [punkt 2]
-
-    REKOMENDACJE:
-    - [rekomendacja 1]
-    - [rekomendacja 2]
+def analyze_cv_quality(cv_text, job_title, job_description="", is_premium=False):
     """
+    Zaawansowana analiza jakości CV z oceną 0-100 punktów i szczegółowymi wskazówkami AI
+    """
+    try:
+        # Bardziej zaawansowany prompt dla lepszej analizy
+        prompt = f"""
+🎯 ZADANIE: Przeprowadź PROFESJONALNĄ ANALIZĘ JAKOŚCI CV dla stanowiska "{job_title}"
 
-    return make_openrouter_request(prompt, is_premium=is_premium)
+📋 DANE WEJŚCIOWE:
+CV DO ANALIZY:
+{cv_text[:4000]}
+
+OPIS STANOWISKA:
+{job_description[:2000]}
+
+🔍 KRYTERIA OCENY (każde 0-20 punktów):
+1. **STRUKTURA I FORMATOWANIE** (0-20p)
+   - Czytelność i organizacja sekcji
+   - Użycie właściwych nagłówków
+   - Długość i proporcje treści
+
+2. **JAKOŚĆ TREŚCI** (0-20p)
+   - Konkretne osiągnięcia i wyniki
+   - Użycie liczb i metryk
+   - Profesjonalizm opisów
+
+3. **DOPASOWANIE DO STANOWISKA** (0-20p)
+   - Zgodność z wymaganiami
+   - Słowa kluczowe z oferty
+   - Relevantne doświadczenie
+
+4. **DOŚWIADCZENIE I UMIEJĘTNOŚCI** (0-20p)
+   - Progresja kariery
+   - Różnorodność umiejętności
+   - Poziom senioratu
+
+5. **KOMPLETNOŚĆ I SZCZEGÓŁY** (0-20p)
+   - Wszystkie potrzebne sekcje
+   - Daty i okresy pracy
+   - Informacje kontaktowe
+
+📊 WYMAGANY FORMAT ODPOWIEDZI:
+```
+OCENA KOŃCOWA: [0-100]/100
+
+SZCZEGÓŁOWA PUNKTACJA:
+• Struktura i formatowanie: [0-20]/20
+• Jakość treści: [0-20]/20  
+• Dopasowanie do stanowiska: [0-20]/20
+• Doświadczenie i umiejętności: [0-20]/20
+• Kompletność i szczegóły: [0-20]/20
+
+🟢 MOCNE STRONY:
+- [minimum 3 konkretne punkty]
+
+🟡 OBSZARY DO POPRAWY:
+- [minimum 3 konkretne sugestie]
+
+🔥 KLUCZOWE REKOMENDACJE:
+- [3-5 najważniejszych zmian do wprowadzenia]
+
+💡 SŁOWA KLUCZOWE DO DODANIA:
+- [5-7 słów kluczowych z opisu stanowiska]
+
+🎯 WSKAZÓWKI BRANŻOWE:
+- [2-3 specyficzne porady dla tej branży/stanowiska]
+```
+
+✅ DODATKOWE INSTRUKCJE:
+- Bądź konkretny i praktyczny
+- Wskaż dokładnie CO i GDZIE poprawić
+- Oceń realistycznie ale konstruktywnie
+- Napisz w języku polskim
+- Używaj emoji dla lepszej czytelności
+"""
+
+        # Użyj lepszych parametrów dla premium użytkowników
+        max_tokens = 3000 if is_premium else 2000
+        
+        logger.info(f"🔍 Analizowanie jakości CV dla stanowiska: {job_title}")
+        
+        response = make_openrouter_request(
+            prompt, 
+            is_premium=is_premium,
+            max_tokens=max_tokens
+        )
+        
+        if response:
+            logger.info(f"✅ Analiza CV ukończona pomyślnie (długość: {len(response)} znaków)")
+            return response.strip()
+        else:
+            logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
+            return None
+            
+    except Exception as e:
+        logger.error(f"❌ Błąd podczas analizy CV: {str(e)}")
+        return None
+
+
+def analyze_cv_with_score(cv_text, job_title, job_description="", is_premium=False):
+    """Zachowanie kompatybilności z istniejącym kodem - przekierowanie do nowej funkcji"""
+    return analyze_cv_quality(cv_text, job_title, job_description, is_premium)
 
 
 def generate_cover_letter(cv_text,
