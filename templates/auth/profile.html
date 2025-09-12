@@ -630,7 +630,7 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Chart.js Library -->
+<!-- Chart.js Library - using most reliable CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -656,18 +656,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 800);
     });
 
-    // Chart.js Monthly Activity Chart
+    // Chart.js Monthly Activity Chart with robust data handling
     const monthlyChartCtx = document.getElementById('monthlyChart');
     if (monthlyChartCtx) {
-        const monthlyData = {{ stats.advanced.monthly_activity | tojson | safe }};
+        // Safely parse monthly data with fallbacks
+        let monthlyData;
+        try {
+            monthlyData = {{ stats.advanced.monthly_activity | tojson | safe }};
+            // Validate data structure
+            if (!Array.isArray(monthlyData)) {
+                monthlyData = [];
+            }
+        } catch (e) {
+            console.warn('Error parsing monthly activity data:', e);
+            monthlyData = [];
+        }
+        
+        // Handle empty data case
+        if (monthlyData.length === 0) {
+            monthlyData = [
+                { month: 'Brak danych', count: 0 }
+            ];
+        }
         
         new Chart(monthlyChartCtx, {
             type: 'line',
             data: {
-                labels: monthlyData.map(item => item.month),
+                labels: monthlyData.map(item => item.month || 'Nieznany'),
                 datasets: [{
                     label: 'CV przesłane',
-                    data: monthlyData.map(item => item.count),
+                    data: monthlyData.map(item => item.count || 0),
                     borderColor: 'rgb(99, 102, 241)',
                     backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     borderWidth: 3,
@@ -718,27 +736,42 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Export functionality
+// Export functionality with robust error handling
 function exportProfileData(format) {
+    // Safely construct user data with proper escaping and fallbacks
     const userData = {
-        name: '{{ current_user.first_name }} {{ current_user.last_name }}',
-        email: '{{ current_user.email }}',
+        name: {{ (current_user.first_name + ' ' + current_user.last_name) | tojson | safe }},
+        email: {{ current_user.email | tojson | safe }},
+        exportDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
         stats: {
-            cv_count: {{ stats.cv_count }},
-            optimized_count: {{ stats.optimized_count }},
-            analyzed_count: {{ stats.analyzed_count }},
-            success_rate: {{ stats.success_rate }},
-            productivity_score: {{ stats.productivity_score }},
-            time_saved_hours: {{ stats.time_saved_hours }},
-            account_age_days: {{ stats.account_age }},
-            cover_letters: {{ stats.advanced.cover_letters }},
-            interview_questions: {{ stats.advanced.interview_questions }},
-            skills_analyses: {{ stats.advanced.skills_analyses }},
-            total_spent: {{ stats.advanced.total_spent_pln }}
+            cv_count: {{ stats.cv_count | default(0) }},
+            optimized_count: {{ stats.optimized_count | default(0) }},
+            analyzed_count: {{ stats.analyzed_count | default(0) }},
+            success_rate: {{ stats.success_rate | default(0) }},
+            productivity_score: {{ stats.productivity_score | default(0) }},
+            time_saved_hours: {{ stats.time_saved_hours | default(0) }},
+            account_age_days: {{ stats.account_age | default(0) }},
+            cover_letters: {{ stats.advanced.cover_letters | default(0) }},
+            interview_questions: {{ stats.advanced.interview_questions | default(0) }},
+            skills_analyses: {{ stats.advanced.skills_analyses | default(0) }},
+            total_spent: {{ stats.advanced.total_spent_pln | default(0) }},
+            total_logins: {{ stats.total_logins | default(0) }},
+            total_time_spent: {{ stats.total_time_spent | default(0) }}
         },
-        popular_jobs: {{ stats.advanced.popular_jobs | tojson | safe }},
-        achievements: {{ stats.achievements | tojson | safe }}
+        popular_jobs: {{ stats.advanced.popular_jobs | default([]) | tojson | safe }},
+        achievements: {{ stats.achievements | default([]) | tojson | safe }},
+        monthly_activity: {{ stats.advanced.monthly_activity | default([]) | tojson | safe }}
     };
+
+    // Validate data before export
+    if (!userData.name || userData.name.trim() === '') {
+        userData.name = 'Użytkownik CV Optimizer Pro';
+    }
+    
+    if (!userData.email || userData.email.trim() === '') {
+        alert('Błąd: Brak danych email do eksportu');
+        return;
+    }
 
     if (format === 'pdf') {
         exportToPDF(userData);
@@ -748,124 +781,262 @@ function exportProfileData(format) {
 }
 
 function exportToPDF(data) {
-    // Create a printable version of the profile
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>Profil CV Optimizer Pro - ${data.name}</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .header { border-bottom: 2px solid #6366f1; padding-bottom: 10px; margin-bottom: 20px; }
-                .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
-                .stat-card { border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; }
-                .achievements { margin: 20px 0; }
-                .achievement { background: #f3f4f6; padding: 10px; margin: 5px 0; border-radius: 5px; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>CV Optimizer Pro - Raport Profilu</h1>
-                <h2>${data.name}</h2>
-                <p>Email: ${data.email}</p>
-                <p>Data wygenerowania: ${new Date().toLocaleDateString('pl-PL')}</p>
-            </div>
-            
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <h3>Przesłane CV</h3>
-                    <p style="font-size: 24px; color: #6366f1;">${data.stats.cv_count}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Zoptymalizowane</h3>
-                    <p style="font-size: 24px; color: #059669;">${data.stats.optimized_count}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Wskaźnik produktywności</h3>
-                    <p style="font-size: 24px; color: #8b5cf6;">${data.stats.productivity_score}%</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Zaoszczędzony czas</h3>
-                    <p style="font-size: 24px; color: #f59e0b;">${data.stats.time_saved_hours}h</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Listy motywacyjne</h3>
-                    <p style="font-size: 24px; color: #10b981;">${data.stats.cover_letters}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Pytania rekrutacyjne</h3>
-                    <p style="font-size: 24px; color: #06b6d4;">${data.stats.interview_questions}</p>
-                </div>
-            </div>
+    try {
+        // Validate data before proceeding
+        if (!data || !data.stats) {
+            alert('Błąd: Brak danych do eksportu');
+            return;
+        }
 
-            <div class="achievements">
-                <h3>Osiągnięcia</h3>
-                ${data.achievements.map(achievement => `
-                    <div class="achievement">
-                        <strong>${achievement.name}</strong> - ${achievement.description}
+        // Safely escape data for HTML
+        const safeName = (data.name || 'Użytkownik').replace(/[<>&"]/g, '');
+        const safeEmail = (data.email || 'brak@email.com').replace(/[<>&"]/g, '');
+        const exportDate = new Date().toLocaleDateString('pl-PL');
+        const exportTime = new Date().toLocaleTimeString('pl-PL');
+        
+        // Create a printable version of the profile
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('Popup został zablokowany. Proszę zezwolić na popup dla tej strony.');
+            return;
+        }
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Raport Profilu CV Optimizer Pro - ${safeName}</title>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.4; }
+                    .header { border-bottom: 3px solid #6366f1; padding-bottom: 15px; margin-bottom: 25px; }
+                    .export-info { color: #666; font-size: 12px; margin-bottom: 20px; }
+                    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+                    .stat-card { border: 2px solid #e5e7eb; padding: 15px; border-radius: 8px; background: #f9fafb; }
+                    .stat-card h3 { margin: 0 0 10px 0; color: #374151; font-size: 14px; }
+                    .stat-value { font-size: 24px; font-weight: bold; margin: 5px 0; }
+                    .achievements { margin: 25px 0; }
+                    .achievement { background: #f3f4f6; padding: 12px; margin: 8px 0; border-radius: 5px; border-left: 4px solid #6366f1; }
+                    .popular-jobs { margin: 25px 0; }
+                    .monthly-activity { margin: 25px 0; }
+                    @media print {
+                        body { margin: 10px; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>CV Optimizer Pro - Raport Profilu</h1>
+                    <h2>${safeName}</h2>
+                    <p><strong>Email:</strong> ${safeEmail}</p>
+                    <div class="export-info">
+                        <p>Data wygenerowania: ${exportDate} ${exportTime}</p>
+                        <p>Wiek konta: ${data.stats.account_age_days || 0} dni</p>
                     </div>
-                `).join('')}
-            </div>
+                </div>
+                
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <h3>📄 Przesłane CV</h3>
+                        <div class="stat-value" style="color: #6366f1;">${data.stats.cv_count || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>✅ Zoptymalizowane</h3>
+                        <div class="stat-value" style="color: #059669;">${data.stats.optimized_count || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>📊 Przeanalizowane</h3>
+                        <div class="stat-value" style="color: #0891b2;">${data.stats.analyzed_count || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🎯 Wskaźnik sukcesu</h3>
+                        <div class="stat-value" style="color: #dc2626;">${data.stats.success_rate || 0}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>⚡ Produktywność</h3>
+                        <div class="stat-value" style="color: #8b5cf6;">${data.stats.productivity_score || 0}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>⏰ Zaoszczędzony czas</h3>
+                        <div class="stat-value" style="color: #f59e0b;">${data.stats.time_saved_hours || 0}h</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>✉️ Listy motywacyjne</h3>
+                        <div class="stat-value" style="color: #10b981;">${data.stats.cover_letters || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>❓ Pytania rekrutacyjne</h3>
+                        <div class="stat-value" style="color: #06b6d4;">${data.stats.interview_questions || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>📈 Analizy kompetencji</h3>
+                        <div class="stat-value" style="color: #8b5cf6;">${data.stats.skills_analyses || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>💰 Zainwestowano</h3>
+                        <div class="stat-value" style="color: #059669;">${data.stats.total_spent || 0} zł</div>
+                    </div>
+                </div>
 
-            <div>
-                <h3>Najpopularniejsze stanowiska</h3>
-                ${data.popular_jobs.map((job, index) => `
-                    <p>${index + 1}. ${job.title} (${job.count} CV)</p>
-                `).join('')}
-            </div>
-        </body>
-        </html>
-    `);
-    
-    printWindow.document.close();
-    printWindow.print();
+                ${data.achievements && data.achievements.length > 0 ? `
+                <div class="achievements">
+                    <h3>🏆 Osiągnięcia (${data.achievements.length})</h3>
+                    ${data.achievements.map(achievement => `
+                        <div class="achievement">
+                            <strong>${(achievement.name || 'Nieznane osiągnięcie').replace(/[<>&"]/g, '')}</strong> - 
+                            ${(achievement.description || 'Brak opisu').replace(/[<>&"]/g, '')}
+                        </div>
+                    `).join('')}
+                </div>
+                ` : '<div class="achievements"><h3>🏆 Osiągnięcia</h3><p>Brak osiągnięć do wyświetlenia</p></div>'}
+
+                ${data.popular_jobs && data.popular_jobs.length > 0 ? `
+                <div class="popular-jobs">
+                    <h3>🎯 Najpopularniejsze stanowiska (${data.popular_jobs.length})</h3>
+                    ${data.popular_jobs.map((job, index) => `
+                        <p><strong>${index + 1}.</strong> ${(job.title || 'Nieznane stanowisko').replace(/[<>&"]/g, '')} (${job.count || 0} CV)</p>
+                    `).join('')}
+                </div>
+                ` : '<div class="popular-jobs"><h3>🎯 Popularne stanowiska</h3><p>Brak danych o stanowiskach</p></div>'}
+
+                ${data.monthly_activity && data.monthly_activity.length > 0 ? `
+                <div class="monthly-activity">
+                    <h3>📅 Aktywność miesięczna</h3>
+                    ${data.monthly_activity.map(activity => `
+                        <p><strong>${(activity.month || 'Nieznany miesiąc').replace(/[<>&"]/g, '')}:</strong> ${activity.count || 0} CV</p>
+                    `).join('')}
+                </div>
+                ` : ''}
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #666; font-size: 12px;">
+                    <p>Ten raport został wygenerowany automatycznie przez CV Optimizer Pro.</p>
+                    <p>Wszelkie dane dotyczą okresu od założenia konta do daty eksportu.</p>
+                </div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        
+        // Wait for content to load before printing
+        setTimeout(() => {
+            printWindow.print();
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error exporting to PDF:', error);
+        alert('Wystąpił błąd podczas eksportu do PDF. Proszę spróbować ponownie.');
+    }
 }
 
 function exportToCSV(data) {
-    const csvData = [
-        ['Nazwa', 'Wartość'],
-        ['Imię i nazwisko', data.name],
-        ['Email', data.email],
-        ['Przesłane CV', data.stats.cv_count],
-        ['Zoptymalizowane CV', data.stats.optimized_count],
-        ['Przeanalizowane CV', data.stats.analyzed_count],
-        ['Wskaźnik sukcesu (%)', data.stats.success_rate],
-        ['Wskaźnik produktywności (%)', data.stats.productivity_score],
-        ['Zaoszczędzony czas (h)', data.stats.time_saved_hours],
-        ['Wiek konta (dni)', data.stats.account_age_days],
-        ['Listy motywacyjne', data.stats.cover_letters],
-        ['Pytania rekrutacyjne', data.stats.interview_questions],
-        ['Analizy kompetencji', data.stats.skills_analyses],
-        ['Zainwestowano (zł)', data.stats.total_spent]
-    ];
+    try {
+        // Validate data before proceeding
+        if (!data || !data.stats) {
+            alert('Błąd: Brak danych do eksportu CSV');
+            return;
+        }
 
-    // Add popular jobs
-    csvData.push(['', '']); // Empty row
-    csvData.push(['Popularne stanowiska', 'Liczba CV']);
-    data.popular_jobs.forEach(job => {
-        csvData.push([job.title, job.count]);
-    });
+        // Safely construct CSV data with proper escaping
+        const csvData = [
+            ['Sekcja', 'Nazwa', 'Wartość'],
+            ['Podstawowe', 'Data eksportu', data.exportDate || new Date().toISOString().slice(0, 19).replace('T', ' ')],
+            ['Podstawowe', 'Imię i nazwisko', data.name || 'Nieznane'],
+            ['Podstawowe', 'Email', data.email || 'brak@email.com'],
+            ['Podstawowe', 'Wiek konta (dni)', data.stats.account_age_days || 0],
+            ['', '', ''], // Separator
+            ['Statystyki CV', 'Przesłane CV', data.stats.cv_count || 0],
+            ['Statystyki CV', 'Zoptymalizowane CV', data.stats.optimized_count || 0],
+            ['Statystyki CV', 'Przeanalizowane CV', data.stats.analyzed_count || 0],
+            ['Statystyki CV', 'Wskaźnik sukcesu (%)', data.stats.success_rate || 0],
+            ['', '', ''], // Separator
+            ['Produktywność', 'Wskaźnik produktywności (%)', data.stats.productivity_score || 0],
+            ['Produktywność', 'Zaoszczędzony czas (h)', data.stats.time_saved_hours || 0],
+            ['Produktywność', 'Liczba logowań', data.stats.total_logins || 0],
+            ['Produktywność', 'Czas spędzony (min)', data.stats.total_time_spent || 0],
+            ['', '', ''], // Separator
+            ['Zaawansowane', 'Listy motywacyjne', data.stats.cover_letters || 0],
+            ['Zaawansowane', 'Pytania rekrutacyjne', data.stats.interview_questions || 0],
+            ['Zaawansowane', 'Analizy kompetencji', data.stats.skills_analyses || 0],
+            ['Zaawansowane', 'Zainwestowano (zł)', data.stats.total_spent || 0]
+        ];
 
-    // Add achievements
-    csvData.push(['', '']); // Empty row
-    csvData.push(['Osiągnięcia', 'Opis']);
-    data.achievements.forEach(achievement => {
-        csvData.push([achievement.name, achievement.description]);
-    });
+        // Add popular jobs if available
+        if (data.popular_jobs && data.popular_jobs.length > 0) {
+            csvData.push(['', '', '']); // Separator
+            csvData.push(['Stanowiska', 'Pozycja', 'Nazwa stanowiska', 'Liczba CV']);
+            data.popular_jobs.forEach((job, index) => {
+                csvData.push(['Stanowiska', index + 1, job.title || 'Nieznane stanowisko', job.count || 0]);
+            });
+        }
 
-    const csvContent = csvData.map(row => 
-        row.map(cell => `"${cell}"`).join(',')
-    ).join('\\n');
+        // Add achievements if available
+        if (data.achievements && data.achievements.length > 0) {
+            csvData.push(['', '', '']); // Separator
+            csvData.push(['Osiągnięcia', 'Nazwa osiągnięcia', 'Opis']);
+            data.achievements.forEach(achievement => {
+                csvData.push(['Osiągnięcia', 
+                    achievement.name || 'Nieznane osiągnięcie', 
+                    achievement.description || 'Brak opisu'
+                ]);
+            });
+        }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `cv_optimizer_profil_${new Date().toISOString().slice(0, 10)}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        // Add monthly activity if available
+        if (data.monthly_activity && data.monthly_activity.length > 0) {
+            csvData.push(['', '', '']); // Separator
+            csvData.push(['Aktywność', 'Miesiąc', 'Liczba CV']);
+            data.monthly_activity.forEach(activity => {
+                csvData.push(['Aktywność', 
+                    activity.month || 'Nieznany miesiąc', 
+                    activity.count || 0
+                ]);
+            });
+        }
+
+        // Create CSV content with proper escaping
+        const csvContent = csvData.map(row => 
+            row.map(cell => {
+                // Convert to string and escape quotes
+                const cellStr = String(cell || '');
+                return `"${cellStr.replace(/"/g, '""')}"`; // Proper CSV quote escaping
+            }).join(',')
+        ).join('\\n');
+
+        // Add BOM for proper UTF-8 encoding in Excel
+        const csvContentWithBOM = '\\uFEFF' + csvContent;
+
+        // Create and download file
+        const blob = new Blob([csvContentWithBOM], { 
+            type: 'text/csv;charset=utf-8;' 
+        });
+        
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        // Generate safe filename with timestamp
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '_');
+        const filename = `cv_optimizer_profil_${timestamp}.csv`;
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        
+        link.click();
+        
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        
+        console.log('CSV export completed successfully');
+        
+    } catch (error) {
+        console.error('Error exporting to CSV:', error);
+        alert('Wystąpił błąd podczas eksportu do CSV. Proszę spróbować ponownie.');
+    }
 }
 </script>
 {% endblock %}
