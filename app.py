@@ -976,6 +976,7 @@ def upload_cv():
         file = request.files['cv_file']
         job_title = request.form.get('job_title', '').strip()
         job_description = request.form.get('job_description', '').strip()
+        ai_model = request.form.get('ai_model', 'qwen').strip()  # Default to Qwen
 
         if file.filename == '':
             return jsonify({
@@ -1024,6 +1025,9 @@ def upload_cv():
                     return text.encode('utf-8',
                                        errors='replace').decode('utf-8')
 
+            # Store selected AI model in session
+            session['selected_ai_model'] = ai_model
+            
             # Store CV data in the database
             new_cv_upload = CVUpload()
             new_cv_upload.user_id = current_user.id
@@ -1068,7 +1072,7 @@ def generate_cover_letter_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
-        selected_model = data.get('selected_model')
+        selected_model = data.get('selected_model') or session.get('selected_ai_model', 'qwen')
         job_title = data.get('job_title', '').strip()
         job_description = data.get('job_description', '').strip()
         company_name = data.get('company_name', '').strip()
@@ -1164,7 +1168,7 @@ def generate_interview_questions_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
-        selected_model = data.get('selected_model')
+        selected_model = data.get('selected_model') or session.get('selected_ai_model', 'qwen')
         job_title = data.get('job_title', '').strip()
         job_description = data.get('job_description', '').strip()
 
@@ -1257,7 +1261,7 @@ def analyze_skills_gap_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
-        selected_model = data.get('selected_model')
+        selected_model = data.get('selected_model') or session.get('selected_ai_model', 'qwen')
         job_title = data.get('job_title', '').strip()
         job_description = data.get('job_description', '').strip()
 
@@ -1349,7 +1353,7 @@ def optimize_cv_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
-        selected_model = data.get('selected_model')
+        selected_model = data.get('selected_model') or session.get('selected_ai_model', 'qwen') or session.get('selected_ai_model', 'qwen')
 
         # Debug logging
         logger.info(f"📝 DEBUG optimize_cv: received selected_model = {selected_model}")
@@ -1438,7 +1442,7 @@ def analyze_cv_route():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
-        selected_model = data.get('selected_model')
+        selected_model = data.get('selected_model') or session.get('selected_ai_model', 'qwen')
 
         # Validate session ownership (IDOR protection)
         cv_upload = CVUpload.query.filter_by(session_id=session_id,

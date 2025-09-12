@@ -122,73 +122,42 @@ API_KEY_VALID = validate_api_key()
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-# DOSTĘPNE MODELE AI DO WYBORU - ROZSZERZONA LISTA 2025
+# DOSTĘPNE MODELE AI - WYBÓR UŻYTKOWNIKA (USUNIĘTO CLAUDE)
 AVAILABLE_MODELS = {
     "qwen": {
         "id": "qwen/qwen3-235b-a22b:free",
-        "name": "Qwen-235B", 
-        "description": "Zaawansowany model Qwen dla profesjonalnej optymalizacji CV",
-        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
-        "speed": "średnia",
-        "quality": "bardzo wysoka",
-        "best_for": ["optymalizacja_cv", "analiza_jakosci"],
+        "name": "Qwen 3 (Uniwersalny)", 
+        "description": "Mocny model ogólnego przeznaczenia, świetny do optymalizacji CV",
         "max_tokens": 4000,
-        "optimal_params": {"temperature": 0.3, "top_p": 0.9}
+        "optimal_params": {"temperature": 0.3, "top_p": 0.9, "frequency_penalty": 0.1, "presence_penalty": 0.1}
     },
     "deepseek": {
         "id": "deepseek/deepseek-chat-v3.1:free", 
-        "name": "DeepSeek Chat v3.1",
-        "description": "Zaawansowany model DeepSeek z logicznym myśleniem",
-        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
-        "speed": "szybka", 
-        "quality": "wysoka",
-        "best_for": ["listy_motywacyjne", "pytania_rekrutacyjne"],
+        "name": "DeepSeek Chat (Analityczny)",
+        "description": "Doskonały do analiz CV i listów motywacyjnych",
         "max_tokens": 3500,
-        "optimal_params": {"temperature": 0.4, "top_p": 0.85}
-    },
-    "claude": {
-        "id": "anthropic/claude-3.5-sonnet:beta",
-        "name": "Claude 3.5 Sonnet",
-        "description": "Najbardziej zaawansowany model Claude dla najwyższej jakości",
-        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne", "Analiza luk"],
-        "speed": "średnia",
-        "quality": "najwyższa",
-        "best_for": ["analiza_luk", "listy_motywacyjne"],
-        "max_tokens": 4000,
-        "optimal_params": {"temperature": 0.2, "top_p": 0.95}
+        "optimal_params": {"temperature": 0.4, "top_p": 0.85, "frequency_penalty": 0.1, "presence_penalty": 0.1}
     },
     "gpt4": {
         "id": "openai/gpt-4o-mini",
-        "name": "GPT-4o Mini",
-        "description": "Szybki i efektywny model OpenAI GPT-4o Mini",
-        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Pytania rekrutacyjne"],
-        "speed": "bardzo szybka",
-        "quality": "wysoka",
-        "best_for": ["pytania_rekrutacyjne", "optymalizacja_cv"],
-        "max_tokens": 3000,
-        "optimal_params": {"temperature": 0.4, "top_p": 0.9}
+        "name": "GPT-4 Mini (Profesjonalny)",
+        "description": "Model OpenAI, świetny do pytań rekrutacyjnych",
+        "max_tokens": 3500,
+        "optimal_params": {"temperature": 0.4, "top_p": 0.9, "frequency_penalty": 0.1, "presence_penalty": 0.15}
     },
     "llama": {
         "id": "meta-llama/llama-3.2-90b-vision-instruct:free",
-        "name": "Llama 3.2 90B",
-        "description": "Zaawansowany model Meta Llama dla optymalizacji CV",
-        "capabilities": ["Optymalizacja CV", "Analiza jakości"],
-        "speed": "średnia",
-        "quality": "wysoka", 
-        "best_for": ["optymalizacja_cv"],
+        "name": "Llama 3.2 (Kreatywny)",
+        "description": "Model Meta, dobry do kreatywnych zadań",
         "max_tokens": 3500,
-        "optimal_params": {"temperature": 0.35, "top_p": 0.9}
+        "optimal_params": {"temperature": 0.35, "top_p": 0.9, "frequency_penalty": 0.15, "presence_penalty": 0.1}
     },
     "gemini": {
         "id": "google/gemini-2.0-flash-exp:free",
-        "name": "Gemini 2.0 Flash",
-        "description": "Najnowszy model Google Gemini z szybką analizą",
-        "capabilities": ["Analiza jakości", "Pytania rekrutacyjne", "Analiza luk"],
-        "speed": "bardzo szybka",
-        "quality": "wysoka",
-        "best_for": ["analiza_jakosci", "analiza_luk"],
+        "name": "Gemini Flash (Szybki)",
+        "description": "Model Google, szybki i efektywny",
         "max_tokens": 3500,
-        "optimal_params": {"temperature": 0.3, "top_p": 0.92}
+        "optimal_params": {"temperature": 0.3, "top_p": 0.92, "frequency_penalty": 0.1, "presence_penalty": 0.12}
     }
 }
 
@@ -264,13 +233,13 @@ def get_best_model_for_task(task_type, is_premium=False, fallback_models=None):
     """
     🧠 INTELIGENTNY WYBÓR MODELU na podstawie typu zadania
     """
-    # Mapa zadań do preferowanych modeli
+    # Mapa zadań do preferowanych modeli (bez Claude)
     task_model_map = {
-        "optymalizacja_cv": ["qwen", "llama", "gpt4", "claude"],
-        "analiza_jakosci": ["claude", "qwen", "gemini", "deepseek"], 
-        "listy_motywacyjne": ["claude", "deepseek", "qwen", "gpt4"],
+        "optymalizacja_cv": ["qwen", "llama", "gpt4", "deepseek"],
+        "analiza_jakosci": ["qwen", "gemini", "deepseek", "gpt4"], 
+        "listy_motywacyjne": ["deepseek", "qwen", "gpt4", "llama"],
         "pytania_rekrutacyjne": ["gpt4", "deepseek", "gemini", "qwen"],
-        "analiza_luk": ["claude", "gemini", "qwen", "deepseek"]
+        "analiza_luk": ["gemini", "qwen", "deepseek", "gpt4"]
     }
     
     # Jeśli użytkownik nie premium, preferuj darmowe modele
@@ -339,16 +308,16 @@ def create_fallback_hierarchy(primary_model, task_type):
     """
     🔄 TWORZENIE HIERARCHII FALLBACK MODELI
     """
-    # 🆓 PRIORITET BEZPŁATNYCH MODELI - idealne dla użytkowników bez kluczy płatnych
+    # 🆓 WSZYSTKIE BEZPŁATNE MODELE - użytkownik wybiera sam
     model_hierarchy = {
-        "optymalizacja_cv": ["qwen", "deepseek", "gemini", "claude", "gpt4", "llama"],
-        "analiza_jakosci": ["qwen", "gemini", "deepseek", "claude", "gpt4", "llama"],
-        "listy_motywacyjne": ["deepseek", "qwen", "gemini", "claude", "gpt4", "llama"],
-        "pytania_rekrutacyjne": ["deepseek", "gemini", "qwen", "gpt4", "claude", "llama"],
-        "analiza_luk": ["gemini", "qwen", "deepseek", "claude", "gpt4", "llama"]
+        "optymalizacja_cv": ["qwen", "deepseek", "gemini", "gpt4", "llama"],
+        "analiza_jakosci": ["qwen", "gemini", "deepseek", "gpt4", "llama"],
+        "listy_motywacyjne": ["deepseek", "qwen", "gemini", "gpt4", "llama"],
+        "pytania_rekrutacyjne": ["deepseek", "gemini", "qwen", "gpt4", "llama"],
+        "analiza_luk": ["gemini", "qwen", "deepseek", "gpt4", "llama"]
     }
     
-    hierarchy = model_hierarchy.get(task_type, ["qwen", "deepseek", "claude", "gpt4", "gemini", "llama"])
+    hierarchy = model_hierarchy.get(task_type, ["qwen", "deepseek", "gpt4", "gemini", "llama"])
     
     # Przenieś primary_model na początek jeśli nie jest tam
     if primary_model in hierarchy:
