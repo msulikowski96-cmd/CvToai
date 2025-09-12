@@ -964,6 +964,9 @@ def optimize_cv_route():
         data = request.get_json()
         session_id = data.get('session_id')
         selected_model = data.get('selected_model')
+        
+        # Debug logging
+        logger.info(f"📝 DEBUG optimize_cv: received selected_model = {selected_model}")
 
         cv_upload = CVUpload.query.filter_by(session_id=session_id,
                                              user_id=current_user.id).first()

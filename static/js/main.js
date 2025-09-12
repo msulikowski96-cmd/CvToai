@@ -250,7 +250,9 @@ function initializeModelSelection() {
 
 // Get selected AI model for requests
 function getSelectedModel() {
-    return selectedModel;
+    const model = localStorage.getItem('selectedAIModel') || 'qwen';
+    console.log('🔍 DEBUG getSelectedModel(): returning', model);
+    return model;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

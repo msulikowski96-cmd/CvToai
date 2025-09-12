@@ -155,8 +155,15 @@ def get_available_models():
 
 def get_model_by_key(model_key):
     """Zwraca ID modelu na podstawie klucza"""
+    logger.info(f"🔍 DEBUG get_model_by_key: otrzymano model_key = {model_key}")
+    logger.info(f"🔍 DEBUG: dostępne modele = {list(AVAILABLE_MODELS.keys())}")
+    
     if model_key in AVAILABLE_MODELS:
-        return AVAILABLE_MODELS[model_key]["id"]
+        model_id = AVAILABLE_MODELS[model_key]["id"]
+        logger.info(f"✅ DEBUG: znaleziono model {model_key} -> {model_id}")
+        return model_id
+    
+    logger.info(f"❌ DEBUG: nie znaleziono modelu {model_key}, używam DEFAULT_MODEL = {DEFAULT_MODEL}")
     return DEFAULT_MODEL
 
 def get_default_model():
