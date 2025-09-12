@@ -534,6 +534,11 @@ function parseAndDisplayCVAnalysis() {
         const rawAnalysisElement = document.getElementById('cv-analysis-raw');
         if (!rawAnalysisElement || !rawAnalysisElement.textContent.trim()) {
             console.log('No CV analysis data found');
+            // Hide analysis sections if no data
+            const sectionsContainer = document.getElementById('cv-analysis-sections');
+            if (sectionsContainer) {
+                sectionsContainer.innerHTML = '<div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>Analiza CV nie została jeszcze wykonana.</div>';
+            }
             return;
         }
         
