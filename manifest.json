@@ -1,3 +1,4 @@
+
 {
     "name": "CV Optimizer Pro",
     "short_name": "CV Optimizer",
@@ -9,34 +10,45 @@
     "orientation": "portrait-primary",
     "scope": "/",
     "lang": "pl",
-    "categories": ["productivity", "business"],
+    "categories": ["productivity", "business", "utilities"],
     "icons": [
         {
-            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='20' fill='%236366f1'/><text x='96' y='120' text-anchor='middle' font-size='100' fill='white'>📄</text></svg>",
+            "src": "/static/icon-16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/icon-32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/icon-192.png",
             "sizes": "192x192",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='50' fill='%236366f1'/><text x='256' y='320' text-anchor='middle' font-size='280' fill='white'>📄</text></svg>",
+            "src": "/icons/icon-512.png",
             "sizes": "512x512",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "any maskable"
-        },
-        {
-            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' rx='10' fill='%236366f1'/><text x='48' y='60' text-anchor='middle' font-size='50' fill='white'>📄</text></svg>",
-            "sizes": "96x96",
-            "type": "image/svg+xml",
-            "purpose": "any"
         }
     ],
     "screenshots": [
         {
-            "src": "https://pixabay.com/get/g74bf88334318a912eb6febcad5a692a51088db4b3d16e347e72b5c851b6dfbd412d0d203e0df502767408f135f0fd1e907a3c6d9b9345e670a6113bb1687145a_1280.jpg",
+            "src": "/static/screenshots/desktop.png",
             "sizes": "1280x720",
-            "type": "image/jpeg",
+            "type": "image/png",
             "platform": "wide",
-            "label": "CV Optimizer Pro - Main Interface"
+            "label": "CV Optimizer Pro - Desktop View"
+        },
+        {
+            "src": "/static/screenshots/mobile.png",
+            "sizes": "360x640",
+            "type": "image/png",
+            "platform": "narrow",
+            "label": "CV Optimizer Pro - Mobile View"
         }
     ],
     "shortcuts": [
@@ -47,9 +59,22 @@
             "url": "/",
             "icons": [
                 {
-                    "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' rx='10' fill='%2325d366'/><text x='48' y='60' text-anchor='middle' font-size='40' fill='white'>+</text></svg>",
-                    "sizes": "96x96",
-                    "type": "image/svg+xml"
+                    "src": "/static/icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Dashboard",
+            "short_name": "Panel",
+            "description": "Przejdź do panelu użytkownika",
+            "url": "/dashboard",
+            "icons": [
+                {
+                    "src": "/static/icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
                 }
             ]
         }
