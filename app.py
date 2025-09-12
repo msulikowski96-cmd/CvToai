@@ -299,6 +299,295 @@ class User(UserMixin, db.Model):
             db.session.commit()
         return stats
 
+    def get_advanced_stats(self):
+        """Zwraca zaawansowane statystyki użytkownika"""
+        try:
+            from sqlalchemy import func, extract
+            
+            # Podstawowe liczby
+            total_cvs = self.get_cv_count()
+            optimized_cvs = self.get_optimized_cv_count()
+            
+            # Listy motywacyjne - z obsługą błędów
+            try:
+                cover_letters_count = CoverLetter.query.filter_by(user_id=self.id).count()
+            except Exception as e:
+                logger.warning(f"Error querying CoverLetter table: {str(e)}")
+                cover_letters_count = 0
+            
+            # Pytania rekrutacyjne - z obsługą błędów
+            try:
+                interview_questions_count = InterviewQuestions.query.filter_by(user_id=self.id).count()
+            except Exception as e:
+                logger.warning(f"Error querying InterviewQuestions table: {str(e)}")
+                interview_questions_count = 0
+            
+            # Analizy luk kompetencyjnych - z obsługą błędów
+            try:
+                skills_analyses_count = SkillsGapAnalysis.query.filter_by(user_id=self.id).count()
+            except Exception as e:
+                logger.warning(f"Error querying SkillsGapAnalysis table: {str(e)}")
+                skills_analyses_count = 0
+            
+            # Całkowita wartość zakupów - z obsługą błędów
+            try:
+                total_spent = db.session.query(func.sum(StripePayment.amount)).filter(
+                    StripePayment.user_id == self.id,
+                    StripePayment.status == 'completed'
+                ).scalar() or 0
+            except Exception as e:
+                logger.warning(f"Error querying StripePayment table: {str(e)}")
+                total_spent = 0
+            
+            # Aktywność w ostatnich 7 dniach
+            week_activity = self.get_recent_activity(7)
+            
+            # Najczęściej używane stanowiska
+            try:
+                popular_jobs = db.session.query(
+                    CVUpload.job_title, 
+                    func.count(CVUpload.job_title).label('count')
+                ).filter(CVUpload.user_id == self.id).group_by(
+                    CVUpload.job_title
+                ).order_by(func.count(CVUpload.job_title).desc()).limit(5).all()
+            except Exception as e:
+                logger.warning(f"Error querying popular jobs: {str(e)}")
+                popular_jobs = []
+            
+            # Średni czas między przesłaniem a optymalizacją
+            try:
+                avg_optimization_time = db.session.query(
+                    func.avg(
+                        func.extract('epoch', CVUpload.optimized_at - CVUpload.created_at) / 60
+                    )
+                ).filter(
+                    CVUpload.user_id == self.id,
+                    CVUpload.optimized_at.isnot(None)
+                ).scalar() or 0
+            except Exception as e:
+                logger.warning(f"Error calculating avg optimization time: {str(e)}")
+                avg_optimization_time = 0
+            
+            # Aktywność miesięczna (ostatnie 12 miesięcy)
+            monthly_activity = []
+            try:
+                for i in range(12):
+                    month_start = datetime.utcnow().replace(day=1) - timedelta(days=30 * i)
+                    month_end = month_start.replace(day=28) + timedelta(days=4)
+                    month_count = CVUpload.query.filter(
+                        CVUpload.user_id == self.id,
+                        CVUpload.created_at >= month_start,
+                        CVUpload.created_at < month_end
+                    ).count()
+                    monthly_activity.append({
+                        'month': month_start.strftime('%m/%Y'),
+                        'count': month_count
+                    })
+            except Exception as e:
+                logger.warning(f"Error calculating monthly activity: {str(e)}")
+                monthly_activity = [{'month': '', 'count': 0} for _ in range(12)]
+            
+            # Bezpieczne wywołanie metod pomocniczych
+            try:
+                productivity_score = self.calculate_productivity_score()
+            except Exception as e:
+                logger.warning(f"Error calculating productivity score: {str(e)}")
+                productivity_score = 0
+                
+            try:
+                achievements = self.get_achievements()
+            except Exception as e:
+                logger.warning(f"Error getting achievements: {str(e)}")
+                achievements = []
+            
+            return {
+                'total_cvs': total_cvs,
+                'optimized_cvs': optimized_cvs,
+                'cover_letters': cover_letters_count,
+                'interview_questions': interview_questions_count,
+                'skills_analyses': skills_analyses_count,
+                'total_spent_pln': total_spent / 100,  # Konwersja z groszy
+                'week_activity': week_activity,
+                'popular_jobs': [{'title': job[0], 'count': job[1]} for job in popular_jobs],
+                'avg_optimization_time_minutes': round(avg_optimization_time, 1),
+                'monthly_activity': list(reversed(monthly_activity)),
+                'productivity_score': productivity_score,
+                'achievements': achievements
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in get_advanced_stats: {str(e)}")
+            # Zwróć podstawowe statystyki w przypadku błędu
+            return {
+                'total_cvs': self.get_cv_count(),
+                'optimized_cvs': self.get_optimized_cv_count(),
+                'cover_letters': 0,
+                'interview_questions': 0,
+                'skills_analyses': 0,
+                'total_spent_pln': 0,
+                'week_activity': self.get_recent_activity(7),
+                'popular_jobs': [],
+                'avg_optimization_time_minutes': 0,
+                'monthly_activity': [],
+                'productivity_score': 0,
+                'achievements': []
+            }
+    
+    def calculate_productivity_score(self):
+        """Oblicza wynik produktywności użytkownika (0-100)"""
+        try:
+            score = 0
+            
+            # Punkty za aktywność
+            cv_count = self.get_cv_count()
+            score += min(cv_count * 10, 40)  # Max 40 punktów za CV (4 CV = max)
+            
+            # Punkty za optymalizacje
+            optimized_count = self.get_optimized_cv_count()
+            score += min(optimized_count * 15, 30)  # Max 30 punktów za optymalizacje
+            
+            # Punkty za wykorzystanie dodatkowych funkcji - z obsługą błędów
+            try:
+                cover_letters = CoverLetter.query.filter_by(user_id=self.id).count()
+            except Exception:
+                cover_letters = 0
+                
+            try:
+                interview_questions = InterviewQuestions.query.filter_by(user_id=self.id).count()
+            except Exception:
+                interview_questions = 0
+                
+            try:
+                skills_analyses = SkillsGapAnalysis.query.filter_by(user_id=self.id).count()
+            except Exception:
+                skills_analyses = 0
+                
+            extras = cover_letters + interview_questions + skills_analyses
+            score += min(extras * 5, 20)  # Max 20 punktów za dodatkowe funkcje
+            
+            # Punkty za regularność (aktywność w ostatnim tygodniu)
+            try:
+                recent = self.get_recent_activity(7)
+                if recent > 0:
+                    score += 10  # Bonus za regularność
+            except Exception:
+                pass  # Ignore errors in recent activity calculation
+                
+            return min(score, 100)
+            
+        except Exception as e:
+            logger.warning(f"Error calculating productivity score: {str(e)}")
+            return 0
+    
+    def get_achievements(self):
+        """Zwraca listę osiągnięć użytkownika"""
+        try:
+            achievements = []
+            
+            cv_count = self.get_cv_count()
+            optimized_count = self.get_optimized_cv_count()
+            
+            # Query cover letters with error handling
+            try:
+                cover_letters = CoverLetter.query.filter_by(user_id=self.id).count()
+            except Exception:
+                cover_letters = 0
+            
+            # Osiągnięcia za liczbę CV
+            if cv_count >= 1:
+                achievements.append({
+                    'name': 'Pierwszy Krok',
+                    'description': 'Przesłałeś swoje pierwsze CV',
+                    'icon': 'bi-upload',
+                    'color': 'success',
+                    'earned': True
+                })
+                
+            if cv_count >= 5:
+                achievements.append({
+                    'name': 'Aktywny Użytkownik',
+                    'description': 'Przesłałeś 5 CV',
+                    'icon': 'bi-file-earmark-check',
+                    'color': 'info',
+                    'earned': True
+                })
+                
+            if cv_count >= 10:
+                achievements.append({
+                    'name': 'Ekspert CV',
+                    'description': 'Przesłałeś 10 CV',
+                    'icon': 'bi-award',
+                    'color': 'warning',
+                    'earned': True
+                })
+            
+            # Osiągnięcia za optymalizacje
+            if optimized_count >= 1:
+                achievements.append({
+                    'name': 'Pierwsza Optymalizacja',
+                    'description': 'Zoptymalizowałeś swoje pierwsze CV',
+                    'icon': 'bi-magic',
+                    'color': 'primary',
+                    'earned': True
+                })
+                
+            if optimized_count >= 5:
+                achievements.append({
+                    'name': 'Mistrz Optymalizacji',
+                    'description': 'Zoptymalizowałeś 5 CV',
+                    'icon': 'bi-gear-fill',
+                    'color': 'success',
+                    'earned': True
+                })
+            
+            # Osiągnięcia za dodatkowe funkcje
+            if cover_letters >= 1:
+                achievements.append({
+                    'name': 'Pisarz Listów',
+                    'description': 'Wygenerowałeś swój pierwszy list motywacyjny',
+                    'icon': 'bi-envelope-heart',
+                    'color': 'danger',
+                    'earned': True
+                })
+            
+            # Osiągnięcie premium
+            try:
+                if self.is_premium_active():
+                    achievements.append({
+                        'name': 'Użytkownik Premium',
+                        'description': 'Wykupiłeś dostęp Premium',
+                        'icon': 'bi-star-fill',
+                        'color': 'warning',
+                        'earned': True
+                    })
+            except Exception:
+                pass  # Ignore premium check errors
+                
+            return achievements
+            
+        except Exception as e:
+            logger.warning(f"Error getting achievements: {str(e)}")
+            return []
+    
+    def get_time_saved_estimate(self):
+        """Oszacowuje zaoszczędzony czas w godzinach"""
+        try:
+            optimized_count = self.get_optimized_cv_count()
+            
+            # Query cover letters with error handling
+            try:
+                cover_letters = CoverLetter.query.filter_by(user_id=self.id).count()
+            except Exception:
+                cover_letters = 0
+            
+            # Szacunek: 2h na optymalizację CV ręcznie, 1h na list motywacyjny
+            time_saved = (optimized_count * 2) + (cover_letters * 1)
+            return time_saved
+            
+        except Exception as e:
+            logger.warning(f"Error calculating time saved estimate: {str(e)}")
+            return 0
+
     def __repr__(self):
         return f'<User {self.username}>'
 
@@ -542,31 +831,120 @@ def get_available_models():
 @app.route('/profile')
 @login_required
 def profile():
-    """Strona profilu użytkownika z dodatkowymi statystykami"""
-    user_stats = current_user.get_statistics()
+    """Strona profilu użytkownika z zaawansowanymi statystykami i osiągnięciami"""
+    try:
+        user_stats = current_user.get_statistics()
+        
+        # Safely get advanced stats with error handling
+        try:
+            advanced_stats = current_user.get_advanced_stats()
+        except Exception as e:
+            logger.error(f"Error getting advanced stats in profile route: {str(e)}")
+            advanced_stats = {
+                'total_cvs': 0,
+                'optimized_cvs': 0,
+                'cover_letters': 0,
+                'interview_questions': 0,
+                'skills_analyses': 0,
+                'total_spent_pln': 0,
+                'week_activity': 0,
+                'popular_jobs': [],
+                'avg_optimization_time_minutes': 0,
+                'monthly_activity': [],
+                'productivity_score': 0,
+                'achievements': []
+            }
+        
+        # Safely get time saved estimate
+        try:
+            time_saved_hours = current_user.get_time_saved_estimate()
+        except Exception as e:
+            logger.warning(f"Error getting time saved estimate: {str(e)}")
+            time_saved_hours = 0
 
-    # Dodatkowe statystyki
-    stats_data = {
-        'cv_count': current_user.get_cv_count(),
-        'optimized_count': current_user.get_optimized_cv_count(),
-        'analyzed_count': current_user.get_analyzed_cv_count(),
-        'success_rate': current_user.get_success_rate(),
-        'account_age': current_user.get_account_age_days(),
-        'recent_activity': current_user.get_recent_activity(),
-        'last_login': current_user.last_login,
-        'is_premium': current_user.is_premium_active(),
-        'total_logins': user_stats.total_logins,
-        'total_time_spent': user_stats.total_time_spent,
-        'user_statistics': user_stats
-    }
+        # Podstawowe statystyki (dla kompatybilności)
+        stats_data = {
+            'cv_count': current_user.get_cv_count(),
+            'optimized_count': current_user.get_optimized_cv_count(),
+            'analyzed_count': current_user.get_analyzed_cv_count(),
+            'success_rate': current_user.get_success_rate(),
+            'account_age': current_user.get_account_age_days(),
+            'recent_activity': current_user.get_recent_activity(),
+            'last_login': current_user.last_login,
+            'is_premium': current_user.is_premium_active(),
+            'total_logins': user_stats.total_logins,
+            'total_time_spent': user_stats.total_time_spent,
+            'user_statistics': user_stats,
+            
+            # Nowe zaawansowane statystyki - safely access with defaults
+            'advanced': advanced_stats,
+            'time_saved_hours': time_saved_hours,
+            'productivity_score': advanced_stats.get('productivity_score', 0),
+            'achievements': advanced_stats.get('achievements', [])
+        }
 
-    # Ostatnie CV
-    recent_cvs = CVUpload.query.filter_by(user_id=current_user.id).order_by(
-        CVUpload.created_at.desc()).limit(5).all()
+        # Ostatnie CV
+        recent_cvs = CVUpload.query.filter_by(user_id=current_user.id).order_by(
+            CVUpload.created_at.desc()).limit(5).all()
+        
+        # Ostatnie działania (różne typy) - with error handling
+        recent_activities = []
+        
+        # CV uploads
+        for cv in recent_cvs[:3]:
+            recent_activities.append({
+                'type': 'cv_upload',
+                'title': f'Przesłano CV: {cv.job_title}',
+                'date': cv.created_at,
+                'icon': 'bi-upload',
+                'color': 'primary'
+            })
+        
+        # Cover letters - with error handling
+        try:
+            recent_covers = CoverLetter.query.filter_by(user_id=current_user.id).order_by(
+                CoverLetter.created_at.desc()).limit(2).all()
+            
+            for cover in recent_covers:
+                recent_activities.append({
+                    'type': 'cover_letter',
+                    'title': f'List motywacyjny: {cover.job_title}',
+                    'date': cover.created_at,
+                    'icon': 'bi-envelope',
+                    'color': 'success'
+                })
+        except Exception as e:
+            logger.warning(f"Error querying recent cover letters: {str(e)}")
+        
+        # Interview questions - with error handling
+        try:
+            recent_questions = InterviewQuestions.query.filter_by(user_id=current_user.id).order_by(
+                InterviewQuestions.created_at.desc()).limit(2).all()
+            
+            for question in recent_questions:
+                recent_activities.append({
+                    'type': 'interview_questions',
+                    'title': f'Pytania rekrutacyjne: {question.job_title}',
+                    'date': question.created_at,
+                    'icon': 'bi-question-circle',
+                    'color': 'info'
+                })
+        except Exception as e:
+            logger.warning(f"Error querying recent interview questions: {str(e)}")
+        
+        # Sortuj aktywności po dacie
+        recent_activities.sort(key=lambda x: x['date'], reverse=True)
+        recent_activities = recent_activities[:8]  # Top 8 najnowszych
 
-    return render_template('auth/profile.html',
-                           stats=stats_data,
-                           recent_cvs=recent_cvs)
+        return render_template('auth/profile.html',
+                               stats=stats_data,
+                               recent_cvs=recent_cvs,
+                               recent_activities=recent_activities)
+                               
+    except Exception as e:
+        logger.error(f"Error in profile route: {str(e)}")
+        flash('Wystąpił błąd podczas ładowania profilu. Spróbuj ponownie.', 'error')
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/logout')

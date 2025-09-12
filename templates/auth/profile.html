@@ -57,6 +57,72 @@
             </div>
         </div>
 
+        <!-- Productivity Score Section -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-12 col-lg-10">
+                <div class="card border-0 glassmorphism" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h4 class="mb-3">🚀 Wskaźnik Produktywności</h4>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="flex-grow-1 me-4">
+                                <div class="progress" style="height: 15px; border-radius: 10px;">
+                                    <div class="progress-bar bg-gradient" 
+                                         style="width: {{ stats.productivity_score }}%; 
+                                                background: linear-gradient(45deg, #6366f1, #8b5cf6);"
+                                         role="progressbar">
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <small class="text-muted">Początkujący</small>
+                                    <small class="text-muted">Ekspert</small>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <h2 class="fw-bold text-primary mb-0">{{ stats.productivity_score }}%</h2>
+                                <small class="text-muted">Poziom</small>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                💡 Zaoszczędziłeś około <strong>{{ stats.time_saved_hours }} godzin</strong> 
+                                dzięki CV Optimizer Pro!
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Section -->
+        {% if stats.achievements %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-12 col-lg-10">
+                <div class="card border-0 glassmorphism" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h4 class="mb-3">🏆 Osiągnięcia</h4>
+                        <div class="row g-3">
+                            {% for achievement in stats.achievements %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="d-flex align-items-center p-3 rounded-3" 
+                                     style="background: rgba(var(--bs-{{ achievement.color }}-rgb), 0.1);">
+                                    <div class="badge bg-{{ achievement.color }} rounded-circle me-3" 
+                                         style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi {{ achievement.icon }}" style="font-size: 1.2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ achievement.name }}</h6>
+                                        <small class="text-muted">{{ achievement.description }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Statistics Cards Row -->
         <div class="row justify-content-center g-4 mb-5">
             <div class="col-lg-2 col-md-4 col-6">
@@ -120,6 +186,61 @@
                         </div>
                         <h3 class="fw-bold text-danger mb-1">{{ stats.recent_activity }}</h3>
                         <p class="small text-muted mb-0">Ostatnie 30 dni</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Statistics Row -->
+        <div class="row justify-content-center g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 glassmorphism text-center" style="border-radius: 15px;">
+                    <div class="card-body p-3">
+                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 50px; height: 50px;">
+                            <i class="bi bi-envelope-heart text-white"></i>
+                        </div>
+                        <h3 class="fw-bold text-success mb-1">{{ stats.advanced.cover_letters }}</h3>
+                        <p class="small text-muted mb-0">Listy motywacyjne</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 glassmorphism text-center" style="border-radius: 15px;">
+                    <div class="card-body p-3">
+                        <div class="bg-info rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 50px; height: 50px;">
+                            <i class="bi bi-question-circle text-white"></i>
+                        </div>
+                        <h3 class="fw-bold text-info mb-1">{{ stats.advanced.interview_questions }}</h3>
+                        <p class="small text-muted mb-0">Pytania rekrutacyjne</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 glassmorphism text-center" style="border-radius: 15px;">
+                    <div class="card-body p-3">
+                        <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 50px; height: 50px;">
+                            <i class="bi bi-bar-chart text-white"></i>
+                        </div>
+                        <h3 class="fw-bold text-warning mb-1">{{ stats.advanced.skills_analyses }}</h3>
+                        <p class="small text-muted mb-0">Analizy kompetencji</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 glassmorphism text-center" style="border-radius: 15px;">
+                    <div class="card-body p-3">
+                        <div class="bg-purple rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 50px; height: 50px; background: #8b5cf6;">
+                            <i class="bi bi-cash-coin text-white"></i>
+                        </div>
+                        <h3 class="fw-bold mb-1" style="color: #8b5cf6;">{{ stats.advanced.total_spent_pln }}zł</h3>
+                        <p class="small text-muted mb-0">Zainwestowano</p>
                     </div>
                 </div>
             </div>
@@ -307,6 +428,136 @@
             </div>
         </div>
 
+        <!-- Charts and Analytics Section -->
+        <div class="row justify-content-center g-4 mb-5">
+            <!-- Monthly Activity Chart -->
+            <div class="col-lg-7">
+                <div class="card border-0 glassmorphism" style="border-radius: 20px;">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center p-3 pb-2">
+                            <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 50px; height: 50px; background: var(--primary-gradient);">
+                                <i class="bi bi-graph-up text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="card-title mb-1 fw-bold text-dark">📈 Aktywność miesięczna</h4>
+                                <p class="mb-0 text-muted">Twoje CV w czasie</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 pt-2">
+                        <canvas id="monthlyChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Jobs & Export -->
+            <div class="col-lg-5">
+                <div class="card h-100 border-0 glassmorphism" style="border-radius: 20px;">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center justify-content-between p-3 pb-2">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 50px; height: 50px; background: var(--success-gradient);">
+                                    <i class="bi bi-briefcase text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="card-title mb-1 fw-bold text-dark">🎯 Popularne stanowiska</h4>
+                                    <p class="mb-0 text-muted">Najczęściej aplikujesz na</p>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill" type="button" id="exportDropdown" data-bs-toggle="dropdown">
+                                    <i class="bi bi-download me-1"></i>Eksport
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="exportProfileData('pdf')">
+                                        <i class="bi bi-file-earmark-pdf me-2"></i>PDF
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportProfileData('csv')">
+                                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>CSV
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 pt-2">
+                        {% if stats.advanced.popular_jobs %}
+                        <div class="space-y-3">
+                            {% for job in stats.advanced.popular_jobs %}
+                            <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3" 
+                                 style="background: rgba(var(--bs-primary-rgb), 0.05);">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 35px; height: 35px;">
+                                        <span class="text-white fw-bold">{{ loop.index }}</span>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ job.title }}</h6>
+                                        <small class="text-muted">{{ job.count }} CV</small>
+                                    </div>
+                                </div>
+                                <div class="badge bg-primary rounded-pill">{{ job.count }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-briefcase display-4 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3">Prześlij więcej CV, aby zobaczyć statystyki</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities Timeline -->
+        {% if recent_activities %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-12 col-lg-10">
+                <div class="card border-0 glassmorphism" style="border-radius: 20px;">
+                    <div class="card-header border-0 bg-transparent pb-0">
+                        <div class="d-flex align-items-center p-3 pb-2">
+                            <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 50px; height: 50px; background: var(--info-gradient);">
+                                <i class="bi bi-activity text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="card-title mb-1 fw-bold text-dark">🕒 Ostatnie aktywności</h4>
+                                <p class="mb-0 text-muted">Twoja historia działań</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 pt-2">
+                        <div class="timeline">
+                            {% for activity in recent_activities %}
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="bg-{{ activity.color }} rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="bi {{ activity.icon }} text-white"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-1 text-dark">{{ activity.title }}</h6>
+                                    <div class="d-flex align-items-center">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar me-1"></i>{{ activity.date.strftime('%d.%m.%Y %H:%M') }}
+                                        </small>
+                                        <span class="badge bg-{{ activity.color }} rounded-pill ms-2 opacity-75">{{ activity.type }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if not loop.last %}
+                            <hr class="my-2 opacity-25">
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Action Buttons -->
         <div class="row justify-content-center mt-4">
             <div class="col-12 col-lg-10">
@@ -379,6 +630,8 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Animacja dla kół postępu
@@ -402,6 +655,217 @@ document.addEventListener('DOMContentLoaded', function() {
             bar.style.transition = 'width 1.5s ease-in-out';
         }, 800);
     });
+
+    // Chart.js Monthly Activity Chart
+    const monthlyChartCtx = document.getElementById('monthlyChart');
+    if (monthlyChartCtx) {
+        const monthlyData = {{ stats.advanced.monthly_activity | tojson | safe }};
+        
+        new Chart(monthlyChartCtx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [{
+                    label: 'CV przesłane',
+                    data: monthlyData.map(item => item.count),
+                    borderColor: 'rgb(99, 102, 241)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgb(99, 102, 241)',
+                    pointBorderColor: 'white',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: '#6b7280'
+                        },
+                        grid: {
+                            color: 'rgba(107, 114, 128, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#6b7280'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: 'rgb(99, 102, 241)'
+                    }
+                }
+            }
+        });
+    }
 });
+
+// Export functionality
+function exportProfileData(format) {
+    const userData = {
+        name: '{{ current_user.first_name }} {{ current_user.last_name }}',
+        email: '{{ current_user.email }}',
+        stats: {
+            cv_count: {{ stats.cv_count }},
+            optimized_count: {{ stats.optimized_count }},
+            analyzed_count: {{ stats.analyzed_count }},
+            success_rate: {{ stats.success_rate }},
+            productivity_score: {{ stats.productivity_score }},
+            time_saved_hours: {{ stats.time_saved_hours }},
+            account_age_days: {{ stats.account_age }},
+            cover_letters: {{ stats.advanced.cover_letters }},
+            interview_questions: {{ stats.advanced.interview_questions }},
+            skills_analyses: {{ stats.advanced.skills_analyses }},
+            total_spent: {{ stats.advanced.total_spent_pln }}
+        },
+        popular_jobs: {{ stats.advanced.popular_jobs | tojson | safe }},
+        achievements: {{ stats.achievements | tojson | safe }}
+    };
+
+    if (format === 'pdf') {
+        exportToPDF(userData);
+    } else if (format === 'csv') {
+        exportToCSV(userData);
+    }
+}
+
+function exportToPDF(data) {
+    // Create a printable version of the profile
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Profil CV Optimizer Pro - ${data.name}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { border-bottom: 2px solid #6366f1; padding-bottom: 10px; margin-bottom: 20px; }
+                .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
+                .stat-card { border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; }
+                .achievements { margin: 20px 0; }
+                .achievement { background: #f3f4f6; padding: 10px; margin: 5px 0; border-radius: 5px; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>CV Optimizer Pro - Raport Profilu</h1>
+                <h2>${data.name}</h2>
+                <p>Email: ${data.email}</p>
+                <p>Data wygenerowania: ${new Date().toLocaleDateString('pl-PL')}</p>
+            </div>
+            
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <h3>Przesłane CV</h3>
+                    <p style="font-size: 24px; color: #6366f1;">${data.stats.cv_count}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Zoptymalizowane</h3>
+                    <p style="font-size: 24px; color: #059669;">${data.stats.optimized_count}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Wskaźnik produktywności</h3>
+                    <p style="font-size: 24px; color: #8b5cf6;">${data.stats.productivity_score}%</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Zaoszczędzony czas</h3>
+                    <p style="font-size: 24px; color: #f59e0b;">${data.stats.time_saved_hours}h</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Listy motywacyjne</h3>
+                    <p style="font-size: 24px; color: #10b981;">${data.stats.cover_letters}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pytania rekrutacyjne</h3>
+                    <p style="font-size: 24px; color: #06b6d4;">${data.stats.interview_questions}</p>
+                </div>
+            </div>
+
+            <div class="achievements">
+                <h3>Osiągnięcia</h3>
+                ${data.achievements.map(achievement => `
+                    <div class="achievement">
+                        <strong>${achievement.name}</strong> - ${achievement.description}
+                    </div>
+                `).join('')}
+            </div>
+
+            <div>
+                <h3>Najpopularniejsze stanowiska</h3>
+                ${data.popular_jobs.map((job, index) => `
+                    <p>${index + 1}. ${job.title} (${job.count} CV)</p>
+                `).join('')}
+            </div>
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function exportToCSV(data) {
+    const csvData = [
+        ['Nazwa', 'Wartość'],
+        ['Imię i nazwisko', data.name],
+        ['Email', data.email],
+        ['Przesłane CV', data.stats.cv_count],
+        ['Zoptymalizowane CV', data.stats.optimized_count],
+        ['Przeanalizowane CV', data.stats.analyzed_count],
+        ['Wskaźnik sukcesu (%)', data.stats.success_rate],
+        ['Wskaźnik produktywności (%)', data.stats.productivity_score],
+        ['Zaoszczędzony czas (h)', data.stats.time_saved_hours],
+        ['Wiek konta (dni)', data.stats.account_age_days],
+        ['Listy motywacyjne', data.stats.cover_letters],
+        ['Pytania rekrutacyjne', data.stats.interview_questions],
+        ['Analizy kompetencji', data.stats.skills_analyses],
+        ['Zainwestowano (zł)', data.stats.total_spent]
+    ];
+
+    // Add popular jobs
+    csvData.push(['', '']); // Empty row
+    csvData.push(['Popularne stanowiska', 'Liczba CV']);
+    data.popular_jobs.forEach(job => {
+        csvData.push([job.title, job.count]);
+    });
+
+    // Add achievements
+    csvData.push(['', '']); // Empty row
+    csvData.push(['Osiągnięcia', 'Opis']);
+    data.achievements.forEach(achievement => {
+        csvData.push([achievement.name, achievement.description]);
+    });
+
+    const csvContent = csvData.map(row => 
+        row.map(cell => `"${cell}"`).join(',')
+    ).join('\\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `cv_optimizer_profil_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 </script>
 {% endblock %}
