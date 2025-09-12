@@ -339,13 +339,13 @@ def create_fallback_hierarchy(primary_model, task_type):
     """
     🔄 TWORZENIE HIERARCHII FALLBACK MODELI
     """
-    # Wszystkie modele posortowane według jakości dla danego zadania
+    # 🆓 PRIORITET BEZPŁATNYCH MODELI - idealne dla użytkowników bez kluczy płatnych
     model_hierarchy = {
-        "optymalizacja_cv": ["qwen", "claude", "llama", "gpt4", "deepseek", "gemini"],
-        "analiza_jakosci": ["claude", "qwen", "gemini", "gpt4", "deepseek", "llama"],
-        "listy_motywacyjne": ["claude", "deepseek", "qwen", "gpt4", "gemini", "llama"],
-        "pytania_rekrutacyjne": ["gpt4", "deepseek", "gemini", "claude", "qwen", "llama"],
-        "analiza_luk": ["claude", "gemini", "qwen", "deepseek", "gpt4", "llama"]
+        "optymalizacja_cv": ["qwen", "deepseek", "gemini", "claude", "gpt4", "llama"],
+        "analiza_jakosci": ["qwen", "gemini", "deepseek", "claude", "gpt4", "llama"],
+        "listy_motywacyjne": ["deepseek", "qwen", "gemini", "claude", "gpt4", "llama"],
+        "pytania_rekrutacyjne": ["deepseek", "gemini", "qwen", "gpt4", "claude", "llama"],
+        "analiza_luk": ["gemini", "qwen", "deepseek", "claude", "gpt4", "llama"]
     }
     
     hierarchy = model_hierarchy.get(task_type, ["qwen", "deepseek", "claude", "gpt4", "gemini", "llama"])
