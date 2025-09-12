@@ -48,6 +48,14 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
+
+# Add cache control headers for Replit compatibility
+@app.after_request
+def after_request(response):
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 # Require SESSION_SECRET in production
 SESSION_SECRET = os.environ.get("SESSION_SECRET")
 if not SESSION_SECRET:
