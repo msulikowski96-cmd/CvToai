@@ -1,13 +1,18 @@
+
 const CACHE_NAME = "cv-optimizer-v1.0.0";
 const STATIC_CACHE = "cv-optimizer-static-v1.0.0";
 const RUNTIME_CACHE = "cv-optimizer-runtime-v1.0.0";
 
-// Assets to cache on install
+// Updated assets to cache on install
 const STATIC_ASSETS = [
     "/",
     "/manifest.json",
     "/static/css/custom.css",
     "/static/js/main.js",
+    "/icons/icon-512.png",
+    "/static/icon-192.png",
+    "/static/icon-32.png",
+    "/static/icon-16.png",
     "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css",
     "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
@@ -107,6 +112,7 @@ async function handleSameOriginRequest(request) {
     // Static assets (CSS, JS, images) - cache first
     if (
         url.pathname.startsWith("/static/") ||
+        url.pathname.startsWith("/icons/") ||
         url.pathname.endsWith(".css") ||
         url.pathname.endsWith(".js") ||
         url.pathname.endsWith(".png") ||
@@ -149,7 +155,7 @@ async function cacheFirst(request, cacheName) {
             console.log("[SW] Cache hit:", request.url);
 
             // Update cache in background if not a static asset
-            if (!request.url.includes("/static/")) {
+            if (!request.url.includes("/static/") && !request.url.includes("/icons/")) {
                 fetch(request)
                     .then((response) => {
                         if (response.status === 200) {
@@ -340,8 +346,8 @@ self.addEventListener("push", (event) => {
         event.waitUntil(
             self.registration.showNotification(data.title, {
                 body: data.message,
-                icon: "/static/icons/icon-192x192.png",
-                badge: "/static/icons/icon-192x192.png",
+                icon: "/icons/icon-512.png",
+                badge: "/static/icon-192.png",
                 tag: "cv-optimizer-notification",
                 renotify: true,
                 requireInteraction: false,
