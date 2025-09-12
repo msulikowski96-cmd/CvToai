@@ -35,13 +35,13 @@ args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 name = "Flask App"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python main.py"
 waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [agent]
 expertMode = true
@@ -50,10 +50,6 @@ integrations = ["python_database:1.0.0"]
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 33301
-externalPort = 3002
 
 [[ports]]
 localPort = 39941
