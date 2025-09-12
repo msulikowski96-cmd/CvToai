@@ -4,7 +4,7 @@ run = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 
 [nix]
 channel = "stable-25_05"
-packages = ["libev", "openssl", "postgresql", "openssh_gssapi"]
+packages = ["libev", "openssl", "postgresql"]
 
 [deployment]
 deploymentTarget = "autoscale"
