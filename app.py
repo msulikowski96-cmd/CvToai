@@ -1582,6 +1582,16 @@ def health():
     return {'status': 'healthy', 'timestamp': datetime.now().isoformat()}
 
 
+@app.route('/api')
+def api_status():
+    """Basic API status endpoint"""
+    return jsonify({
+        'status': 'online',
+        'version': '1.0.0',
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
+
 @app.route('/contact')
 def contact():
     """Strona kontakt"""
@@ -1945,6 +1955,15 @@ def too_large(e):
         'success': False,
         'message': 'Plik jest za duży. Maksymalny rozmiar to 16MB.'
     }), 413
+
+
+@app.errorhandler(400)
+def bad_request(e):
+    logger.error(f"Bad request error: {str(e)}")
+    return jsonify({
+        'success': False,
+        'message': 'Nieprawidłowe żądanie.'
+    }), 400
 
 
 @app.errorhandler(500)
