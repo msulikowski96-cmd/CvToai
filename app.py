@@ -123,32 +123,23 @@ ALLOWED_EXTENSIONS = {'pdf'}
 ALLOWED_AVATAR_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_AVATAR_SIZE = 2 * 1024 * 1024  # 2MB max avatar size
 
-# Stripe configuration - enforce test-only mode for safety
-# Only use live keys when explicitly enabled AND live keys are provided
-USE_LIVE_STRIPE = os.environ.get('USE_LIVE_STRIPE', '').lower() == 'true'
+# Stripe configuration - check for live keys
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
-if USE_LIVE_STRIPE:
-    STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-    STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
-    STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
-    
-    if STRIPE_SECRET_KEY and STRIPE_SECRET_KEY.startswith('sk_live_'):
-        logger.warning("Using LIVE Stripe keys - real payments will be processed!")
-    else:
-        logger.error("USE_LIVE_STRIPE=true but no valid live keys found - disabling payments")
-        STRIPE_SECRET_KEY = None
-        STRIPE_PUBLISHABLE_KEY = None
-        STRIPE_WEBHOOK_SECRET = None
-else:
-    # Enforce test keys only - never fall back to live keys
+# If no live keys, fall back to test keys
+if not STRIPE_SECRET_KEY or not STRIPE_SECRET_KEY.startswith('sk_live_'):
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_TEST_SECRET_KEY')
     STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_TEST_PUBLISHABLE_KEY') 
     STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_TEST_WEBHOOK_SECRET')
     
     if not STRIPE_SECRET_KEY:
-        logger.info("No test keys configured - payment functionality disabled for safety")
+        logger.info("No Stripe keys configured - payment functionality disabled")
     else:
-        logger.info("Using Stripe TEST mode - safe for development")
+        logger.info("Using Stripe TEST mode")
+else:
+    logger.warning("Using LIVE Stripe keys - real payments will be processed!")
 
 # Initialize Stripe only if keys are available
 if STRIPE_SECRET_KEY:
