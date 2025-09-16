@@ -991,6 +991,13 @@ def upload_avatar():
                 'message': 'Nie wybrano pliku awatara'
             })
         
+        # Check file extension first
+        if not allowed_avatar_file(file.filename):
+            return jsonify({
+                'success': False,
+                'message': 'Awatar musi być plikiem graficznym. Dozwolone formaty: PNG, JPG, JPEG, GIF. Pliki PDF nie są obsługiwane jako awatary.'
+            })
+        
         # Check file size
         file.seek(0, 2)  # Go to end of file
         file_size = file.tell()
@@ -1002,38 +1009,32 @@ def upload_avatar():
                 'message': 'Plik awatara jest za duży (maksymalnie 2MB)'
             })
         
-        if file and allowed_avatar_file(file.filename):
-            # Generate unique filename
-            file_extension = file.filename.rsplit('.', 1)[1].lower()
-            filename = f"avatar_{current_user.id}_{uuid.uuid4().hex[:8]}.{file_extension}"
-            file_path = os.path.join(AVATAR_FOLDER, filename)
-            
-            # Remove old avatar if exists
-            if current_user.avatar_filename:
-                old_avatar_path = os.path.join(AVATAR_FOLDER, current_user.avatar_filename)
-                if os.path.exists(old_avatar_path):
-                    try:
-                        os.remove(old_avatar_path)
-                    except OSError as e:
-                        logger.warning(f"Could not remove old avatar: {str(e)}")
-            
-            # Save new avatar
-            file.save(file_path)
-            
-            # Update user record
-            current_user.avatar_filename = filename
-            db.session.commit()
-            
-            return jsonify({
-                'success': True,
-                'message': 'Awatar został zaktualizowany',
-                'avatar_url': url_for('serve_avatar', filename=filename)
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'message': 'Nieprawidłowy format pliku. Dozwolone formaty: PNG, JPG, JPEG, GIF'
-            })
+        # Generate unique filename
+        file_extension = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"avatar_{current_user.id}_{uuid.uuid4().hex[:8]}.{file_extension}"
+        file_path = os.path.join(AVATAR_FOLDER, filename)
+        
+        # Remove old avatar if exists
+        if current_user.avatar_filename:
+            old_avatar_path = os.path.join(AVATAR_FOLDER, current_user.avatar_filename)
+            if os.path.exists(old_avatar_path):
+                try:
+                    os.remove(old_avatar_path)
+                except OSError as e:
+                    logger.warning(f"Could not remove old avatar: {str(e)}")
+        
+        # Save new avatar
+        file.save(file_path)
+        
+        # Update user record
+        current_user.avatar_filename = filename
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Awatar został zaktualizowany',
+            'avatar_url': url_for('serve_avatar', filename=filename)
+        })
             
     except Exception as e:
         logger.error(f"Error uploading avatar: {str(e)}")

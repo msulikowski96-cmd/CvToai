@@ -26,7 +26,7 @@
                                             <i class="bi bi-person-circle text-white" style="font-size: 2.5rem;"></i>
                                         </div>
                                         {% endif %}
-                                        
+
                                         <!-- Avatar upload button overlay -->
                                         <div class="position-absolute bottom-0 end-0 translate-middle-x" style="margin-bottom: -8px;">
                                             <button class="btn btn-sm btn-primary rounded-circle p-1" 
@@ -38,7 +38,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    
+
                                     {% if stats.is_premium %}
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
                                         <i class="bi bi-star-fill"></i>
@@ -712,14 +712,14 @@ document.addEventListener('DOMContentLoaded', function() {
             console.warn('Error parsing monthly activity data:', e);
             monthlyData = [];
         }
-        
+
         // Handle empty data case
         if (monthlyData.length === 0) {
             monthlyData = [
                 { month: 'Brak danych', count: 0 }
             ];
         }
-        
+
         new Chart(monthlyChartCtx, {
             type: 'line',
             data: {
@@ -808,7 +808,7 @@ function exportProfileData(format) {
     if (!userData.name || userData.name.trim() === '') {
         userData.name = 'Użytkownik CV Optimizer Pro';
     }
-    
+
     if (!userData.email || userData.email.trim() === '') {
         alert('Błąd: Brak danych email do eksportu');
         return;
@@ -834,7 +834,7 @@ function exportToPDF(data) {
         const safeEmail = (data.email || 'brak@email.com').replace(/[<>&"]/g, '');
         const exportDate = new Date().toLocaleDateString('pl-PL');
         const exportTime = new Date().toLocaleTimeString('pl-PL');
-        
+
         // Create a printable version of the profile
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
@@ -875,7 +875,7 @@ function exportToPDF(data) {
                         <p>Wiek konta: ${data.stats.account_age_days || 0} dni</p>
                     </div>
                 </div>
-                
+
                 <div class="stat-grid">
                     <div class="stat-card">
                         <h3>📄 Przesłane CV</h3>
@@ -956,14 +956,14 @@ function exportToPDF(data) {
             </body>
             </html>
         `);
-        
+
         printWindow.document.close();
-        
+
         // Wait for content to load before printing
         setTimeout(() => {
             printWindow.print();
         }, 500);
-        
+
     } catch (error) {
         console.error('Error exporting to PDF:', error);
         alert('Wystąpił błąd podczas eksportu do PDF. Proszę spróbować ponownie.');
@@ -1051,29 +1051,29 @@ function exportToCSV(data) {
         const blob = new Blob([csvContentWithBOM], { 
             type: 'text/csv;charset=utf-8;' 
         });
-        
+
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-        
+
         // Generate safe filename with timestamp
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '_');
         const filename = `cv_optimizer_profil_${timestamp}.csv`;
-        
+
         link.setAttribute('href', url);
         link.setAttribute('download', filename);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
-        
+
         link.click();
-        
+
         // Cleanup
         setTimeout(() => {
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         }, 100);
-        
+
         console.log('CSV export completed successfully');
-        
+
     } catch (error) {
         console.error('Error exporting to CSV:', error);
         alert('Wystąpił błąd podczas eksportu do CSV. Proszę spróbować ponownie.');
@@ -1107,32 +1107,32 @@ function uploadAvatar() {
     const formData = new FormData(form);
     const loadingBtn = document.getElementById('uploadAvatarBtn');
     const originalText = loadingBtn.innerHTML;
-    
+
     // Validate file selection
     const fileInput = document.getElementById('avatar');
     if (!fileInput.files.length) {
         showAlert('error', 'Proszę wybrać plik awatara');
         return;
     }
-    
+
     const file = fileInput.files[0];
     const maxSize = 2 * 1024 * 1024; // 2MB
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    
+
     if (file.size > maxSize) {
         showAlert('error', 'Plik jest za duży. Maksymalny rozmiar to 2MB.');
         return;
     }
-    
+
     if (!allowedTypes.includes(file.type)) {
-        showAlert('error', 'Nieprawidłowy format pliku. Dozwolone formaty: JPG, PNG, GIF');
+        showAlert('error', 'Awatar musi być plikiem graficznym. Dozwolone formaty: JPG, PNG, GIF. Pliki PDF nie są obsługiwane jako awatary.');
         return;
     }
-    
+
     // Show loading state
     loadingBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Przesyłanie...';
     loadingBtn.disabled = true;
-    
+
     fetch('/profile/upload-avatar', {
         method: 'POST',
         body: formData
@@ -1165,42 +1165,42 @@ function saveProfile() {
     const lastName = document.getElementById('editLastName').value.trim();
     const bio = document.getElementById('editBio').value.trim();
     const location = document.getElementById('editLocation').value.trim();
-    
+
     // Validate required fields
     if (!firstName || !lastName) {
         showAlert('error', 'Imię i nazwisko są wymagane');
         return;
     }
-    
+
     if (firstName.length > 50 || lastName.length > 50) {
         showAlert('error', 'Imię i nazwisko nie mogą być dłuższe niż 50 znaków');
         return;
     }
-    
+
     if (bio.length > 500) {
         showAlert('error', 'Bio nie może być dłuższe niż 500 znaków');
         return;
     }
-    
+
     if (location.length > 100) {
         showAlert('error', 'Lokalizacja nie może być dłuższa niż 100 znaków');
         return;
     }
-    
+
     const loadingBtn = document.getElementById('saveProfileBtn');
     const originalText = loadingBtn.innerHTML;
-    
+
     // Show loading state
     loadingBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Zapisywanie...';
     loadingBtn.disabled = true;
-    
+
     const data = {
         first_name: firstName,
         last_name: lastName,
         bio: bio,
         location: location
     };
-    
+
     fetch('/profile/edit', {
         method: 'POST',
         headers: {
@@ -1240,13 +1240,13 @@ function showAlert(type, message) {
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
-    
+
     // Remove existing alerts
     document.querySelectorAll('.alert').forEach(alert => alert.remove());
-    
+
     // Add new alert
     document.body.insertAdjacentHTML('beforeend', alertHtml);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         const alert = document.querySelector('.alert');
@@ -1261,25 +1261,25 @@ function validateAvatarFile(input) {
     const file = input.files[0];
     const preview = document.getElementById('avatar-preview');
     const previewImg = document.getElementById('avatar-preview-img');
-    
+
     if (file) {
         const maxSize = 2 * 1024 * 1024; // 2MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-        
+
         if (file.size > maxSize) {
             showAlert('error', 'Plik jest za duży. Maksymalny rozmiar to 2MB.');
             input.value = '';
             preview.style.display = 'none';
             return;
         }
-        
+
         if (!allowedTypes.includes(file.type)) {
-            showAlert('error', 'Nieprawidłowy format pliku. Dozwolone formaty: JPG, PNG, GIF');
+            showAlert('error', 'Awatar musi być plikiem graficznym. Dozwolone formaty: JPG, PNG, GIF. Pliki PDF nie są obsługiwane jako awatary.');
             input.value = '';
             preview.style.display = 'none';
             return;
         }
-        
+
         // Show preview
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -1327,7 +1327,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         {% endif %}
                         <p class="text-muted mt-2">Aktualny awatar</p>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="avatar" class="form-label fw-medium">Wybierz nowy awatar</label>
                         <input type="file" class="form-control" id="avatar" name="avatar" 
