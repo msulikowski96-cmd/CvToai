@@ -7,8 +7,8 @@ channel = "stable-25_05"
 packages = ["libev", "openssl", "postgresql"]
 
 [deployment]
-deploymentTarget = "vm"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "app:app"]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "-k", "gevent", "-w", "${WEB_CONCURRENCY:-2}", "--timeout", "60", "--log-level", "info", "--bind", "0.0.0.0:$PORT", "app:app"]
 
 [workflows]
 runButton = "Project"
@@ -40,7 +40,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python main.py"
+args = "gunicorn -k gevent -w 2 --timeout 60 --log-level info --bind 0.0.0.0:5000 app:app"
 waitForPort = 5000
 
 [agent]
@@ -50,10 +50,6 @@ integrations = ["python_database:1.0.0"]
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 36457
-externalPort = 3003
 
 [[ports]]
 localPort = 37205

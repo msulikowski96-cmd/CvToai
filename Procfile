@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
+web: gunicorn -k gevent -w ${WEB_CONCURRENCY:-2} --timeout 60 --log-level info --bind 0.0.0.0:$PORT app:app

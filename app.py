@@ -87,6 +87,9 @@ if not database_url:
     database_url = "sqlite:///cv_optimizer.db"
     logger.warning("No DATABASE_URL found, using SQLite fallback")
 else:
+    # Normalize postgres:// to postgresql:// for SQLAlchemy compatibility
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
     logger.info("Using Neon Database (PostgreSQL)")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
