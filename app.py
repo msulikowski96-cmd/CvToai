@@ -82,17 +82,28 @@ def ads_txt():
                                'ads.txt')
 
 
-# Configure the database - using PostgreSQL
+# Configure the database - using PostgreSQL with proper connection string
 database_url = os.environ.get("DATABASE_URL")
 if not database_url:
     # Fallback to SQLite for development if no DATABASE_URL
     database_url = "sqlite:///cv_optimizer.db"
     logger.warning("No DATABASE_URL found, using SQLite fallback")
 else:
-    # Normalize postgres:// to postgresql:// for SQLAlchemy compatibility
-    if database_url.startswith("postgres://"):
-        database_url = database_url.replace("postgres://", "postgresql://", 1)
-    logger.info("Using PostgreSQL database")
+    # Build proper Neon connection string from individual components
+    pg_host = os.environ.get("PGHOST")
+    pg_user = os.environ.get("PGUSER") 
+    pg_password = os.environ.get("PGPASSWORD")
+    pg_database = os.environ.get("PGDATABASE")
+    pg_port = os.environ.get("PGPORT", "5432")
+    
+    if all([pg_host, pg_user, pg_password, pg_database]):
+        database_url = f"postgresql://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_database}?sslmode=require"
+        logger.info("Using PostgreSQL with individual env vars")
+    else:
+        # Normalize postgres:// to postgresql:// for SQLAlchemy compatibility
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        logger.info("Using PostgreSQL database from DATABASE_URL")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 logger.info(
@@ -123,23 +134,18 @@ ALLOWED_EXTENSIONS = {'pdf'}
 ALLOWED_AVATAR_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_AVATAR_SIZE = 2 * 1024 * 1024  # 2MB max avatar size
 
-# Stripe configuration - check for live keys
+# Stripe configuration - use provided keys
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
-# If no live keys, fall back to test keys
-if not STRIPE_SECRET_KEY or not STRIPE_SECRET_KEY.startswith('sk_live_'):
-    STRIPE_SECRET_KEY = os.environ.get('STRIPE_TEST_SECRET_KEY')
-    STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_TEST_PUBLISHABLE_KEY') 
-    STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_TEST_WEBHOOK_SECRET')
-    
-    if not STRIPE_SECRET_KEY:
-        logger.info("No Stripe keys configured - payment functionality disabled")
+if STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY:
+    if STRIPE_SECRET_KEY.startswith('sk_live_'):
+        logger.warning("Using LIVE Stripe keys - real payments will be processed!")
     else:
         logger.info("Using Stripe TEST mode")
 else:
-    logger.warning("Using LIVE Stripe keys - real payments will be processed!")
+    logger.info("Stripe not fully configured - payment functionality disabled")
 
 # Initialize Stripe only if keys are available
 if STRIPE_SECRET_KEY:
@@ -2278,8 +2284,8 @@ def register():
 app.register_blueprint(auth)
 
 # Create database tables with error handling
-# Database initialization - run by default for development
-should_initialize = os.environ.get("INITIALIZE_DB", "true").lower() == "true"
+# Database initialization - always run for development environment
+should_initialize = True
 if should_initialize:
     try:
         with app.app_context():
