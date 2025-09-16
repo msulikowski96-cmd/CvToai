@@ -364,7 +364,7 @@ def optimize_cv(cv_text,
 
         prompt = create_optimization_prompt(cv_text, job_title, job_description, is_premium)
 
-        # Set timeout to 45 seconds (less than gunicorn's 60s timeout)
+        # Set timeout to 90 seconds (less than gunicorn's 60s timeout)
         response = session.post(
             OPENROUTER_BASE_URL,
             headers={
@@ -379,7 +379,7 @@ def optimize_cv(cv_text,
                 "max_tokens": 4000 if is_premium else 2000,
                 "temperature": 0.1
             },
-            timeout=45
+            timeout=90
         )
 
         if response.status_code == 200:
@@ -391,7 +391,7 @@ def optimize_cv(cv_text,
         return None
 
     except requests.exceptions.Timeout:
-        logger.error("OpenRouter API request timed out after 45 seconds")
+        logger.error("OpenRouter API request timed out after 90 seconds")
         return None
     except requests.exceptions.RequestException as e:
         logger.error(f"Request error in optimize_cv: {str(e)}")
@@ -412,75 +412,75 @@ def analyze_cv_quality(cv_text,
     try:
         # Bardziej zaawansowany prompt dla lepszej analizy
         prompt = f"""
-🎯 ZADANIE: Przeprowadź PROFESJONALNĄ ANALIZĘ JAKOŚCI CV dla stanowiska "{job_title}"
+    🎯 ZADANIE: Przeprowadź PROFESJONALNĄ ANALIZĘ JAKOŚCI CV dla stanowiska "{job_title}"
 
-📋 DANE WEJŚCIOWE:
-CV DO ANALIZY:
-{cv_text[:4000]}
+    📋 DANE WEJŚCIOWE:
+    CV DO ANALIZY:
+    {cv_text[:4000]}
 
-OPIS STANOWISKA:
-{job_description[:2000]}
+    OPIS STANOWISKA:
+    {job_description[:2000]}
 
-🔍 KRYTERIA OCENY (każde 0-20 punktów):
-1. **STRUKTURA I FORMATOWANIE** (0-20p)
-   - Czytelność i organizacja sekcji
-   - Użycie właściwych nagłówków
-   - Długość i proporcje treści
+    🔍 KRYTERIA OCENY (każde 0-20 punktów):
+    1. **STRUKTURA I FORMATOWANIE** (0-20p)
+       - Czytelność i organizacja sekcji
+       - Użycie właściwych nagłówków
+       - Długość i proporcje treści
 
-2. **JAKOŚĆ TREŚCI** (0-20p)
-   - Konkretne osiągnięcia i wyniki
-   - Użycie liczb i metryk
-   - Profesjonalizm opisów
+    2. **JAKOŚĆ TREŚCI** (0-20p)
+       - Konkretne osiągnięcia i wyniki
+       - Użycie liczb i metryk
+       - Profesjonalizm opisów
 
-3. **DOPASOWANIE DO STANOWISKA** (0-20p)
-   - Zgodność z wymaganiami
-   - Słowa kluczowe z oferty
-   - Relevantne doświadczenie
+    3. **DOPASOWANIE DO STANOWISKA** (0-20p)
+       - Zgodność z wymaganiami
+       - Słowa kluczowe z oferty
+       - Relevantne doświadczenie
 
-4. **DOŚWIADCZENIE I UMIEJĘTNOŚCI** (0-20p)
-   - Progresja kariery
-   - Różnorodność umiejętności
-   - Poziom senioratu
+    4. **DOŚWIADCZENIE I UMIEJĘTNOŚCI** (0-20p)
+       - Progresja kariery
+       - Różnorodność umiejętności
+       - Poziom senioratu
 
-5. **KOMPLETNOŚĆ I SZCZEGÓŁY** (0-20p)
-   - Wszystkie potrzebne sekcje
-   - Daty i okresy pracy
-   - Informacje kontaktowe
+    5. **KOMPLETNOŚĆ I SZCZEGÓŁY** (0-20p)
+       - Wszystkie potrzebne sekcje
+       - Daty i okresy pracy
+       - Informacje kontaktowe
 
-📊 WYMAGANY FORMAT ODPOWIEDZI:
-```
-OCENA KOŃCOWA: [0-100]/100
+    📊 WYMAGANY FORMAT ODPOWIEDZI:
+    ```
+    OCENA KOŃCOWA: [0-100]/100
 
-SZCZEGÓŁOWA PUNKTACJA:
-• Struktura i formatowanie: [0-20]/20
-• Jakość treści: [0-20]/20
-• Dopasowanie do stanowiska: [0-20]/20
-• Doświadczenie i umiejętności: [0-20]/20
-• Kompletność i szczegóły: [0-20]/20
+    SZCZEGÓŁOWA PUNKTACJA:
+    • Struktura i formatowanie: [0-20]/20
+    • Jakość treści: [0-20]/20
+    • Dopasowanie do stanowiska: [0-20]/20
+    • Doświadczenie i umiejętności: [0-20]/20
+    • Kompletność i szczegóły: [0-20]/20
 
-🟢 MOCNE STRONY:
-- [minimum 3 konkretne punkty]
+    🟢 MOCNE STRONY:
+    - [minimum 3 konkretne punkty]
 
-🟡 OBSZARY DO POPRAWY:
-- [minimum 3 konkretne sugestie]
+    🟡 OBSZARY DO POPRAWY:
+    - [minimum 3 konkretne sugestie]
 
-🔥 KLUCZOWE REKOMENDACJE:
-- [3-5 najważniejszych zmian do wprowadzenia]
+    🔥 KLUCZOWE REKOMENDACJE:
+    - [3-5 najważniejszych zmian do wprowadzenia]
 
-💡 SŁOWA KLUCZOWE DO DODANIA:
-- [5-7 słów kluczowych z opisu stanowiska]
+    💡 SŁOWA KLUCZOWE DO DODANIA:
+    - [5-7 słów kluczowych z opisu stanowiska]
 
-🎯 WSKAZÓWKI BRANŻOWE:
-- [2-3 specyficzne porady dla tej branży/stanowiska]
-```
+    🎯 WSKAZÓWKI BRANŻOWE:
+    - [2-3 specyficzne porady dla tej branży/stanowiska]
+    ```
 
-✅ DODATKOWE INSTRUKCJE:
-- Bądź konkretny i praktyczny
-- Wskaż dokładnie CO i GDZIE poprawić
-- Oceń realistycznie ale konstruktywnie
-- Napisz w języku polskim
-- Używaj emoji dla lepszej czytelności
-"""
+    ✅ DODATKOWE INSTRUKCJE:
+    - Bądź konkretny i praktyczny
+    - Wskaż dokładnie CO i GDZIE poprawić
+    - Oceń realistycznie ale konstruktywnie
+    - Napisz w języku polskim
+    - Używaj emoji dla lepszej czytelności
+    """
 
         # Użyj lepszych parametrów dla premium użytkowników
         max_tokens = 3000 if is_premium else 1500
