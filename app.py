@@ -116,7 +116,10 @@ else:
 # File upload configuration
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 UPLOAD_FOLDER = 'uploads'
+AVATAR_FOLDER = 'uploads/avatars'
 ALLOWED_EXTENSIONS = {'pdf'}
+ALLOWED_AVATAR_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+MAX_AVATAR_SIZE = 2 * 1024 * 1024  # 2MB max avatar size
 
 # Stripe configuration
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
@@ -177,6 +180,11 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
     active = db.Column(db.Boolean, default=True)
+    
+    # Pola profilu użytkownika
+    avatar_filename = db.Column(db.String(255), nullable=True)
+    bio = db.Column(db.Text, nullable=True)
+    location = db.Column(db.String(100), nullable=True)
 
     # Relacje dla statystyk
     cv_uploads = db.relationship('CVUpload', backref='user', lazy=True)
@@ -806,6 +814,11 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def allowed_avatar_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_AVATAR_EXTENSIONS
+
+
 # Routes
 @app.route('/')
 def index():
@@ -956,6 +969,147 @@ def profile():
         logger.error(f"Error in profile route: {str(e)}")
         flash('Wystąpił błąd podczas ładowania profilu. Spróbuj ponownie.', 'error')
         return redirect(url_for('dashboard'))
+
+
+@app.route('/profile/upload-avatar', methods=['POST'])
+@login_required
+def upload_avatar():
+    """Upload user avatar image"""
+    try:
+        if 'avatar' not in request.files:
+            return jsonify({
+                'success': False,
+                'message': 'Nie wybrano pliku awatara'
+            })
+        
+        file = request.files['avatar']
+        
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'message': 'Nie wybrano pliku awatara'
+            })
+        
+        # Check file size
+        file.seek(0, 2)  # Go to end of file
+        file_size = file.tell()
+        file.seek(0)  # Reset position
+        
+        if file_size > MAX_AVATAR_SIZE:
+            return jsonify({
+                'success': False,
+                'message': 'Plik awatara jest za duży (maksymalnie 2MB)'
+            })
+        
+        if file and allowed_avatar_file(file.filename):
+            # Generate unique filename
+            file_extension = file.filename.rsplit('.', 1)[1].lower()
+            filename = f"avatar_{current_user.id}_{uuid.uuid4().hex[:8]}.{file_extension}"
+            file_path = os.path.join(AVATAR_FOLDER, filename)
+            
+            # Remove old avatar if exists
+            if current_user.avatar_filename:
+                old_avatar_path = os.path.join(AVATAR_FOLDER, current_user.avatar_filename)
+                if os.path.exists(old_avatar_path):
+                    try:
+                        os.remove(old_avatar_path)
+                    except OSError as e:
+                        logger.warning(f"Could not remove old avatar: {str(e)}")
+            
+            # Save new avatar
+            file.save(file_path)
+            
+            # Update user record
+            current_user.avatar_filename = filename
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Awatar został zaktualizowany',
+                'avatar_url': url_for('serve_avatar', filename=filename)
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Nieprawidłowy format pliku. Dozwolone formaty: PNG, JPG, JPEG, GIF'
+            })
+            
+    except Exception as e:
+        logger.error(f"Error uploading avatar: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Wystąpił błąd podczas uploadu awatara'
+        })
+
+
+@app.route('/profile/avatar/<filename>')
+def serve_avatar(filename):
+    """Serve user avatar images"""
+    try:
+        return send_from_directory(AVATAR_FOLDER, filename)
+    except Exception as e:
+        logger.error(f"Error serving avatar {filename}: {str(e)}")
+        # Return a default avatar or 404
+        return '', 404
+
+
+@app.route('/profile/edit', methods=['POST'])
+@login_required
+def edit_profile():
+    """Update user profile information"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        first_name = data.get('first_name', '').strip()
+        last_name = data.get('last_name', '').strip()
+        bio = data.get('bio', '').strip()
+        location = data.get('location', '').strip()
+        
+        if not first_name or not last_name:
+            return jsonify({
+                'success': False,
+                'message': 'Imię i nazwisko są wymagane'
+            })
+        
+        # Validate field lengths
+        if len(first_name) > 50 or len(last_name) > 50:
+            return jsonify({
+                'success': False,
+                'message': 'Imię i nazwisko nie mogą być dłuższe niż 50 znaków'
+            })
+        
+        if len(bio) > 500:
+            return jsonify({
+                'success': False,
+                'message': 'Bio nie może być dłuższe niż 500 znaków'
+            })
+        
+        if len(location) > 100:
+            return jsonify({
+                'success': False,
+                'message': 'Lokalizacja nie może być dłuższa niż 100 znaków'
+            })
+        
+        # Update user data
+        current_user.first_name = first_name
+        current_user.last_name = last_name
+        current_user.bio = bio
+        current_user.location = location
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Profil został zaktualizowany'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error updating profile: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Wystąpił błąd podczas aktualizacji profilu'
+        })
 
 
 @app.route('/logout')

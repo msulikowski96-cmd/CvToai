@@ -12,22 +12,63 @@
                         <div class="d-flex align-items-center justify-content-between flex-wrap">
                             <div class="d-flex align-items-center mb-3 mb-md-0">
                                 <div class="position-relative me-4">
-                                    <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center shadow-lg" 
-                                         style="width: 80px; height: 80px; background: var(--primary-gradient);">
-                                        <i class="bi bi-person-circle text-white" style="font-size: 2.5rem;"></i>
+                                    <div class="position-relative">
+                                        {% if current_user.avatar_filename %}
+                                        <img src="{{ url_for('serve_avatar', filename=current_user.avatar_filename) }}" 
+                                             alt="Avatar użytkownika" 
+                                             class="rounded-circle shadow-lg" 
+                                             style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" 
+                                             onclick="$('#avatarUploadModal').modal('show')">
+                                        {% else %}
+                                        <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center shadow-lg" 
+                                             style="width: 80px; height: 80px; background: var(--primary-gradient); cursor: pointer;"
+                                             onclick="$('#avatarUploadModal').modal('show')">
+                                            <i class="bi bi-person-circle text-white" style="font-size: 2.5rem;"></i>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <!-- Avatar upload button overlay -->
+                                        <div class="position-absolute bottom-0 end-0 translate-middle-x" style="margin-bottom: -8px;">
+                                            <button class="btn btn-sm btn-primary rounded-circle p-1" 
+                                                    style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;"
+                                                    onclick="$('#avatarUploadModal').modal('show')"
+                                                    data-bs-toggle="tooltip" 
+                                                    title="Zmień awatar">
+                                                <i class="bi bi-camera" style="font-size: 0.75rem;"></i>
+                                            </button>
+                                        </div>
                                     </div>
+                                    
                                     {% if stats.is_premium %}
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
                                         <i class="bi bi-star-fill"></i>
                                     </span>
                                     {% endif %}
                                 </div>
-                                <div>
-                                    <h2 class="mb-1 fw-bold text-dark">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <h2 class="mb-0 fw-bold text-dark">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
+                                        <button class="btn btn-outline-primary btn-sm" 
+                                                onclick="$('#editProfileModal').modal('show')"
+                                                data-bs-toggle="tooltip" 
+                                                title="Edytuj profil">
+                                            <i class="bi bi-pencil me-1"></i>Edytuj
+                                        </button>
+                                    </div>
                                     <p class="text-muted mb-1">@{{ current_user.username }}</p>
-                                    <p class="text-muted mb-0">
+                                    <p class="text-muted mb-1">
                                         <i class="bi bi-envelope me-2"></i>{{ current_user.email }}
                                     </p>
+                                    {% if current_user.location %}
+                                    <p class="text-muted mb-1">
+                                        <i class="bi bi-geo-alt me-2"></i>{{ current_user.location }}
+                                    </p>
+                                    {% endif %}
+                                    {% if current_user.bio %}
+                                    <p class="text-secondary mt-2 mb-1" style="font-style: italic;">
+                                        "{{ current_user.bio }}"
+                                    </p>
+                                    {% endif %}
                                     <p class="text-muted mb-0">
                                         <i class="bi bi-calendar me-2"></i>Dołączył {{ stats.account_age }} dni temu
                                     </p>
@@ -1038,5 +1079,240 @@ function exportToCSV(data) {
         alert('Wystąpił błąd podczas eksportu do CSV. Proszę spróbować ponownie.');
     }
 }
+
+// Avatar upload functionality
+function uploadAvatar() {
+    const form = document.getElementById('avatarUploadForm');
+    const formData = new FormData(form);
+    const loadingBtn = document.getElementById('uploadAvatarBtn');
+    const originalText = loadingBtn.innerHTML;
+    
+    // Show loading state
+    loadingBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Przesyłanie...';
+    loadingBtn.disabled = true;
+    
+    fetch('/profile/upload-avatar', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showAlert('success', data.message);
+            // Reload page to show new avatar
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showAlert('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error uploading avatar:', error);
+        showAlert('error', 'Wystąpił błąd podczas przesyłania awatara');
+    })
+    .finally(() => {
+        // Reset button state
+        loadingBtn.innerHTML = originalText;
+        loadingBtn.disabled = false;
+    });
+}
+
+// Profile edit functionality
+function saveProfile() {
+    const firstName = document.getElementById('editFirstName').value.trim();
+    const lastName = document.getElementById('editLastName').value.trim();
+    const bio = document.getElementById('editBio').value.trim();
+    const location = document.getElementById('editLocation').value.trim();
+    
+    const loadingBtn = document.getElementById('saveProfileBtn');
+    const originalText = loadingBtn.innerHTML;
+    
+    // Show loading state
+    loadingBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Zapisywanie...';
+    loadingBtn.disabled = true;
+    
+    const data = {
+        first_name: firstName,
+        last_name: lastName,
+        bio: bio,
+        location: location
+    };
+    
+    fetch('/profile/edit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+            // Hide modal and reload page
+            $('#editProfileModal').modal('hide');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showAlert('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error updating profile:', error);
+        showAlert('error', 'Wystąpił błąd podczas aktualizacji profilu');
+    })
+    .finally(() => {
+        // Reset button state
+        loadingBtn.innerHTML = originalText;
+        loadingBtn.disabled = false;
+    });
+}
+
+// Utility function to show alerts
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    // Remove existing alerts
+    document.querySelectorAll('.alert').forEach(alert => alert.remove());
+    
+    // Add new alert
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 </script>
+
+<!-- Avatar Upload Modal -->
+<div class="modal fade" id="avatarUploadModal" tabindex="-1" aria-labelledby="avatarUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 glassmorphism">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="avatarUploadModalLabel">
+                    <i class="bi bi-camera me-2"></i>Zmień awatar
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="avatarUploadForm" enctype="multipart/form-data">
+                    <div class="text-center mb-4">
+                        {% if current_user.avatar_filename %}
+                        <img src="{{ url_for('serve_avatar', filename=current_user.avatar_filename) }}" 
+                             alt="Aktualny awatar" 
+                             class="rounded-circle shadow" 
+                             style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center mx-auto shadow" 
+                             style="width: 100px; height: 100px; background: var(--primary-gradient);">
+                            <i class="bi bi-person-circle text-white" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+                        <p class="text-muted mt-2">Aktualny awatar</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="avatar" class="form-label fw-medium">Wybierz nowy awatar</label>
+                        <input type="file" class="form-control" id="avatar" name="avatar" 
+                               accept=".jpg,.jpeg,.png,.gif" required>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Dozwolone formaty: JPG, PNG, GIF. Maksymalny rozmiar: 2MB
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Anuluj
+                </button>
+                <button type="button" class="btn btn-primary" id="uploadAvatarBtn" onclick="uploadAvatar()">
+                    <i class="bi bi-upload me-2"></i>Prześlij awatar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 glassmorphism">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="editProfileModalLabel">
+                    <i class="bi bi-pencil me-2"></i>Edytuj profil
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editFirstName" class="form-label fw-medium">
+                                <i class="bi bi-person me-2"></i>Imię *
+                            </label>
+                            <input type="text" class="form-control" id="editFirstName" 
+                                   value="{{ current_user.first_name }}" required maxlength="50">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editLastName" class="form-label fw-medium">
+                                <i class="bi bi-person me-2"></i>Nazwisko *
+                            </label>
+                            <input type="text" class="form-control" id="editLastName" 
+                                   value="{{ current_user.last_name }}" required maxlength="50">
+                        </div>
+                        <div class="col-12">
+                            <label for="editLocation" class="form-label fw-medium">
+                                <i class="bi bi-geo-alt me-2"></i>Lokalizacja
+                            </label>
+                            <input type="text" class="form-control" id="editLocation" 
+                                   value="{{ current_user.location or '' }}" 
+                                   placeholder="np. Warszawa, Polska" maxlength="100">
+                            <div class="form-text">Opcjonalne - gdzie się znajdujesz</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="editBio" class="form-label fw-medium">
+                                <i class="bi bi-chat-quote me-2"></i>Bio
+                            </label>
+                            <textarea class="form-control" id="editBio" rows="3" 
+                                      placeholder="Opowiedz coś o sobie..." maxlength="500">{{ current_user.bio or '' }}</textarea>
+                            <div class="form-text">Opcjonalne - krótki opis siebie (max 500 znaków)</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Anuluj
+                </button>
+                <button type="button" class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()">
+                    <i class="bi bi-check-circle me-2"></i>Zapisz zmiany
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
