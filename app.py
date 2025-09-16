@@ -84,17 +84,17 @@ def ads_txt():
                                'ads.txt')
 
 
-# Configure the database - using Neon Database (PostgreSQL)
+# Configure the database - using PostgreSQL
 database_url = os.environ.get("DATABASE_URL")
 if not database_url:
-    # Fallback to SQLite for development if no Neon database URL
+    # Fallback to SQLite for development if no DATABASE_URL
     database_url = "sqlite:///cv_optimizer.db"
     logger.warning("No DATABASE_URL found, using SQLite fallback")
 else:
     # Normalize postgres:// to postgresql:// for SQLAlchemy compatibility
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
-    logger.info("Using Neon Database (PostgreSQL)")
+    logger.info("Using PostgreSQL database")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 logger.info(
@@ -125,17 +125,40 @@ ALLOWED_EXTENSIONS = {'pdf'}
 ALLOWED_AVATAR_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_AVATAR_SIZE = 2 * 1024 * 1024  # 2MB max avatar size
 
-# Stripe configuration
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
-STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+# Stripe configuration - enforce test-only mode for safety
+# Only use live keys when explicitly enabled AND live keys are provided
+USE_LIVE_STRIPE = os.environ.get('USE_LIVE_STRIPE', '').lower() == 'true'
+
+if USE_LIVE_STRIPE:
+    STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+    STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+    
+    if STRIPE_SECRET_KEY and STRIPE_SECRET_KEY.startswith('sk_live_'):
+        logger.warning("Using LIVE Stripe keys - real payments will be processed!")
+    else:
+        logger.error("USE_LIVE_STRIPE=true but no valid live keys found - disabling payments")
+        STRIPE_SECRET_KEY = None
+        STRIPE_PUBLISHABLE_KEY = None
+        STRIPE_WEBHOOK_SECRET = None
+else:
+    # Enforce test keys only - never fall back to live keys
+    STRIPE_SECRET_KEY = os.environ.get('STRIPE_TEST_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_TEST_PUBLISHABLE_KEY') 
+    STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_TEST_WEBHOOK_SECRET')
+    
+    if not STRIPE_SECRET_KEY:
+        logger.info("No test keys configured - payment functionality disabled for safety")
+    else:
+        logger.info("Using Stripe TEST mode - safe for development")
 
 # Initialize Stripe only if keys are available
 if STRIPE_SECRET_KEY:
     stripe.api_key = STRIPE_SECRET_KEY
-    logger.info("Stripe initialized successfully")
+    stripe_mode = "LIVE" if STRIPE_SECRET_KEY.startswith('sk_live_') else "TEST"
+    logger.info(f"Stripe initialized in {stripe_mode} mode")
 else:
-    logger.warning("Stripe keys not found - payment functionality disabled")
+    logger.info("Stripe disabled - no valid keys configured")
 
 # Cennik
 PRICING = {
@@ -2262,35 +2285,40 @@ def register():
 app.register_blueprint(auth)
 
 # Create database tables with error handling
-try:
-    with app.app_context():
-        db.create_all()
-        logger.info("Database tables created successfully")
+# Database initialization - only run when explicitly requested
+# This prevents per-worker initialization in production
+if os.environ.get("INITIALIZE_DB") == "true":
+    try:
+        with app.app_context():
+            db.create_all()
+            logger.info("Database tables created successfully")
 
-        # Create developer account only if explicitly enabled for development
-        if os.environ.get("CREATE_DEV_USER") == "true":
-            developer = User.query.filter_by(username='developer').first()
-            if not developer:
-                dev_password = os.environ.get("DEV_USER_PASSWORD", "developer123")
-                developer = User()
-                developer.username = 'developer'
-                developer.email = 'developer@cvoptimizer.pro'
-                developer.first_name = 'Developer'
-                developer.last_name = 'Account'
-                developer.password_hash = generate_password_hash(dev_password)
-                developer.active = True
-                developer.created_at = datetime.utcnow()
+            # Create developer account only if explicitly enabled for development
+            if os.environ.get("CREATE_DEV_USER") == "true":
+                developer = User.query.filter_by(username='developer').first()
+                if not developer:
+                    dev_password = os.environ.get("DEV_USER_PASSWORD", "developer123")
+                    developer = User()
+                    developer.username = 'developer'
+                    developer.email = 'developer@cvoptimizer.pro'
+                    developer.first_name = 'Developer'
+                    developer.last_name = 'Account'
+                    developer.password_hash = generate_password_hash(dev_password)
+                    developer.active = True
+                    developer.created_at = datetime.utcnow()
 
-                db.session.add(developer)
-                db.session.commit()
+                    db.session.add(developer)
+                    db.session.commit()
 
-                logger.info("Created developer account for development environment")
-            else:
-                logger.info("Developer account already exists")
+                    logger.info("Created developer account for development environment")
+                else:
+                    logger.info("Developer account already exists")
 
-except Exception as e:
-    logger.error(f"Database initialization failed: {str(e)}")
-    logger.info("The app may still work for non-database operations")
+    except Exception as e:
+        logger.error(f"Database initialization failed: {str(e)}")
+        logger.info("The app may still work for non-database operations")
+else:
+    logger.info("Database initialization skipped (set INITIALIZE_DB=true to enable)")
 
 if __name__ == '__main__':
     import os
