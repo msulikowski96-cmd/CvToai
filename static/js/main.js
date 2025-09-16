@@ -101,6 +101,14 @@ function handlePaymentRedirect(response) {
     return false;
 }
 
+function getSelectedModel() {
+    const modelSelect = document.getElementById('ai-model-select');
+    if (modelSelect) {
+        return modelSelect.value || 'qwen/qwen-2.5-72b-instruct';
+    }
+    return 'qwen/qwen-2.5-72b-instruct';
+}
+
 function optimizeCV(sessionId) {
         fetch('/optimize-cv', {
             method: 'POST',
@@ -109,7 +117,7 @@ function optimizeCV(sessionId) {
             },
             body: JSON.stringify({
                 session_id: sessionId,
-                selected_model: getSelectedModel()
+                selected_model: getSelectedModel() || 'qwen/qwen-2.5-72b-instruct'
             })
         })
         .then(response => response.json())
