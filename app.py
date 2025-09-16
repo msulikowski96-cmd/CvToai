@@ -992,10 +992,17 @@ def upload_avatar():
             })
         
         # Check file extension first
-        if not allowed_avatar_file(file.filename):
+        if not file.filename:
             return jsonify({
                 'success': False,
-                'message': 'Awatar musi być plikiem graficznym. Dozwolone formaty: PNG, JPG, JPEG, GIF. Pliki PDF nie są obsługiwane jako awatary.'
+                'message': 'Nieprawidłowa nazwa pliku'
+            })
+        
+        if not allowed_avatar_file(file.filename):
+            file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else 'brak rozszerzenia'
+            return jsonify({
+                'success': False,
+                'message': f'Nieprawidłowy format pliku ({file_ext}). Awatar musi być plikiem graficznym: PNG, JPG, JPEG, GIF. Pliki PDF nie mogą być używane jako awatary.'
             })
         
         # Check file size

@@ -1104,34 +1104,46 @@ function hideEditProfileModal() {
 // Avatar upload functionality
 function uploadAvatar() {
     const form = document.getElementById('avatarUploadForm');
-    const formData = new FormData(form);
     const loadingBtn = document.getElementById('uploadAvatarBtn');
     const originalText = loadingBtn.innerHTML;
 
     // Validate file selection
     const fileInput = document.getElementById('avatar');
     if (!fileInput.files.length) {
-        showAlert('error', 'Proszę wybrać plik awatara');
+        showAlert('error', 'Proszę wybrać plik awatara (JPG, PNG lub GIF)');
         return;
     }
 
     const file = fileInput.files[0];
     const maxSize = 2 * 1024 * 1024; // 2MB
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
-    if (file.size > maxSize) {
-        showAlert('error', 'Plik jest za duży. Maksymalny rozmiar to 2MB.');
+    // Sprawdź rozszerzenie pliku
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (!allowedExtensions.includes(fileExtension)) {
+        showAlert('error', 'Nieprawidłowy format pliku. Awatar musi być plikiem graficznym (JPG, PNG, GIF). Pliki PDF nie są obsługiwane jako awatary.');
         return;
     }
 
+    // Sprawdź typ MIME
     if (!allowedTypes.includes(file.type)) {
-        showAlert('error', 'Awatar musi być plikiem graficznym. Dozwolone formaty: JPG, PNG, GIF. Pliki PDF nie są obsługiwane jako awatary.');
+        showAlert('error', 'Nieprawidłowy typ pliku. Dozwolone formaty awatara: JPG, PNG, GIF. Pliki PDF nie mogą być używane jako awatary.');
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showAlert('error', 'Plik jest za duży. Maksymalny rozmiar awatara to 2MB.');
         return;
     }
 
     // Show loading state
     loadingBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Przesyłanie...';
     loadingBtn.disabled = true;
+
+    // Create FormData properly
+    const formData = new FormData();
+    formData.append('avatar', file);
 
     fetch('/profile/upload-avatar', {
         method: 'POST',
@@ -1143,10 +1155,10 @@ function uploadAvatar() {
             showAlert('success', data.message);
             hideAvatarModal();
             setTimeout(() => {
-                location.reload();
-            }, 1000);
+                window.location.reload();
+            }, 1500);
         } else {
-            showAlert('error', data.message);
+            showAlert('error', data.message || 'Wystąpił błąd podczas przesyłania awatara');
         }
     })
     .catch(error => {
@@ -1214,8 +1226,8 @@ function saveProfile() {
             showAlert('success', data.message);
             hideEditProfileModal();
             setTimeout(() => {
-                location.reload();
-            }, 1000);
+                window.location.reload();
+            }, 1500);
         } else {
             showAlert('error', data.message);
         }
@@ -1265,19 +1277,30 @@ function validateAvatarFile(input) {
     if (file) {
         const maxSize = 2 * 1024 * 1024; // 2MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+        // Sprawdź rozszerzenie pliku
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(fileExtension)) {
+            showAlert('error', 'Awatar musi być plikiem graficznym (JPG, PNG, GIF). Pliki PDF nie są obsługiwane jako awatary. Proszę wybrać plik graficzny.');
+            input.value = '';
+            preview.style.display = 'none';
+            return false;
+        }
+
+        // Sprawdź typ MIME
+        if (!allowedTypes.includes(file.type)) {
+            showAlert('error', 'Nieprawidłowy typ pliku. Awatar musi być plikiem graficznym (JPG, PNG, GIF). Pliki PDF nie są obsługiwane jako awatary.');
+            input.value = '';
+            preview.style.display = 'none';
+            return false;
+        }
 
         if (file.size > maxSize) {
             showAlert('error', 'Plik jest za duży. Maksymalny rozmiar to 2MB.');
             input.value = '';
             preview.style.display = 'none';
-            return;
-        }
-
-        if (!allowedTypes.includes(file.type)) {
-            showAlert('error', 'Awatar musi być plikiem graficznym. Dozwolone formaty: JPG, PNG, GIF. Pliki PDF nie są obsługiwane jako awatary.');
-            input.value = '';
-            preview.style.display = 'none';
-            return;
+            return false;
         }
 
         // Show preview
@@ -1286,9 +1309,16 @@ function validateAvatarFile(input) {
             previewImg.src = e.target.result;
             preview.style.display = 'block';
         };
+        reader.onerror = function() {
+            showAlert('error', 'Nie można wczytać podglądu pliku. Upewnij się, że to prawidłowy plik graficzny.');
+            input.value = '';
+            preview.style.display = 'none';
+        };
         reader.readAsDataURL(file);
+        return true;
     } else {
         preview.style.display = 'none';
+        return false;
     }
 }
 
@@ -1329,12 +1359,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
 
                     <div class="mb-3">
-                        <label for="avatar" class="form-label fw-medium">Wybierz nowy awatar</label>
+                        <label for="avatar" class="form-label fw-medium">Wybierz nowy awatar (tylko pliki graficzne)</label>
                         <input type="file" class="form-control" id="avatar" name="avatar" 
-                               accept=".jpg,.jpeg,.png,.gif" required onchange="validateAvatarFile(this)">
+                               accept="image/jpeg,image/jpg,image/png,image/gif,.jpg,.jpeg,.png,.gif" 
+                               required onchange="validateAvatarFile(this)">
                         <div class="form-text">
                             <i class="bi bi-info-circle me-1"></i>
-                            Dozwolone formaty: JPG, PNG, GIF. Maksymalny rozmiar: 2MB
+                            <strong>Tylko pliki graficzne:</strong> JPG, PNG, GIF. Maksymalny rozmiar: 2MB. 
+                            <span class="text-danger">Pliki PDF nie są obsługiwane jako awatary.</span>
                         </div>
                         <div id="avatar-preview" class="mt-3 text-center" style="display: none;">
                             <img id="avatar-preview-img" src="" alt="Podgląd awatara" 
