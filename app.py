@@ -1201,12 +1201,16 @@ def upload_cv():
             # Generate session ID
             session_id = str(uuid.uuid4())
 
-            # Ensure UTF-8 encoding for all text fields
+            # Ensure UTF-8 encoding and clean NUL characters
             def ensure_utf8(text):
                 if text is None:
                     return None
                 if isinstance(text, bytes):
-                    return text.decode('utf-8', errors='replace')
+                    text = text.decode('utf-8', errors='replace')
+                
+                # Remove NUL characters that cause database errors
+                text = text.replace('\x00', '')
+                
                 try:
                     # Test if string can be encoded to UTF-8
                     text.encode('utf-8')
@@ -2283,40 +2287,39 @@ def register():
 app.register_blueprint(auth)
 
 # Create database tables with error handling
-# Database initialization - only run when explicitly requested
-# This prevents per-worker initialization in production
-if os.environ.get("INITIALIZE_DB") == "true":
+# Database initialization - run by default for development
+should_initialize = os.environ.get("INITIALIZE_DB", "true").lower() == "true"
+if should_initialize:
     try:
         with app.app_context():
             db.create_all()
             logger.info("Database tables created successfully")
 
-            # Create developer account only if explicitly enabled for development
-            if os.environ.get("CREATE_DEV_USER") == "true":
-                developer = User.query.filter_by(username='developer').first()
-                if not developer:
-                    dev_password = os.environ.get("DEV_USER_PASSWORD", "developer123")
-                    developer = User()
-                    developer.username = 'developer'
-                    developer.email = 'developer@cvoptimizer.pro'
-                    developer.first_name = 'Developer'
-                    developer.last_name = 'Account'
-                    developer.password_hash = generate_password_hash(dev_password)
-                    developer.active = True
-                    developer.created_at = datetime.utcnow()
+            # Create developer account for development environment
+            developer = User.query.filter_by(username='developer').first()
+            if not developer:
+                dev_password = os.environ.get("DEV_USER_PASSWORD", "developer123")
+                developer = User()
+                developer.username = 'developer'
+                developer.email = 'developer@cvoptimizer.pro'
+                developer.first_name = 'Developer'
+                developer.last_name = 'Account'
+                developer.password_hash = generate_password_hash(dev_password)
+                developer.active = True
+                developer.created_at = datetime.utcnow()
 
-                    db.session.add(developer)
-                    db.session.commit()
+                db.session.add(developer)
+                db.session.commit()
 
-                    logger.info("Created developer account for development environment")
-                else:
-                    logger.info("Developer account already exists")
+                logger.info("Created developer account for development environment")
+            else:
+                logger.info("Developer account already exists")
 
     except Exception as e:
         logger.error(f"Database initialization failed: {str(e)}")
         logger.info("The app may still work for non-database operations")
 else:
-    logger.info("Database initialization skipped (set INITIALIZE_DB=true to enable)")
+    logger.info("Database initialization disabled (set INITIALIZE_DB=true to enable)")
 
 if __name__ == '__main__':
     import os
