@@ -153,8 +153,9 @@ PRICING = {
     }
 }
 
-# Ensure upload directory exists
+# Ensure upload directories exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(AVATAR_FOLDER, exist_ok=True)
 
 # Initialize the app with the extension
 db.init_app(app)

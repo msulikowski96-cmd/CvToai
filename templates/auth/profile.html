@@ -18,11 +18,11 @@
                                              alt="Avatar użytkownika" 
                                              class="rounded-circle shadow-lg" 
                                              style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" 
-                                             onclick="$('#avatarUploadModal').modal('show')">
+                                             onclick="showAvatarModal()">
                                         {% else %}
                                         <div class="bg-gradient rounded-circle d-flex align-items-center justify-content-center shadow-lg" 
                                              style="width: 80px; height: 80px; background: var(--primary-gradient); cursor: pointer;"
-                                             onclick="$('#avatarUploadModal').modal('show')">
+                                             onclick="showAvatarModal()">
                                             <i class="bi bi-person-circle text-white" style="font-size: 2.5rem;"></i>
                                         </div>
                                         {% endif %}
@@ -31,7 +31,7 @@
                                         <div class="position-absolute bottom-0 end-0 translate-middle-x" style="margin-bottom: -8px;">
                                             <button class="btn btn-sm btn-primary rounded-circle p-1" 
                                                     style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;"
-                                                    onclick="$('#avatarUploadModal').modal('show')"
+                                                    onclick="showAvatarModal()"
                                                     data-bs-toggle="tooltip" 
                                                     title="Zmień awatar">
                                                 <i class="bi bi-camera" style="font-size: 0.75rem;"></i>
@@ -49,7 +49,7 @@
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <h2 class="mb-0 fw-bold text-dark">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
                                         <button class="btn btn-outline-primary btn-sm" 
-                                                onclick="$('#editProfileModal').modal('show')"
+                                                onclick="showEditProfileModal()"
                                                 data-bs-toggle="tooltip" 
                                                 title="Edytuj profil">
                                             <i class="bi bi-pencil me-1"></i>Edytuj
@@ -1080,12 +1080,54 @@ function exportToCSV(data) {
     }
 }
 
+// Modal helper functions
+function showAvatarModal() {
+    const modal = new bootstrap.Modal(document.getElementById('avatarUploadModal'));
+    modal.show();
+}
+
+function showEditProfileModal() {
+    const modal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+    modal.show();
+}
+
+function hideAvatarModal() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('avatarUploadModal'));
+    if (modal) modal.hide();
+}
+
+function hideEditProfileModal() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+    if (modal) modal.hide();
+}
+
 // Avatar upload functionality
 function uploadAvatar() {
     const form = document.getElementById('avatarUploadForm');
     const formData = new FormData(form);
     const loadingBtn = document.getElementById('uploadAvatarBtn');
     const originalText = loadingBtn.innerHTML;
+    
+    // Validate file selection
+    const fileInput = document.getElementById('avatar');
+    if (!fileInput.files.length) {
+        showAlert('error', 'Proszę wybrać plik awatara');
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    
+    if (file.size > maxSize) {
+        showAlert('error', 'Plik jest za duży. Maksymalny rozmiar to 2MB.');
+        return;
+    }
+    
+    if (!allowedTypes.includes(file.type)) {
+        showAlert('error', 'Nieprawidłowy format pliku. Dozwolone formaty: JPG, PNG, GIF');
+        return;
+    }
     
     // Show loading state
     loadingBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Przesyłanie...';
@@ -1098,9 +1140,8 @@ function uploadAvatar() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success message
             showAlert('success', data.message);
-            // Reload page to show new avatar
+            hideAvatarModal();
             setTimeout(() => {
                 location.reload();
             }, 1000);
@@ -1113,7 +1154,6 @@ function uploadAvatar() {
         showAlert('error', 'Wystąpił błąd podczas przesyłania awatara');
     })
     .finally(() => {
-        // Reset button state
         loadingBtn.innerHTML = originalText;
         loadingBtn.disabled = false;
     });
@@ -1125,6 +1165,27 @@ function saveProfile() {
     const lastName = document.getElementById('editLastName').value.trim();
     const bio = document.getElementById('editBio').value.trim();
     const location = document.getElementById('editLocation').value.trim();
+    
+    // Validate required fields
+    if (!firstName || !lastName) {
+        showAlert('error', 'Imię i nazwisko są wymagane');
+        return;
+    }
+    
+    if (firstName.length > 50 || lastName.length > 50) {
+        showAlert('error', 'Imię i nazwisko nie mogą być dłuższe niż 50 znaków');
+        return;
+    }
+    
+    if (bio.length > 500) {
+        showAlert('error', 'Bio nie może być dłuższe niż 500 znaków');
+        return;
+    }
+    
+    if (location.length > 100) {
+        showAlert('error', 'Lokalizacja nie może być dłuższa niż 100 znaków');
+        return;
+    }
     
     const loadingBtn = document.getElementById('saveProfileBtn');
     const originalText = loadingBtn.innerHTML;
@@ -1151,8 +1212,7 @@ function saveProfile() {
     .then(data => {
         if (data.success) {
             showAlert('success', data.message);
-            // Hide modal and reload page
-            $('#editProfileModal').modal('hide');
+            hideEditProfileModal();
             setTimeout(() => {
                 location.reload();
             }, 1000);
@@ -1165,7 +1225,6 @@ function saveProfile() {
         showAlert('error', 'Wystąpił błąd podczas aktualizacji profilu');
     })
     .finally(() => {
-        // Reset button state
         loadingBtn.innerHTML = originalText;
         loadingBtn.disabled = false;
     });
@@ -1195,6 +1254,42 @@ function showAlert(type, message) {
             alert.remove();
         }
     }, 5000);
+}
+
+// Avatar file validation and preview
+function validateAvatarFile(input) {
+    const file = input.files[0];
+    const preview = document.getElementById('avatar-preview');
+    const previewImg = document.getElementById('avatar-preview-img');
+    
+    if (file) {
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        
+        if (file.size > maxSize) {
+            showAlert('error', 'Plik jest za duży. Maksymalny rozmiar to 2MB.');
+            input.value = '';
+            preview.style.display = 'none';
+            return;
+        }
+        
+        if (!allowedTypes.includes(file.type)) {
+            showAlert('error', 'Nieprawidłowy format pliku. Dozwolone formaty: JPG, PNG, GIF');
+            input.value = '';
+            preview.style.display = 'none';
+            return;
+        }
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+    }
 }
 
 // Initialize tooltips
@@ -1236,10 +1331,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="mb-3">
                         <label for="avatar" class="form-label fw-medium">Wybierz nowy awatar</label>
                         <input type="file" class="form-control" id="avatar" name="avatar" 
-                               accept=".jpg,.jpeg,.png,.gif" required>
+                               accept=".jpg,.jpeg,.png,.gif" required onchange="validateAvatarFile(this)">
                         <div class="form-text">
                             <i class="bi bi-info-circle me-1"></i>
                             Dozwolone formaty: JPG, PNG, GIF. Maksymalny rozmiar: 2MB
+                        </div>
+                        <div id="avatar-preview" class="mt-3 text-center" style="display: none;">
+                            <img id="avatar-preview-img" src="" alt="Podgląd awatara" 
+                                 style="max-width: 120px; max-height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                         </div>
                     </div>
                 </form>
