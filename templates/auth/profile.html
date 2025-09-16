@@ -1155,7 +1155,7 @@ function uploadAvatar() {
             showAlert('success', data.message);
             hideAvatarModal();
             setTimeout(() => {
-                window.location.reload();
+                location.reload();
             }, 1500);
         } else {
             showAlert('error', data.message || 'Wystąpił błąd podczas przesyłania awatara');
@@ -1226,7 +1226,7 @@ function saveProfile() {
             showAlert('success', data.message);
             hideEditProfileModal();
             setTimeout(() => {
-                window.location.reload();
+                location.reload();
             }, 1500);
         } else {
             showAlert('error', data.message);

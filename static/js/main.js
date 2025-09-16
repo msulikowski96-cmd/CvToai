@@ -41,6 +41,11 @@ function validateForm(formElement) {
 
 // File upload handler
 function handleFileUpload(inputElement) {
+    // Nie waliduj inputów awatara - mają swoją własną walidację
+    if (inputElement.id === 'avatar' || inputElement.name === 'avatar') {
+        return;
+    }
+    
     inputElement.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
