@@ -1,4 +1,4 @@
-modules = ["web", "nodejs-20", "python-3.11"]
+modules = ["web", "nodejs-20", "python-3.11", "postgresql-16"]
 run = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 
 
