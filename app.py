@@ -35,9 +35,13 @@ try:
 except (AttributeError, OSError):
     pass
 
-# Configure logging (INFO level for production safety)
-logging.basicConfig(level=logging.INFO)
+# Configure logging (WARNING level to reduce noise)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+
+# Set specific logger for our app to INFO
+app_logger = logging.getLogger('app')
+app_logger.setLevel(logging.INFO)
 
 
 class Base(DeclarativeBase):
