@@ -1155,7 +1155,7 @@ function uploadAvatar() {
             showAlert('success', data.message);
             hideAvatarModal();
             setTimeout(() => {
-                location.reload();
+                window.location.reload();
             }, 1500);
         } else {
             showAlert('error', data.message || 'Wystąpił błąd podczas przesyłania awatara');
@@ -1218,7 +1218,7 @@ function saveProfile() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.JSON.stringify(data)
     })
     .then(response => response.json())
     .then(data => {
@@ -1226,7 +1226,7 @@ function saveProfile() {
             showAlert('success', data.message);
             hideEditProfileModal();
             setTimeout(() => {
-                location.reload();
+                window.location.reload();
             }, 1500);
         } else {
             showAlert('error', data.message);

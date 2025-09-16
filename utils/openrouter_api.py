@@ -103,7 +103,7 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 AVAILABLE_MODELS = {
     "qwen": {
         "id": "qwen/qwen3-235b-a22b:free",
-        "name": "Qwen-235B", 
+        "name": "Qwen-235B",
         "description": "Zaawansowany model Qwen dla profesjonalnej optymalizacji CV",
         "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
         "speed": "średnia",
@@ -114,7 +114,7 @@ AVAILABLE_MODELS = {
         "name": "DeepSeek Chat v3.1",
         "description": "Nowy model DeepSeek z zaawansowanym rozumowaniem",
         "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
-        "speed": "szybka", 
+        "speed": "szybka",
         "quality": "wysoka"
     }
 }
@@ -157,17 +157,18 @@ def get_model_by_key(model_key):
     """Zwraca ID modelu na podstawie klucza"""
     logger.info(f"🔍 DEBUG get_model_by_key: otrzymano model_key = {model_key}")
     logger.info(f"🔍 DEBUG: dostępne modele = {list(AVAILABLE_MODELS.keys())}")
-    
+
     if model_key in AVAILABLE_MODELS:
         model_id = AVAILABLE_MODELS[model_key]["id"]
         logger.info(f"✅ DEBUG: znaleziono model {model_key} -> {model_id}")
         return model_id
-    
+
     logger.info(f"❌ DEBUG: nie znaleziono modelu {model_key}, używam DEFAULT_MODEL = {DEFAULT_MODEL}")
     return DEFAULT_MODEL
 
-def get_default_model():
+def get_default_model(is_premium=False):
     """Zwraca domyślny model"""
+    # W przyszłości można tu dodać logikę wyboru modelu na podstawie typu użytkownika (premium/free)
     return DEFAULT_MODEL
 
 
@@ -277,14 +278,11 @@ def make_openrouter_request(prompt,
     return None
 
 
-def optimize_cv(cv_text,
-                job_title,
-                job_description="",
-                is_premium=False,
-                payment_verified=False,
-                selected_model=None):
+# Dummy function for create_optimization_prompt as it's used in the changes
+def create_optimization_prompt(cv_text, job_title, job_description, is_premium):
     """
-    Optymalizuje CV za pomocą OpenRouter AI (Claude 3.5 Sonnet) i formatuje w profesjonalnym szablonie HTML
+    Generates the prompt for CV optimization.
+    This is a placeholder and should be replaced with the actual prompt logic.
     """
     prompt = f"""
     Jesteś ekspertem od optymalizacji CV. Twoim zadaniem jest przepisanie podanego CV tak, aby było bardziej atrakcyjne dla rekruterów i lepiej dopasowane do stanowiska: {job_title}
@@ -296,7 +294,7 @@ def optimize_cv(cv_text,
     4. ULEPSZAJ sformułowania używając słów kluczowych z opisu stanowiska
     5. ZACHOWAJ wszystkie prawdziwe fakty z oryginalnego CV
 
-    [PODSUMOWANIE ZAWODOWE] 
+    [PODSUMOWANIE ZAWODOWE]
     - Stwórz zwięzłe podsumowanie na podstawie doświadczenia z CV
     - 2-3 zdania o kluczowych umiejętnościach i doświadczeniu
     - Użyj tylko faktów z oryginalnego CV
@@ -309,9 +307,9 @@ def optimize_cv(cv_text,
       **Nazwa firmy**
       *Okres pracy (rok-rok)*
       - Pierwszy obowiązek
-      - Drugi obowiązek  
+      - Drugi obowiązek
       - Trzeci obowiązek
-      
+
     - Zachowaj wszystkie firmy, stanowiska i daty z oryginału
     - Przepisz opisy obowiązków używając lepszych czasowników akcji
     - Każde stanowisko: 3-4 punkty z konkretnymi obowiązkami
@@ -338,34 +336,66 @@ def optimize_cv(cv_text,
     """
 
     # Rozszerzony limit tokenów dla płacących użytkowników
-    if is_premium or payment_verified:
-        max_tokens = 4000
+    if is_premium:
         prompt += f"""
-        
+
     DODATKOWE INSTRUKCJE DLA UŻYTKOWNIKÓW PREMIUM:
     - Stwórz bardziej szczegółowe opisy stanowisk (4-5 punktów zamiast 3-4)
     - Dodaj więcej słów kluczowych z branży
     - Ulepszaj strukturę CV dla maksymalnej czytelności
     - Optymalizuj pod systemy ATS (Applicant Tracking Systems)
     """
-    else:
-        max_tokens = 2500
+    return prompt
 
+
+def optimize_cv(cv_text,
+                job_title,
+                job_description="",
+                is_premium=False,
+                selected_model=None):
+    """
+    Optymalizuje CV za pomocą OpenRouter AI z obsługą timeout
+    """
     try:
-        response = make_openrouter_request(prompt,
-                                           model=selected_model,
-                                           is_premium=(is_premium
-                                                       or payment_verified),
-                                           max_tokens=max_tokens)
+        # Use selected model or fallback to default
+        model = get_model_by_key(selected_model) if selected_model else get_default_model(is_premium)
 
-        if response:
-            # Zwróć zoptymalizowane CV jako sformatowany tekst
-            # HTML będzie generowany dopiero przy wyświetlaniu w view_cv
-            return response.strip()
-        else:
-            logger.error("Empty response from OpenRouter API")
-            return None
+        logger.info(f"📝 DEBUG optimize_cv: using model = {model}")
 
+        prompt = create_optimization_prompt(cv_text, job_title, job_description, is_premium)
+
+        # Set timeout to 45 seconds (less than gunicorn's 60s timeout)
+        response = session.post(
+            OPENROUTER_BASE_URL,
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://cv-optimizer-pro.replit.app",
+                "X-Title": "CV Optimizer Pro"
+            },
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 4000 if is_premium else 2000,
+                "temperature": 0.1
+            },
+            timeout=45
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            if 'choices' in result and len(result['choices']) > 0:
+                return result['choices'][0]['message']['content']
+
+        logger.error(f"OpenRouter API error: {response.status_code} - {response.text}")
+        return None
+
+    except requests.exceptions.Timeout:
+        logger.error("OpenRouter API request timed out after 45 seconds")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request error in optimize_cv: {str(e)}")
+        return None
     except Exception as e:
         logger.error(f"Error in optimize_cv: {str(e)}")
         return None
@@ -423,7 +453,7 @@ OCENA KOŃCOWA: [0-100]/100
 
 SZCZEGÓŁOWA PUNKTACJA:
 • Struktura i formatowanie: [0-20]/20
-• Jakość treści: [0-20]/20  
+• Jakość treści: [0-20]/20
 • Dopasowanie do stanowiska: [0-20]/20
 • Doświadczenie i umiejętności: [0-20]/20
 • Kompletność i szczegóły: [0-20]/20
@@ -453,26 +483,52 @@ SZCZEGÓŁOWA PUNKTACJA:
 """
 
         # Użyj lepszych parametrów dla premium użytkowników
-        max_tokens = 3000 if is_premium else 2000
+        max_tokens = 3000 if is_premium else 1500
+        model = get_model_by_key(selected_model) if selected_model else get_default_model(is_premium)
+
 
         logger.info(f"🔍 Analizowanie jakości CV dla stanowiska: {job_title}")
 
-        response = make_openrouter_request(prompt,
-                                           model=selected_model,
-                                           is_premium=is_premium,
-                                           max_tokens=max_tokens)
+        response = session.post(
+            OPENROUTER_BASE_URL,
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://cv-optimizer-pro.replit.app",
+                "X-Title": "CV Optimizer Pro"
+            },
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": max_tokens,
+                "temperature": 0.1
+            },
+            timeout=45
+        )
 
-        if response:
-            logger.info(
-                f"✅ Analiza CV ukończona pomyślnie (długość: {len(response)} znaków)"
-            )
-            return response.strip()
+        if response.status_code == 200:
+            result = response.json()
+            if 'choices' in result and len(result['choices']) > 0:
+                content = result['choices'][0]['message']['content']
+                logger.info(
+                    f"✅ Model {model} zwrócił odpowiedź (długość: {len(content)} znaków)"
+                )
+                return content
+            else:
+                logger.warning(f"⚠️ Nieoczekiwany format odpowiedzi: {result}")
+                return None
         else:
-            logger.error("❌ Brak odpowiedzi z API lub nieprawidłowa struktura")
+            logger.error(f"OpenRouter API error in analyze_cv_quality: {response.status_code} - {response.text}")
             return None
 
+    except requests.exceptions.Timeout:
+        logger.error("OpenRouter API request timed out in analyze_cv_quality")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request error in analyze_cv_quality: {str(e)}")
+        return None
     except Exception as e:
-        logger.error(f"❌ Błąd podczas analizy CV: {str(e)}")
+        logger.error(f"Error in analyze_cv_quality: {str(e)}")
         return None
 
 

@@ -1595,10 +1595,12 @@ def optimize_cv_route():
         logger.error(f"Error in optimize_cv_route: {str(e)}")
         error_message = "Wystąpił błąd podczas optymalizacji CV"
         if any(keyword in str(e).lower()
-               for keyword in ["timeout", "timed out", "worker timeout"]):
-            error_message = "Zapytanie trwa zbyt długo - spróbuj ponownie. Jeśli problem się powtarza, skróć tekst CV."
+               for keyword in ["timeout", "timed out", "worker timeout", "read timeout"]):
+            error_message = "Zapytanie AI trwa zbyt długo. Spróbuj ponownie lub skróć tekst CV i opis stanowiska."
         elif "connection" in str(e).lower():
-            error_message = "Błąd połączenia z API - sprawdź połączenie internetowe"
+            error_message = "Błąd połączenia z API - sprawdź połączenie internetowe i spróbuj ponownie"
+        elif "502" in str(e) or "503" in str(e):
+            error_message = "Serwis AI jest tymczasowo niedostępny. Spróbuj ponownie za chwilę."
         return jsonify({'success': False, 'message': error_message})
 
 
