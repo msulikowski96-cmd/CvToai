@@ -82,28 +82,47 @@ def ads_txt():
                                'ads.txt')
 
 
-# Configure the database - using PostgreSQL with proper connection string
-database_url = os.environ.get("DATABASE_URL")
-if not database_url:
-    # Fallback to SQLite for development if no DATABASE_URL
-    database_url = "sqlite:///cv_optimizer.db"
-    logger.warning("No DATABASE_URL found, using SQLite fallback")
-else:
-    # Build proper Neon connection string from individual components
-    pg_host = os.environ.get("PGHOST")
-    pg_user = os.environ.get("PGUSER") 
-    pg_password = os.environ.get("PGPASSWORD")
-    pg_database = os.environ.get("PGDATABASE")
-    pg_port = os.environ.get("PGPORT", "5432")
+# Configure the database - with connection testing and fallback
+database_url = None
+pg_host = os.environ.get("PGHOST")
+pg_user = os.environ.get("PGUSER") 
+pg_password = os.environ.get("PGPASSWORD")
+pg_database = os.environ.get("PGDATABASE")
+pg_port = os.environ.get("PGPORT", "5432")
+
+# Try to build PostgreSQL connection string
+if all([pg_host, pg_user, pg_password, pg_database]):
+    database_url = f"postgresql://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_database}?sslmode=require"
+    logger.info("Built PostgreSQL connection from individual env vars")
     
-    if all([pg_host, pg_user, pg_password, pg_database]):
-        database_url = f"postgresql://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_database}?sslmode=require"
-        logger.info("Using PostgreSQL with individual env vars")
-    else:
-        # Normalize postgres:// to postgresql:// for SQLAlchemy compatibility
-        if database_url.startswith("postgres://"):
-            database_url = database_url.replace("postgres://", "postgresql://", 1)
-        logger.info("Using PostgreSQL database from DATABASE_URL")
+    # Test connection
+    try:
+        import psycopg2
+        test_conn = psycopg2.connect(
+            host=pg_host,
+            user=pg_user,
+            password=pg_password,
+            database=pg_database,
+            port=pg_port,
+            sslmode='require',
+            connect_timeout=10
+        )
+        test_conn.close()
+        logger.info("PostgreSQL connection test successful")
+    except Exception as conn_error:
+        logger.error(f"PostgreSQL connection test failed: {str(conn_error)}")
+        logger.warning("Falling back to SQLite due to PostgreSQL connection failure")
+        database_url = "sqlite:///cv_optimizer.db"
+elif os.environ.get("DATABASE_URL"):
+    # Try original DATABASE_URL
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    logger.info("Using DATABASE_URL environment variable")
+else:
+    # Fallback to SQLite
+    database_url = "sqlite:///cv_optimizer.db"
+    logger.warning("No PostgreSQL configuration found, using SQLite fallback")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 logger.info(
@@ -2289,32 +2308,53 @@ should_initialize = True
 if should_initialize:
     try:
         with app.app_context():
+            # Test database connection first
+            try:
+                db.engine.connect()
+                logger.info("Database connection successful")
+            except Exception as conn_err:
+                logger.error(f"Database connection failed: {str(conn_err)}")
+                if "sqlite" not in str(app.config["SQLALCHEMY_DATABASE_URI"]).lower():
+                    logger.warning("Switching to SQLite fallback due to connection failure")
+                    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cv_optimizer.db"
+                    db.init_app(app)
+            
             db.create_all()
             logger.info("Database tables created successfully")
 
             # Create developer account for development environment
-            developer = User.query.filter_by(username='developer').first()
-            if not developer:
-                dev_password = os.environ.get("DEV_USER_PASSWORD", "developer123")
-                developer = User()
-                developer.username = 'developer'
-                developer.email = 'developer@cvoptimizer.pro'
-                developer.first_name = 'Developer'
-                developer.last_name = 'Account'
-                developer.password_hash = generate_password_hash(dev_password)
-                developer.active = True
-                developer.created_at = datetime.utcnow()
+            try:
+                developer = User.query.filter_by(username='developer').first()
+                if not developer:
+                    dev_password = os.environ.get("DEV_USER_PASSWORD", "developer123")
+                    developer = User()
+                    developer.username = 'developer'
+                    developer.email = 'developer@cvoptimizer.pro'
+                    developer.first_name = 'Developer'
+                    developer.last_name = 'Account'
+                    developer.password_hash = generate_password_hash(dev_password)
+                    developer.active = True
+                    developer.created_at = datetime.utcnow()
 
-                db.session.add(developer)
-                db.session.commit()
+                    db.session.add(developer)
+                    db.session.commit()
 
-                logger.info("Created developer account for development environment")
-            else:
-                logger.info("Developer account already exists")
+                    logger.info("Created developer account for development environment")
+                else:
+                    logger.info("Developer account already exists")
+            except Exception as dev_err:
+                logger.warning(f"Could not create/verify developer account: {str(dev_err)}")
 
     except Exception as e:
         logger.error(f"Database initialization failed: {str(e)}")
-        logger.info("The app may still work for non-database operations")
+        logger.info("App will continue with limited functionality")
+        # Try to force SQLite as last resort
+        try:
+            app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cv_optimizer.db"
+            db.init_app(app)
+            logger.info("Forced SQLite fallback")
+        except Exception as sqlite_err:
+            logger.error(f"Even SQLite fallback failed: {str(sqlite_err)}")
 else:
     logger.info("Database initialization disabled (set INITIALIZE_DB=true to enable)")
 
