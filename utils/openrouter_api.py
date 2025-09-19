@@ -65,8 +65,7 @@ load_dotenv(override=True)
 logger = logging.getLogger(__name__)
 
 # Load and validate OpenRouter API key
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY",
-                                    "sk-or-v1-demo-key-for-testing").strip()
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "").strip()
 
 
 # Validate API key format and content
