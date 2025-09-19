@@ -109,7 +109,7 @@ AVAILABLE_MODELS = {
         "quality": "bardzo wysoka"
     },
     "qwen3": {
-        "id": "qwen/qwen-2.5-3b-instruct:free",
+        "id": "qwen/qwen3-235b-a22b:free",
         "name": "Qwen3-235b-a22b",
         "description": "Najnowszy model Qwen z zaawansowanymi możliwościami analizy",
         "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
@@ -117,7 +117,7 @@ AVAILABLE_MODELS = {
         "quality": "wysoka"
     },
     "deepseek": {
-        "id": "deepseek/deepseek-chat:free",
+        "id": "deepseek/deepseek-chat-v3.1:free",
         "name": "DeepSeek Chat v3.1",
         "description": "Najnowszy model DeepSeek z zaawansowanym rozumowaniem",
         "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
