@@ -254,10 +254,12 @@ function initializeModelSelection() {
 
     function getModelName(modelKey) {
         const modelNames = {
-            'qwen': 'Qwen-2.5-72B',
-            'deepseek': 'DeepSeek Chat v3.1'
+            'qwen': 'Qwen 2.5 72B Instruct (free)',
+            'qwen3': 'Qwen3-235b-a22b',
+            'deepseek': 'DeepSeek Chat v3.1',
+            'llama': 'Llama 3.1 8B'
         };
-        return modelNames[modelKey] || 'Qwen-2.5-72B';
+        return modelNames[modelKey] || 'Qwen 2.5 72B Instruct (free)';
     }
 }
 

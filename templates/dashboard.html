@@ -215,8 +215,8 @@
                 </div>
                 <div class="card-body" style="padding: 2rem;">
                     <div class="row g-4" id="ai-model-selection">
-                        <!-- Qwen Model -->
-                        <div class="col-md-6">
+                        <!-- Qwen Model (Domyślny) -->
+                        <div class="col-md-4">
                             <div class="model-card card h-100" data-model="qwen" style="cursor: pointer; border: 2px solid var(--border-primary); transition: all 0.3s ease;">
                                 <div class="card-body" style="padding: 2rem;">
                                     <div class="d-flex align-items-center mb-3">
@@ -224,13 +224,13 @@
                                             <i class="bi bi-lightning-charge"></i>
                                         </div>
                                         <div>
-                                            <h5 class="font-weight-bold mb-1">Qwen3-235b-a22b:</h5>
-                                            <span class="badge bg-primary">Zalecany</span>
+                                            <h5 class="font-weight-bold mb-1">Qwen 2.5 72B Instruct (free)</h5>
+                                            <span class="badge bg-primary">Domyślny</span>
                                         </div>
                                     </div>
                                     
                                     <p class="text-secondary mb-3">
-                                        Zaawansowany model Qwen dla profesjonalnej optymalizacji CV
+                                        Domyślny model Qwen dla profesjonalnej optymalizacji CV
                                     </p>
                                     
                                     <div class="mb-3">
@@ -257,22 +257,22 @@
                             </div>
                         </div>
 
-                        <!-- DeepSeek Model -->
-                        <div class="col-md-6">
-                            <div class="model-card card h-100" data-model="deepseek" style="cursor: pointer; border: 2px solid var(--border-primary); transition: all 0.3s ease;">
+                        <!-- Qwen3 Model (Nowy) -->
+                        <div class="col-md-4">
+                            <div class="model-card card h-100" data-model="qwen3" style="cursor: pointer; border: 2px solid var(--border-primary); transition: all 0.3s ease;">
                                 <div class="card-body" style="padding: 2rem;">
                                     <div class="d-flex align-items-center mb-3">
-                                        <div class="feature-icon bg-info me-3">
-                                            <i class="bi bi-rocket"></i>
+                                        <div class="feature-icon bg-warning me-3">
+                                            <i class="bi bi-cpu"></i>
                                         </div>
                                         <div>
-                                            <h5 class="font-weight-bold mb-1">DeepSeek Chat v3.1</h5>
-                                            <span class="badge bg-info">Nowy</span>
+                                            <h5 class="font-weight-bold mb-1">Qwen3-235b-a22b</h5>
+                                            <span class="badge bg-warning">Najnowszy</span>
                                         </div>
                                     </div>
                                     
                                     <p class="text-secondary mb-3">
-                                        Nowy model DeepSeek z zaawansowanym rozumowaniem
+                                        Najnowszy model Qwen z zaawansowanymi możliwościami analizy
                                     </p>
                                     
                                     <div class="mb-3">
@@ -288,7 +288,49 @@
                                     <div class="d-flex justify-content-between text-sm">
                                         <div>
                                             <span class="text-muted">Prędkość:</span>
-                                            <strong class="text-success">Szybka</strong>
+                                            <strong class="text-success">Bardzo szybka</strong>
+                                        </div>
+                                        <div>
+                                            <span class="text-muted">Jakość:</span>
+                                            <strong class="text-primary">Wysoka</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DeepSeek Model -->
+                        <div class="col-md-4">
+                            <div class="model-card card h-100" data-model="deepseek" style="cursor: pointer; border: 2px solid var(--border-primary); transition: all 0.3s ease;">
+                                <div class="card-body" style="padding: 2rem;">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="feature-icon bg-info me-3">
+                                            <i class="bi bi-rocket"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-weight-bold mb-1">DeepSeek Chat v3.1</h5>
+                                            <span class="badge bg-info">Nowy</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-secondary mb-3">
+                                        Najnowszy model DeepSeek z zaawansowanym rozumowaniem
+                                    </p>
+                                    
+                                    <div class="mb-3">
+                                        <h6 class="font-weight-semibold mb-2">Możliwości:</h6>
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Optymalizacja CV</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Analiza jakości</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Listy motywacyjne</li>
+                                            <li class="text-sm mb-1"><i class="bi bi-check2 text-success me-2"></i>Pytania rekrutacyjne</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between text-sm">
+                                        <div>
+                                            <span class="text-muted">Prędkość:</span>
+                                            <strong class="text-success">Bardzo szybka</strong>
                                         </div>
                                         <div>
                                             <span class="text-muted">Jakość:</span>
