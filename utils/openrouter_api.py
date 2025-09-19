@@ -101,25 +101,33 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 # DOSTĘPNE MODELE AI DO WYBORU
 AVAILABLE_MODELS = {
     "qwen": {
-        "id": "qwen/qwen3-235b-a22b:free",
-        "name": "Qwen-235B",
+        "id": "qwen/qwen-2.5-72b-instruct:free",
+        "name": "Qwen 2.5 72B",
         "description": "Zaawansowany model Qwen dla profesjonalnej optymalizacji CV",
         "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
         "speed": "średnia",
         "quality": "bardzo wysoka"
     },
     "deepseek": {
-        "id": "deepseek/deepseek-chat-v3.1:free",
-        "name": "DeepSeek Chat v3.1",
+        "id": "deepseek/deepseek-chat-v3-0324:free",
+        "name": "DeepSeek Chat v3",
         "description": "Nowy model DeepSeek z zaawansowanym rozumowaniem",
         "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
         "speed": "szybka",
         "quality": "wysoka"
+    },
+    "llama": {
+        "id": "meta-llama/llama-3.1-8b-instruct:free",
+        "name": "Llama 3.1 8B",
+        "description": "Model Meta Llama z dobrą wydajnością dla zadań CV",
+        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
+        "speed": "bardzo szybka",
+        "quality": "dobra"
     }
 }
 
 # DOMYŚLNY MODEL
-DEFAULT_MODEL = "qwen/qwen3-235b-a22b:free"
+DEFAULT_MODEL = "qwen/qwen-2.5-72b-instruct:free"
 
 # NAJNOWSZY PROMPT SYSTEMOWY 2025 - MAKSYMALNA JAKOŚĆ AI
 DEEP_REASONING_PROMPT = """Jesteś ekspertem świata w optymalizacji CV z 20-letnim doświadczeniem w rekrutacji oraz AI. Masz specjalistyczną wiedzę o:
