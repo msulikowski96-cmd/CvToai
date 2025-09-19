@@ -100,6 +100,22 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # DOSTĘPNE MODELE AI DO WYBORU
 AVAILABLE_MODELS = {
+    "qwen3": {
+        "id": "qwen/qwen-2.5-coder-32b-instruct:free",
+        "name": "Qwen 2.5 Coder 32B",
+        "description": "Najnowszy model Qwen z zaawansowanymi możliwościami analizy",
+        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
+        "speed": "szybka",
+        "quality": "bardzo wysoka"
+    },
+    "deepseek": {
+        "id": "deepseek/deepseek-chat:free",
+        "name": "DeepSeek Chat",
+        "description": "Najnowszy model DeepSeek z zaawansowanym rozumowaniem",
+        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
+        "speed": "bardzo szybka",
+        "quality": "wysoka"
+    },
     "qwen": {
         "id": "qwen/qwen-2.5-72b-instruct:free",
         "name": "Qwen 2.5 72B",
@@ -107,14 +123,6 @@ AVAILABLE_MODELS = {
         "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
         "speed": "średnia",
         "quality": "bardzo wysoka"
-    },
-    "deepseek": {
-        "id": "deepseek/deepseek-chat-v3-0324:free",
-        "name": "DeepSeek Chat v3",
-        "description": "Nowy model DeepSeek z zaawansowanym rozumowaniem",
-        "capabilities": ["Optymalizacja CV", "Analiza jakości", "Listy motywacyjne", "Pytania rekrutacyjne"],
-        "speed": "szybka",
-        "quality": "wysoka"
     },
     "llama": {
         "id": "meta-llama/llama-3.1-8b-instruct:free",
@@ -126,8 +134,8 @@ AVAILABLE_MODELS = {
     }
 }
 
-# DOMYŚLNY MODEL
-DEFAULT_MODEL = "qwen/qwen-2.5-72b-instruct:free"
+# DOMYŚLNY MODEL - ZMIENIONY NA DEEPSEEK
+DEFAULT_MODEL = "deepseek/deepseek-chat:free"
 
 # NAJNOWSZY PROMPT SYSTEMOWY 2025 - MAKSYMALNA JAKOŚĆ AI
 DEEP_REASONING_PROMPT = """Jesteś ekspertem świata w optymalizacji CV z 20-letnim doświadczeniem w rekrutacji oraz AI. Masz specjalistyczną wiedzę o:
