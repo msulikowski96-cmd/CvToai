@@ -116,7 +116,7 @@ if all([pg_host, pg_user, pg_password, pg_database]):
 elif os.environ.get("DATABASE_URL"):
     # Try original DATABASE_URL
     database_url = os.environ.get("DATABASE_URL")
-    if database_url.startswith("postgres://"):
+    if database_url and database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
     logger.info("Using DATABASE_URL environment variable")
 else:
@@ -126,7 +126,7 @@ else:
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 logger.info(
-    f"Using database: {'PostgreSQL' if 'postgresql' in database_url else 'SQLite'}"
+    f"Using database: {'PostgreSQL' if database_url and 'postgresql' in database_url else 'SQLite'}"
 )
 
 # Configure database engine options based on database type
