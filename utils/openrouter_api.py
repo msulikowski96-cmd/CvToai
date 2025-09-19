@@ -373,9 +373,14 @@ def optimize_cv(cv_text,
     """
     try:
         # Use selected model or fallback to default
-        model = get_model_by_key(selected_model) if selected_model else get_default_model(is_premium)
-
-        logger.info(f"📝 DEBUG optimize_cv: using model = {model}")
+        logger.info(f"📝 DEBUG optimize_cv: received selected_model = {selected_model}")
+        
+        if selected_model:
+            model = get_model_by_key(selected_model)
+            logger.info(f"📝 DEBUG optimize_cv: using selected model {selected_model} -> {model}")
+        else:
+            model = get_default_model(is_premium)
+            logger.info(f"📝 DEBUG optimize_cv: using default model = {model}")
 
         prompt = create_optimization_prompt(cv_text, job_title, job_description, is_premium)
 

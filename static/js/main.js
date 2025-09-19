@@ -110,6 +110,9 @@ function getSelectedModel() {
 }
 
 function optimizeCV(sessionId) {
+        const selectedModel = getSelectedModel();
+        console.log('🔍 DEBUG optimizeCV: sending selected_model =', selectedModel);
+        
         fetch('/optimize-cv', {
             method: 'POST',
             headers: {
@@ -117,7 +120,7 @@ function optimizeCV(sessionId) {
             },
             body: JSON.stringify({
                 session_id: sessionId,
-                selected_model: getSelectedModel() || 'qwen/qwen-2.5-72b-instruct'
+                selected_model: selectedModel
             })
         })
         .then(response => response.json())

@@ -1603,6 +1603,10 @@ def optimize_cv_route():
 
         # Call OpenRouter API to optimize CV
         from utils.openrouter_api import optimize_cv
+        
+        # Debug logging - sprawdź co otrzymujemy z frontendu
+        logger.info(f"📝 DEBUG optimize_cv_route: received selected_model = {selected_model}")
+        
         optimized_cv = optimize_cv(cv_text,
                                    job_title,
                                    job_description,
