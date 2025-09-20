@@ -11,7 +11,7 @@ deploymentTarget = "autoscale"
 run = ["gunicorn", "-k", "gevent", "-w", "2", "--timeout", "60", "--log-level", "info", "--bind", "0.0.0.0:5000", "app:app"]
 
 [workflows]
-runButton = "Flask App Quiet"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -31,7 +31,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn -k gevent -w 2 --timeout 60 --log-level info --bind 0.0.0.0:5000 app:app"
+args = "python main.py"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -50,3 +50,7 @@ integrations = ["python_database:1.0.0"]
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 35351
+externalPort = 3000
