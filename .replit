@@ -8,7 +8,7 @@ packages = ["libev", "openssl", "postgresql"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "-k", "gevent", "-w", "2", "--timeout", "60", "--log-level", "info", "--bind", "0.0.0.0:5000", "app:app"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "app:app"]
 
 [workflows]
 runButton = "Project"
