@@ -44,8 +44,17 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET",
-                                "dev-secret-key-change-in-production")
+
+# Session secret validation
+SESSION_SECRET = os.environ.get("SESSION_SECRET")
+if not SESSION_SECRET:
+    SESSION_SECRET = "dev-secret-key-change-in-production"
+    logger.warning("⚠️  SESSION_SECRET nie jest ustawiony - używam domyślnego (TYLKO dla dev!)")
+    logger.warning("⚠️  W produkcji MUSISZ ustawić SESSION_SECRET w zmiennych środowiskowych!")
+elif SESSION_SECRET == "dev-secret-key-change-in-production":
+    logger.warning("⚠️  SESSION_SECRET ma domyślną wartość - zmień to w produkcji!")
+
+app.secret_key = SESSION_SECRET
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # --- DODAJ TUTAJ ---
@@ -93,10 +102,28 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf'}
 
-# Stripe configuration
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+# Stripe configuration with validation
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
+# Validate Stripe configuration
+if STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY:
+    if STRIPE_SECRET_KEY.startswith('sk_live_'):
+        logger.warning("🔴 STRIPE: Używasz kluczy LIVE - rzeczywiste płatności będą przetwarzane!")
+        stripe.api_key = STRIPE_SECRET_KEY
+    elif STRIPE_SECRET_KEY.startswith('sk_test_'):
+        logger.info("✅ STRIPE: Tryb testowy - płatności nie będą pobierane")
+        stripe.api_key = STRIPE_SECRET_KEY
+    else:
+        logger.error("❌ STRIPE_SECRET_KEY ma nieprawidłowy format!")
+        STRIPE_SECRET_KEY = None
+        STRIPE_PUBLISHABLE_KEY = None
+else:
+    logger.info("ℹ️  Stripe nie jest skonfigurowany - funkcje płatności są wyłączone")
+    STRIPE_SECRET_KEY = None
+    STRIPE_PUBLISHABLE_KEY = None
+    STRIPE_WEBHOOK_SECRET = None
 
 # Cennik
 PRICING = {

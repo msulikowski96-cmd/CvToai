@@ -19,19 +19,21 @@ load_dotenv(override=True)
 logger = logging.getLogger(__name__)
 
 # Load and validate OpenRouter API key
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY",
-                                    "sk-or-v1-demo-key-for-testing").strip()
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "").strip()
 
 
 # Validate API key format and content
 def validate_api_key():
     if not OPENROUTER_API_KEY:
-        logger.error("❌ OPENROUTER_API_KEY nie jest ustawiony w pliku .env")
+        logger.error("❌ OPENROUTER_API_KEY nie jest ustawiony w zmiennych środowiskowych")
+        logger.error("❌ Ustaw OPENROUTER_API_KEY w Secrets lub pliku .env")
         return False
 
-    if OPENROUTER_API_KEY.startswith('TWÓJ_') or len(OPENROUTER_API_KEY) < 20:
+    if (OPENROUTER_API_KEY.startswith('TWÓJ_') or 
+        len(OPENROUTER_API_KEY) < 20 or
+        OPENROUTER_API_KEY == "sk-or-v1-demo-key-for-testing"):
         logger.error(
-            "❌ OPENROUTER_API_KEY w .env zawiera przykładową wartość - ustaw prawdziwy klucz!"
+            "❌ OPENROUTER_API_KEY zawiera przykładową/testową wartość - ustaw prawdziwy klucz API!"
         )
         return False
 
